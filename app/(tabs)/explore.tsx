@@ -14,6 +14,7 @@ const BEIGE_BG = '#EDE6D6';
 export default function DecksScreen() {
   const router = useRouter();
   const [liked, setLiked] = useState(false);
+  const [cardLikes, setCardLikes] = useState<{ [key: string]: boolean }>({ aviation: false, airport: false });
 
   return (
     <ScrollView style={{ backgroundColor: BG }} contentContainerStyle={styles.container}>
@@ -46,13 +47,41 @@ export default function DecksScreen() {
         <Pressable style={[styles.card, { backgroundColor: GREEN_BG }]} onPress={() => router.push({ pathname: '/deck/[slug]', params: { slug: 'aviation', title: 'Aviation', count: '40' } })}>
           <View style={styles.cardContent}>
             <MaterialIcons name="flight-takeoff" size={48} color={TEXT} style={{ alignSelf: 'flex-start' }} />
-            <Text style={styles.deckLabel}>Aviation</Text>
+          </View>
+          <View style={styles.cardFooter}>
+            <View style={styles.cardFooterLeft}>
+              <Text style={styles.deckLabel}>Aviation</Text>
+              <View style={styles.cardCountRow}>
+                <MaterialIcons name="style" size={18} color={TEXT} />
+              <Text style={styles.cardCountText}>40</Text>
+              </View>
+            </View>
+            <Pressable
+              style={styles.cardLikeBtn}
+              onPress={() => setCardLikes((p) => ({ ...p, aviation: !p.aviation }))}
+            >
+              <MaterialIcons name={cardLikes.aviation ? 'favorite' : 'favorite-border'} size={18} color={ACCENT} />
+            </Pressable>
           </View>
         </Pressable>
         <Pressable style={[styles.card, { backgroundColor: BEIGE_BG }]} onPress={() => router.push({ pathname: '/deck/[slug]', params: { slug: 'airport', title: 'At the airport', count: '46' } })}>
           <View style={styles.cardContent}>
             <MaterialIcons name="flight" size={48} color={TEXT} style={{ alignSelf: 'flex-start' }} />
-            <Text style={styles.deckLabel}>At the airport</Text>
+          </View>
+          <View style={styles.cardFooter}>
+            <View style={styles.cardFooterLeft}>
+              <Text style={styles.deckLabel}>At the airport</Text>
+              <View style={styles.cardCountRow}>
+                <MaterialIcons name="style" size={18} color={TEXT} />
+              <Text style={styles.cardCountText}>46</Text>
+              </View>
+            </View>
+            <Pressable
+              style={styles.cardLikeBtn}
+              onPress={() => setCardLikes((p) => ({ ...p, airport: !p.airport }))}
+            >
+              <MaterialIcons name={cardLikes.airport ? 'favorite' : 'favorite-border'} size={18} color={ACCENT} />
+            </Pressable>
           </View>
         </Pressable>
       </View>
@@ -140,14 +169,56 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 12,
     marginBottom: 12,
+    position: 'relative',
   },
   cardContent: {
     flex: 1,
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
   },
   deckLabel: {
     color: TEXT,
     fontWeight: '700',
     textAlign: 'left',
+    fontSize: 16,
+  },
+  cardFooter: {
+    position: 'absolute',
+    left: 12,
+    right: 12,
+    bottom: 12,
+    alignItems: 'flex-start',
+  },
+  cardFooter: {
+    position: 'absolute',
+    left: 12,
+    right: 12,
+    bottom: 12,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+  },
+  cardFooterLeft: {
+    alignItems: 'flex-start',
+  },
+  cardCountRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 6,
+  },
+  cardCountText: {
+    color: TEXT,
+    fontWeight: '700',
+    fontSize: 14,
+  },
+  cardLikeBtn: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: TEXT,
+    borderWidth: 2,
+    borderColor: TEXT,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
