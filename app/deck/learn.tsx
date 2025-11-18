@@ -1,7 +1,6 @@
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import { ScrollView } from "react-native";
+import { Pressable, StyleSheet, Text, View, ScrollView } from "react-native";
 import { PanGestureHandler } from "react-native-gesture-handler";
 import Animated, {
   useAnimatedStyle,
@@ -92,7 +91,7 @@ export default function LearnScreen() {
   }
 
   return (
-    <ScrollView style={{ backgroundColor: PAGE_BG }} contentContainerStyle={styles.page}>
+      <ScrollView style={{ backgroundColor: PAGE_BG }} contentContainerStyle={styles.page}>
       <View style={styles.headerRow}>
         <View style={{ flex: 1 }}>
           <Text style={styles.goalLabel}>Today's goal</Text>
@@ -174,7 +173,7 @@ export default function LearnScreen() {
           <Text style={styles.assessText}>Know, and easy</Text>
         </Pressable>
       </View>
-    </ScrollView>
+      </ScrollView>
   );
 }
 
@@ -190,6 +189,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    paddingTop: 8,
     marginBottom: 8,
   },
   goalLabel: {
