@@ -8,7 +8,7 @@ const TEXT = '#000000';
 const PAGE_BG = '#D9D4F6';
 
 export default function DeckScreen() {
-  const { title, count } = useLocalSearchParams<{ title?: string; count?: string }>();
+  const { title, count, slug } = useLocalSearchParams<{ title?: string; count?: string; slug?: string }>();
   const router = useRouter();
 
   return (
@@ -53,7 +53,7 @@ export default function DeckScreen() {
         <Text style={styles.sectionTitle}>Words ({count ?? '0'})</Text>
       </ScrollView>
 
-      <Pressable style={styles.floatingLearnBar}>
+      <Pressable style={styles.floatingLearnBar} onPress={() => router.push({ pathname: '/deck/learn', params: { slug: slug ?? '', title: title ?? 'Deck', count: count ?? '0' } })}>
         <MaterialIcons name="play-arrow" size={28} color={ACCENT} />
         <Text style={styles.learnText}>Learn</Text>
       </Pressable>
