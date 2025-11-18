@@ -1,98 +1,269 @@
 import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { ScrollView, View, Text, Pressable, StyleSheet } from 'react-native';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+const ACCENT = '#F1FF00';
+const BG = '#FFFFFF';
+const TEXT = '#000000';
+const CARD_BG = '#EDE6D6';
+const PURPLE_BG = '#D9D4F6';
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const progress = 11 / 50;
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  return (
+    <ScrollView style={{ backgroundColor: BG }} contentContainerStyle={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.logo}>MALEE</Text>
+        <MaterialIcons name="settings" size={24} color={TEXT} />
+      </View>
+
+      <View style={styles.hero}>
+        <View style={styles.bubble}>
+          <Text style={styles.bubbleText}>Wow, 1 day in a row</Text>
+        </View>
+        <Image source={require('@/assets/images/react-logo.png')} style={styles.heroImage} />
+      </View>
+
+      <View style={styles.goalRow}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.goalLabel}>Today's goal</Text>
+          <View style={styles.goalCountRow}>
+            <MaterialIcons name="style" size={20} color={TEXT} />
+            <Text style={styles.goalCount}>11 / 50</Text>
+          </View>
+        </View>
+        <Pressable style={styles.goButton}>
+          <MaterialIcons name="play-arrow" size={18} color={TEXT} />
+          <Text style={styles.goButtonText}>Let's go!</Text>
+        </Pressable>
+      </View>
+
+      <View style={styles.progressTrack}>
+        <View style={[styles.progressFill, { width: `${Math.round(progress * 100)}%` }]} />
+      </View>
+
+      <Text style={styles.featuredTitle}>Featured Decks</Text>
+      <View style={styles.featuredGrid}>
+        <View style={styles.featuredCardPurple}>
+          <View style={styles.cardContent}>
+            <MaterialIcons name="flight" size={48} color={TEXT} style={{ alignSelf: 'flex-start' }} />
+            <Text style={styles.deckLabel}>At the airport</Text>
+          </View>
+        </View>
+        <View style={styles.featuredCardGray}>
+          <View style={styles.cardContent}>
+            <MaterialIcons name="work" size={48} color={TEXT} style={{ alignSelf: 'flex-start' }} />
+            <Text style={styles.deckLabel}>Job interview</Text>
+          </View>
+        </View>
+        <View style={styles.featuredCardPurple}>
+          <View style={styles.cardContent}>
+            <MaterialIcons name="restaurant" size={48} color={TEXT} style={{ alignSelf: 'flex-start' }} />
+            <Text style={styles.deckLabel}>Restaurant ordering</Text>
+          </View>
+        </View>
+        <View style={styles.featuredCardGray}>
+          <View style={styles.cardContent}>
+            <MaterialIcons name="checkroom" size={48} color={TEXT} style={{ alignSelf: 'flex-start' }} />
+            <Text style={styles.deckLabel}>Clothing</Text>
+          </View>
+        </View>
+        <View style={styles.featuredCardPurple}>
+          <View style={styles.cardContent}>
+            <MaterialIcons name="flight-takeoff" size={48} color={TEXT} style={{ alignSelf: 'flex-start' }} />
+            <Text style={styles.deckLabel}>Aviation</Text>
+          </View>
+        </View>
+      </View>
+
+      <View style={styles.bottomSheet}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 }}>
+          <MaterialIcons name="list-alt" size={20} color={TEXT} />
+          <Text style={styles.sheetTitle}>Interview preparation</Text>
+        </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <MaterialIcons name="style" size={18} color={TEXT} />
+            <Text style={styles.sheetCount}>28</Text>
+          </View>
+          <Pressable style={styles.sheetPlay}>
+            <MaterialIcons name="play-arrow" size={20} color={TEXT} />
+          </Pressable>
+          <MaterialIcons name="close" size={20} color={TEXT} />
+        </View>
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    paddingHorizontal: 16,
+    paddingBottom: 32,
+    marginTop: 48,
+  },
+  header: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'space-between',
+    paddingTop: 8,
+    marginBottom: 12,
   },
-  stepContainer: {
-    gap: 8,
+  logo: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: TEXT,
+  },
+  hero: {
+    backgroundColor: CARD_BG,
+    borderRadius: 16,
+    padding: 16,
+    minHeight: 280,
+    overflow: 'hidden',
+    marginBottom: 16,
+  },
+  bubble: {
+    backgroundColor: ACCENT,
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    alignSelf: 'flex-start',
+    borderWidth: 2,
+    borderColor: TEXT,
+    shadowColor: TEXT,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 0,
+  },
+  bubbleText: {
+    color: TEXT,
+    fontWeight: '700',
+  },
+  heroImage: {
+    width: 200,
+    height: 200,
+    position: 'absolute',
+    right: 16,
+    bottom: 16,
+  },
+  goalRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: 8,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  goalLabel: {
+    fontSize: 18,
+    color: TEXT,
+    opacity: 0.8,
+  },
+  goalCountRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 4,
+  },
+  goalCount: {
+    fontSize: 18,
+    color: TEXT,
+    fontWeight: '700',
+  },
+  goButton: {
+    backgroundColor: ACCENT,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    borderWidth: 2,
+    borderColor: TEXT,
+  },
+  goButtonText: {
+    color: TEXT,
+    fontWeight: '700',
+  },
+  progressTrack: {
+    height: 12,
+    backgroundColor: TEXT,
+    borderRadius: 8,
+    overflow: 'hidden',
+    marginBottom: 16,
+    borderWidth: 2,
+    borderColor: TEXT,
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: ACCENT,
+  },
+  featuredTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: TEXT,
+  },
+  featuredGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginTop: 12,
+  },
+  featuredCardPurple: {
+    width: '48%',
+    height: 160,
+    borderRadius: 16,
+    backgroundColor: PURPLE_BG,
+    alignItems: 'stretch',
+    justifyContent: 'space-between',
+    padding: 12,
+    marginBottom: 12,
+  },
+  featuredCardGray: {
+    width: '48%',
+    height: 160,
+    borderRadius: 16,
+    backgroundColor: '#EFEFEF',
+    alignItems: 'stretch',
+    justifyContent: 'space-between',
+    padding: 12,
+    marginBottom: 12,
+  },
+  cardContent: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  deckLabel: {
+    color: TEXT,
+    fontWeight: '700',
+    textAlign: 'right',
+  },
+  bottomSheet: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#F5F5F5',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    marginTop: 16,
+  },
+  sheetTitle: {
+    color: TEXT,
+    fontWeight: '600',
+  },
+  sheetCount: {
+    color: TEXT,
+    fontWeight: '700',
+  },
+  sheetPlay: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: ACCENT,
+    borderWidth: 2,
+    borderColor: TEXT,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
