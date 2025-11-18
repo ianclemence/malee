@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
     height: 280,
   },
   titleText: {
-    fontSize: 32,
+    fontSize: 30,
     fontWeight: '800',
     color: TEXT,
     marginBottom: 12,
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   statValue: {
-    fontSize: 32,
+    fontSize: 30,
     fontWeight: '700',
     color: TEXT,
   },
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   sectionTitle: {
-    fontSize: 32,
+    fontSize: 30,
     fontWeight: '800',
     color: TEXT,
     marginBottom: 12,

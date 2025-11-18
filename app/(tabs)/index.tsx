@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
     backgroundColor: ACCENT,
   },
   featuredTitle: {
-    fontSize: 20,
+    fontSize: 30,
     fontWeight: "800",
     color: TEXT,
   },
