@@ -1,18 +1,23 @@
-import { Image } from 'expo-image';
-import { ScrollView, View, Text, Pressable, StyleSheet } from 'react-native';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { Image } from "expo-image";
+import { useRouter } from "expo-router";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
-const ACCENT = '#F1FF00';
-const BG = '#FFFFFF';
-const TEXT = '#000000';
-const CARD_BG = '#EDE6D6';
-const PURPLE_BG = '#D9D4F6';
+const ACCENT = "#F1FF00";
+const BG = "#FFFFFF";
+const TEXT = "#000000";
+const CARD_BG = "#EDE6D6";
+const PURPLE_BG = "#D9D4F6";
 
 export default function HomeScreen() {
   const progress = 11 / 50;
+  const router = useRouter();
 
   return (
-    <ScrollView style={{ backgroundColor: BG }} contentContainerStyle={styles.container}>
+    <ScrollView
+      style={{ backgroundColor: BG }}
+      contentContainerStyle={styles.container}
+    >
       <View style={styles.header}>
         <Text style={styles.logo}>MALEE</Text>
         <MaterialIcons name="settings" size={24} color={TEXT} />
@@ -22,7 +27,10 @@ export default function HomeScreen() {
         <View style={styles.bubble}>
           <Text style={styles.bubbleText}>Wow, 1 day in a row</Text>
         </View>
-        <Image source={require('@/assets/images/react-logo.png')} style={styles.heroImage} />
+        <Image
+          source={require("@/assets/images/react-logo.png")}
+          style={styles.heroImage}
+        />
       </View>
 
       <View style={styles.goalRow}>
@@ -40,50 +48,135 @@ export default function HomeScreen() {
       </View>
 
       <View style={styles.progressTrack}>
-        <View style={[styles.progressFill, { width: `${Math.round(progress * 100)}%` }]} />
+        <View
+          style={[
+            styles.progressFill,
+            { width: `${Math.round(progress * 100)}%` },
+          ]}
+        />
       </View>
 
       <Text style={styles.featuredTitle}>Featured Decks</Text>
       <View style={styles.featuredGrid}>
-        <View style={styles.featuredCardPurple}>
+        <Pressable
+          style={styles.featuredCardPurple}
+          onPress={() =>
+            router.push({
+              pathname: "/deck/[slug]",
+              params: { slug: "airport", title: "At the airport", count: "46" },
+            })
+          }
+        >
           <View style={styles.cardContent}>
-            <MaterialIcons name="flight" size={48} color={TEXT} style={{ alignSelf: 'flex-start' }} />
+            <MaterialIcons
+              name="flight"
+              size={48}
+              color={TEXT}
+              style={{ alignSelf: "flex-start" }}
+            />
             <Text style={styles.deckLabel}>At the airport</Text>
           </View>
-        </View>
-        <View style={styles.featuredCardGray}>
+        </Pressable>
+        <Pressable
+          style={styles.featuredCardGray}
+          onPress={() =>
+            router.push({
+              pathname: "/deck/[slug]",
+              params: {
+                slug: "job-interview",
+                title: "Job interview",
+                count: "32",
+              },
+            })
+          }
+        >
           <View style={styles.cardContent}>
-            <MaterialIcons name="work" size={48} color={TEXT} style={{ alignSelf: 'flex-start' }} />
+            <MaterialIcons
+              name="work"
+              size={48}
+              color={TEXT}
+              style={{ alignSelf: "flex-start" }}
+            />
             <Text style={styles.deckLabel}>Job interview</Text>
           </View>
-        </View>
-        <View style={styles.featuredCardPurple}>
+        </Pressable>
+        <Pressable
+          style={styles.featuredCardPurple}
+          onPress={() =>
+            router.push({
+              pathname: "/deck/[slug]",
+              params: {
+                slug: "restaurant",
+                title: "Restaurant ordering",
+                count: "28",
+              },
+            })
+          }
+        >
           <View style={styles.cardContent}>
-            <MaterialIcons name="restaurant" size={48} color={TEXT} style={{ alignSelf: 'flex-start' }} />
+            <MaterialIcons
+              name="restaurant"
+              size={48}
+              color={TEXT}
+              style={{ alignSelf: "flex-start" }}
+            />
             <Text style={styles.deckLabel}>Restaurant ordering</Text>
           </View>
-        </View>
-        <View style={styles.featuredCardGray}>
+        </Pressable>
+        <Pressable
+          style={styles.featuredCardGray}
+          onPress={() =>
+            router.push({
+              pathname: "/deck/[slug]",
+              params: { slug: "clothing", title: "Clothing", count: "46" },
+            })
+          }
+        >
           <View style={styles.cardContent}>
-            <MaterialIcons name="checkroom" size={48} color={TEXT} style={{ alignSelf: 'flex-start' }} />
+            <MaterialIcons
+              name="checkroom"
+              size={48}
+              color={TEXT}
+              style={{ alignSelf: "flex-start" }}
+            />
             <Text style={styles.deckLabel}>Clothing</Text>
           </View>
-        </View>
-        <View style={styles.featuredCardPurple}>
+        </Pressable>
+        <Pressable
+          style={styles.featuredCardPurple}
+          onPress={() =>
+            router.push({
+              pathname: "/deck/[slug]",
+              params: { slug: "aviation", title: "Aviation", count: "40" },
+            })
+          }
+        >
           <View style={styles.cardContent}>
-            <MaterialIcons name="flight-takeoff" size={48} color={TEXT} style={{ alignSelf: 'flex-start' }} />
+            <MaterialIcons
+              name="flight-takeoff"
+              size={48}
+              color={TEXT}
+              style={{ alignSelf: "flex-start" }}
+            />
             <Text style={styles.deckLabel}>Aviation</Text>
           </View>
-        </View>
+        </Pressable>
       </View>
 
       <View style={styles.bottomSheet}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 }}>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 8,
+            flex: 1,
+          }}
+        >
           <MaterialIcons name="list-alt" size={20} color={TEXT} />
           <Text style={styles.sheetTitle}>Interview preparation</Text>
         </View>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
             <MaterialIcons name="style" size={18} color={TEXT} />
             <Text style={styles.sheetCount}>28</Text>
           </View>
@@ -104,15 +197,15 @@ const styles = StyleSheet.create({
     marginTop: 48,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingTop: 8,
     marginBottom: 12,
   },
   logo: {
     fontSize: 22,
-    fontWeight: '800',
+    fontWeight: "800",
     color: TEXT,
   },
   hero: {
@@ -120,7 +213,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     minHeight: 280,
-    overflow: 'hidden',
+    overflow: "hidden",
     marginBottom: 16,
   },
   bubble: {
@@ -128,7 +221,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
     borderWidth: 2,
     borderColor: TEXT,
     shadowColor: TEXT,
@@ -138,19 +231,19 @@ const styles = StyleSheet.create({
   },
   bubbleText: {
     color: TEXT,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   heroImage: {
     width: 200,
     height: 200,
-    position: 'absolute',
+    position: "absolute",
     right: 16,
     bottom: 16,
   },
   goalRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: 8,
   },
   goalLabel: {
@@ -159,89 +252,89 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   goalCountRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 6,
     marginTop: 4,
   },
   goalCount: {
     fontSize: 18,
     color: TEXT,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   goButton: {
     backgroundColor: ACCENT,
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 6,
     borderWidth: 2,
     borderColor: TEXT,
   },
   goButtonText: {
     color: TEXT,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   progressTrack: {
     height: 12,
     backgroundColor: TEXT,
     borderRadius: 8,
-    overflow: 'hidden',
+    overflow: "hidden",
     marginBottom: 16,
     borderWidth: 2,
     borderColor: TEXT,
   },
   progressFill: {
-    height: '100%',
+    height: "100%",
     backgroundColor: ACCENT,
   },
   featuredTitle: {
     fontSize: 20,
-    fontWeight: '800',
+    fontWeight: "800",
     color: TEXT,
   },
   featuredGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
     marginTop: 12,
   },
   featuredCardPurple: {
-    width: '48%',
+    width: "48%",
     height: 160,
     borderRadius: 16,
     backgroundColor: PURPLE_BG,
-    alignItems: 'stretch',
-    justifyContent: 'space-between',
+    alignItems: "stretch",
+    justifyContent: "space-between",
     padding: 12,
     marginBottom: 12,
   },
   featuredCardGray: {
-    width: '48%',
+    width: "48%",
     height: 160,
     borderRadius: 16,
-    backgroundColor: '#EFEFEF',
-    alignItems: 'stretch',
-    justifyContent: 'space-between',
+    backgroundColor: "#EFEFEF",
+    alignItems: "stretch",
+    justifyContent: "space-between",
     padding: 12,
     marginBottom: 12,
   },
   cardContent: {
     flex: 1,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
   },
   deckLabel: {
     color: TEXT,
-    fontWeight: '700',
-    textAlign: 'right',
+    fontWeight: "700",
+    textAlign: "right",
   },
   bottomSheet: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#F5F5F5',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "#F5F5F5",
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     paddingHorizontal: 16,
@@ -250,11 +343,11 @@ const styles = StyleSheet.create({
   },
   sheetTitle: {
     color: TEXT,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   sheetCount: {
     color: TEXT,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   sheetPlay: {
     width: 36,
@@ -263,7 +356,7 @@ const styles = StyleSheet.create({
     backgroundColor: ACCENT,
     borderWidth: 2,
     borderColor: TEXT,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
