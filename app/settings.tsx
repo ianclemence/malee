@@ -194,6 +194,7 @@ const styles = StyleSheet.create({
     backgroundColor: BG,
     borderRadius: 16,
     overflow: "hidden",
+    marginTop: 24,
   },
   listItem: {
     flexDirection: "row",
