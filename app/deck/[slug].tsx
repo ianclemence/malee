@@ -264,12 +264,12 @@ const styles = StyleSheet.create({
   wordEn: {
     color: TEXT,
     fontWeight: "700",
-    fontSize: 16,
+    fontSize: 18,
   },
   wordTh: {
     color: TEXT,
     opacity: 0.8,
-    fontSize: 14,
+    fontSize: 16,
     marginTop: 4,
   },
   floatingLearnBar: {
