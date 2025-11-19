@@ -91,9 +91,20 @@ export default function LearnScreen() {
       </View>
 
       <View style={styles.cardArea}>
-        {index < cards.length - 1 && (
+        {index + 2 < cards.length && (
+          <Animated.View style={[styles.card, styles.thirdCard]}>
+            <View style={styles.cardFace}
+            >
+              <Text style={styles.cardText}>{cards[index + 2].front}</Text>
+            </View>
+          </Animated.View>
+        )}
+        {index + 1 < cards.length && (
           <Animated.View style={[styles.card, styles.nextCard, nextCardStyle]}>
-            <Text style={styles.cardText}>{cards[index + 1].front}</Text>
+            <View style={styles.cardFace}
+            >
+              <Text style={styles.cardText}>{cards[index + 1].front}</Text>
+            </View>
           </Animated.View>
         )}
         <Animated.View style={[styles.card, topCardStyle]}>
@@ -105,20 +116,20 @@ export default function LearnScreen() {
               flip.value = withTiming(next);
             }}
           >
-            <View style={styles.cardFace}>
-              <Text style={styles.cardText}>
-                {flipped ? cards[index].back : cards[index].front}
-              </Text>
-              {!flipped && (
-                <View style={styles.tapHintRow}>
-                  <Text style={styles.tapHint}>Tap to flip</Text>
-                </View>
-              )}
-              {flipped ? (
-                <View style={styles.speakerRow}>
-                  <MaterialIcons name="volume-up" size={24} color={TEXT} />
-                </View>
-              ) : null}
+            <View style={[styles.cardFace, styles.cardFaceFront]}>
+              <Text style={styles.cardText}>{cards[index].front}</Text>
+              <View style={styles.speakerRowFront}>
+                <MaterialIcons name="volume-up" size={24} color={TEXT} />
+              </View>
+              <View style={styles.tapHintRow}>
+                <Text style={styles.tapHint}>Tap to flip</Text>
+              </View>
+            </View>
+            <View style={[styles.cardFace, styles.cardFaceBack]}>
+              <Text style={styles.cardText}>{cards[index].back}</Text>
+              <View style={styles.tapHintRow}>
+                <Text style={styles.tapHint}>Tap to flip</Text>
+              </View>
             </View>
           </Pressable>
         </Animated.View>
@@ -231,12 +242,34 @@ const styles = StyleSheet.create({
   },
   nextCard: {
     top: 20,
+    transform: [{ scale: 0.96 }],
+  },
+  thirdCard: {
+    top: 40,
+    transform: [{ scale: 0.92 }],
   },
   cardFace: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 24,
+  },
+  cardFaceFront: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backfaceVisibility: "hidden",
+  },
+  cardFaceBack: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backfaceVisibility: "hidden",
+    transform: [{ rotateY: "180deg" }],
   },
   cardText: {
     fontSize: 22,
@@ -252,9 +285,9 @@ const styles = StyleSheet.create({
     color: TEXT,
     opacity: 0.5,
   },
-  speakerRow: {
+  speakerRowFront: {
     position: "absolute",
-    bottom: 24,
+    bottom: 40,
     alignSelf: "center",
   },
   assessRow: {
