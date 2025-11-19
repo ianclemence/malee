@@ -66,7 +66,7 @@ export default function HomeScreen() {
         />
       </View>
 
-      <Text style={styles.featuredTitle}>Featured Decks</Text>
+      <Text style={styles.featuredTitle}>Picked by Malee</Text>
       <View style={styles.featuredGrid}>
         <Pressable
           style={styles.featuredCardPurple}
