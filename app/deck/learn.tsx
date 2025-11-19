@@ -14,6 +14,7 @@ import {
   getDeckProgressStats,
   incTodayInteractions,
   setCurrentDeck,
+  getTodayInteractions,
 } from "@/lib/storage";
 
 const ACCENT = "#F1FF00";
@@ -38,6 +39,7 @@ export default function LearnScreen() {
   const flip = useSharedValue(0);
   const scaleNext = useSharedValue(0.96);
   const [progress, setProgress] = useState(0);
+  const [todayCount, setTodayCount] = useState(0);
 
   const topCardStyle = useAnimatedStyle(() => ({
     transform: [
@@ -65,6 +67,8 @@ export default function LearnScreen() {
       const stats = await getDeckProgressStats(String(slug), cards.length);
       setProgress(stats.progress);
       await setCurrentDeck({ slug: String(slug), title: deck?.title || String(title || 'Deck'), count: cards.length, progress: stats.progress });
+      const today = await getTodayInteractions();
+      setTodayCount(today);
     })();
   }, [slug, cards.length]);
 
@@ -77,9 +81,10 @@ export default function LearnScreen() {
 
   async function onAssess(status: 'unknown' | 'difficult' | 'known') {
     await setDeckWordStatus(String(slug), index, status);
-    await incTodayInteractions(1);
+    const today = await incTodayInteractions(1);
     const stats = await getDeckProgressStats(String(slug), cards.length);
     setProgress(stats.progress);
+    setTodayCount(today);
     await setCurrentDeck({ slug: String(slug), title: deck?.title || String(title || 'Deck'), count: cards.length, progress: stats.progress });
     goNext();
   }
@@ -93,7 +98,7 @@ export default function LearnScreen() {
           <Text style={styles.goalLabel}>Today's goal</Text>
           <View style={styles.goalCountRow}>
             <MaterialIcons name="style" size={20} color={TEXT} />
-            <Text style={styles.goalCount}>13 / 50</Text>
+            <Text style={styles.goalCount}>{todayCount} / 50</Text>
           </View>
         </View>
         <Pressable style={styles.pauseBtn} onPress={() => {
@@ -106,7 +111,7 @@ export default function LearnScreen() {
       </View>
 
       <View style={styles.progressTrack}>
-        <View style={[styles.progressFill, { width: `${Math.round(progress * 100)}%` }]} />
+        <View style={[styles.progressFill, { width: `${Math.min(100, Math.round((todayCount / 50) * 100))}%` }]} />
       </View>
 
       <View style={styles.cardArea}>
@@ -157,7 +162,6 @@ export default function LearnScreen() {
       <View style={styles.assessRow}>
         <Pressable
           style={styles.assessBtn}
-          disabled={!flipped}
           onPress={() => onAssess('unknown')}
         >
           <MaterialIcons name="thumb-down" size={22} color={TEXT} />
@@ -165,7 +169,6 @@ export default function LearnScreen() {
         </Pressable>
         <Pressable
           style={styles.assessBtn}
-          disabled={!flipped}
           onPress={() => onAssess('difficult')}
         >
           <MaterialIcons name="thumbs-up-down" size={22} color={TEXT} />
@@ -173,7 +176,6 @@ export default function LearnScreen() {
         </Pressable>
         <Pressable
           style={styles.assessBtn}
-          disabled={!flipped}
           onPress={() => onAssess('known')}
         >
           <MaterialIcons name="thumb-up" size={22} color={TEXT} />
