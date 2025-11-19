@@ -99,7 +99,6 @@ const styles = StyleSheet.create({
     backgroundColor: BG,
   },
   container: {
-    paddingHorizontal: 16,
     paddingBottom: 24,
     marginTop: 48,
   },
@@ -107,7 +106,7 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
     borderRadius: 0,
     paddingVertical: 16,
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
     marginBottom: 16,
     position: "relative",
   },
@@ -197,7 +196,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
     paddingVertical: 16,
   },
   listLabel: {
@@ -208,10 +207,10 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: TEXT,
     opacity: 0.1,
-    marginHorizontal: 12,
+    marginHorizontal: 16,
   },
   logoutBtn: {
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
     paddingVertical: 20,
   },
   logoutText: {
