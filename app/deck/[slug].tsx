@@ -4,6 +4,7 @@ import {
   getMyDecks,
   setFavorite,
   setMyDeck,
+  getDeckProgressStats,
 } from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Image } from "expo-image";
@@ -29,6 +30,7 @@ export default function DeckScreen() {
   const wordCount = deck ? deck.words.length : Number(count ?? "0");
   const isFav = !!favorites[String(slug)];
   const isMine = !!myDecks[String(slug)];
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     (async () => {
@@ -36,6 +38,8 @@ export default function DeckScreen() {
       const mine = await getMyDecks();
       setFavorites(fav);
       setMyDecksState(mine);
+      const stats = await getDeckProgressStats(String(slug), wordCount);
+      setProgress(stats.progress);
     })();
   }, []);
 
@@ -92,7 +96,7 @@ export default function DeckScreen() {
 
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>0%</Text>
+            <Text style={styles.statValue}>{String(Math.round(progress * 100))}%</Text>
             <Text style={styles.statLabel}>Deck learned</Text>
           </View>
           <View style={styles.statItem}>

@@ -2,6 +2,9 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useEffect, useMemo, useState } from "react";
+import { getDeckBySlug } from "@/data/decks";
+import { getDeckProgressStats } from "@/lib/storage";
 
 const ACCENT = "#F1FF00";
 const ACCENT_DIM = "rgba(241,255,0,0.4)";
@@ -16,11 +19,18 @@ export default function DeckProgressScreen() {
     progress?: string;
   }>();
   const router = useRouter();
-
-  const total = Number(count ?? "0");
-  const prog = Number(progress ?? "0");
-  const known = Math.max(0, Math.min(total, Math.round(prog * total)));
-  const ringProg = Math.min(0.6, isNaN(prog) ? 0.6 : Math.max(0, prog));
+  const deck = useMemo(() => getDeckBySlug(String(slug)), [slug]);
+  const total = deck ? deck.words.length : Number(count ?? "0");
+  const [known, setKnown] = useState(0);
+  const [prog, setProg] = useState(0);
+  useEffect(() => {
+    (async () => {
+      const stats = await getDeckProgressStats(String(slug), total);
+      setKnown(stats.known);
+      setProg(stats.progress);
+    })();
+  }, [slug, total]);
+  const ringProg = 0.6;
   const ringColors = {
     borderTopColor: ACCENT,
     borderRightColor: ringProg >= 0.3 ? ACCENT : 'transparent',
@@ -47,7 +57,7 @@ export default function DeckProgressScreen() {
           </View>
         </View>
 
-        <Text style={styles.titleText}>{title ?? "Deck"}</Text>
+        <Text style={styles.titleText}>{deck?.title ?? title ?? "Deck"}</Text>
 
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
@@ -55,7 +65,7 @@ export default function DeckProgressScreen() {
             <Text style={styles.statLabel}>Known words</Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{count ?? "0"}</Text>
+            <Text style={styles.statValue}>{String(total)}</Text>
             <Text style={styles.statLabel}>Words in deck</Text>
           </View>
         </View>

@@ -1,5 +1,5 @@
 import { DEFAULT_DECKS } from "@/data/decks";
-import { getFavorites, setFavorite } from "@/lib/storage";
+import { getFavorites, setFavorite, getTodayInteractions, getCurrentDeck } from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Image } from "expo-image";
 import { useRouter, useFocusEffect } from "expo-router";
@@ -13,7 +13,7 @@ const CARD_BG = "#EDE6D6";
 const PURPLE_BG = "#D9D4F6";
 
 export default function HomeScreen() {
-  const progress = 11 / 50;
+  const [todayCount, setTodayCount] = useState(0);
   const router = useRouter();
   const [favorites, setFavorites] = useState<{ [key: string]: boolean }>({});
 
@@ -21,6 +21,8 @@ export default function HomeScreen() {
     (async () => {
       const fav = await getFavorites();
       setFavorites(fav);
+      const t = await getTodayInteractions();
+      setTodayCount(t);
     })();
   }, []);
 
@@ -29,7 +31,11 @@ export default function HomeScreen() {
       let mounted = true;
       (async () => {
         const fav = await getFavorites();
-        if (mounted) setFavorites(fav);
+        const t = await getTodayInteractions();
+        if (mounted) {
+          setFavorites(fav);
+          setTodayCount(t);
+        }
       })();
       return () => {
         mounted = false;
@@ -70,10 +76,17 @@ export default function HomeScreen() {
           <Text style={styles.goalLabel}>Today's goal</Text>
           <View style={styles.goalCountRow}>
             <MaterialIcons name="style" size={20} color={TEXT} />
-            <Text style={styles.goalCount}>11 / 50</Text>
+            <Text style={styles.goalCount}>{todayCount} / 50</Text>
           </View>
         </View>
-        <Pressable style={styles.goButton}>
+        <Pressable style={styles.goButton} onPress={async () => {
+          const current = await getCurrentDeck();
+          if (current) {
+            router.push({ pathname: '/deck/progress', params: { slug: current.slug, title: current.title, count: String(current.count), progress: String(current.progress) } });
+          } else {
+            router.push('/deck/progress');
+          }
+        }}>
           <MaterialIcons name="play-arrow" size={18} color={TEXT} />
           <Text style={styles.goButtonText}>Let's go!</Text>
         </Pressable>
@@ -83,7 +96,7 @@ export default function HomeScreen() {
         <View
           style={[
             styles.progressFill,
-            { width: `${Math.round(progress * 100)}%` },
+            { width: `${Math.min(100, Math.round((todayCount / 50) * 100))}%` },
           ]}
         />
       </View>

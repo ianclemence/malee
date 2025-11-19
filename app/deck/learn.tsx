@@ -2,12 +2,19 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useBottomSheet } from "@/hooks/bottom-sheet-store";
 import { Pressable, StyleSheet, Text, View, ScrollView } from "react-native";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+import { getDeckBySlug } from "@/data/decks";
+import {
+  setDeckWordStatus,
+  getDeckProgressStats,
+  incTodayInteractions,
+  setCurrentDeck,
+} from "@/lib/storage";
 
 const ACCENT = "#F1FF00";
 const TEXT = "#000000";
@@ -23,25 +30,14 @@ export default function LearnScreen() {
   }>();
   const router = useRouter();
   const bottomSheet = useBottomSheet();
-  const cards: CardData[] = [
-    {
-      front: "In my opinion, based on my experience…",
-      back: "На мой взгляд, исходя из моего опыта…",
-    },
-    {
-      front: "Could you clarify what you mean?",
-      back: "Не могли бы вы уточнить, что вы имеете в виду?",
-    },
-    {
-      front: "I am always seeking opportunities to learn and grow.",
-      back: "Я всегда ищу возможности учиться и расти.",
-    },
-  ];
+  const deck = useMemo(() => getDeckBySlug(String(slug)), [slug]);
+  const cards: CardData[] = (deck?.words || []).map((w) => ({ front: w.en, back: w.th }));
 
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const flip = useSharedValue(0);
   const scaleNext = useSharedValue(0.96);
+  const [progress, setProgress] = useState(0);
 
   const topCardStyle = useAnimatedStyle(() => ({
     transform: [
@@ -64,6 +60,14 @@ export default function LearnScreen() {
     opacity: flip.value,
   }));
 
+  useEffect(() => {
+    (async () => {
+      const stats = await getDeckProgressStats(String(slug), cards.length);
+      setProgress(stats.progress);
+      await setCurrentDeck({ slug: String(slug), title: deck?.title || String(title || 'Deck'), count: cards.length, progress: stats.progress });
+    })();
+  }, [slug, cards.length]);
+
   function goNext() {
     flip.value = 0;
     setFlipped(false);
@@ -71,7 +75,12 @@ export default function LearnScreen() {
     setIndex((prev) => Math.min(prev + 1, cards.length - 1));
   }
 
-  function onAssess() {
+  async function onAssess(status: 'unknown' | 'difficult' | 'known') {
+    await setDeckWordStatus(String(slug), index, status);
+    await incTodayInteractions(1);
+    const stats = await getDeckProgressStats(String(slug), cards.length);
+    setProgress(stats.progress);
+    await setCurrentDeck({ slug: String(slug), title: deck?.title || String(title || 'Deck'), count: cards.length, progress: stats.progress });
     goNext();
   }
 
@@ -97,7 +106,7 @@ export default function LearnScreen() {
       </View>
 
       <View style={styles.progressTrack}>
-        <View style={[styles.progressFill, { width: "26%" }]} />
+        <View style={[styles.progressFill, { width: `${Math.round(progress * 100)}%` }]} />
       </View>
 
       <View style={styles.cardArea}>
@@ -149,7 +158,7 @@ export default function LearnScreen() {
         <Pressable
           style={styles.assessBtn}
           disabled={!flipped}
-          onPress={onAssess}
+          onPress={() => onAssess('unknown')}
         >
           <MaterialIcons name="thumb-down" size={22} color={TEXT} />
           <Text style={styles.assessText}>Don't know</Text>
@@ -157,7 +166,7 @@ export default function LearnScreen() {
         <Pressable
           style={styles.assessBtn}
           disabled={!flipped}
-          onPress={onAssess}
+          onPress={() => onAssess('difficult')}
         >
           <MaterialIcons name="thumbs-up-down" size={22} color={TEXT} />
           <Text style={styles.assessText}>Know, but difficult</Text>
@@ -165,7 +174,7 @@ export default function LearnScreen() {
         <Pressable
           style={styles.assessBtn}
           disabled={!flipped}
-          onPress={onAssess}
+          onPress={() => onAssess('known')}
         >
           <MaterialIcons name="thumb-up" size={22} color={TEXT} />
           <Text style={styles.assessText}>Know, and easy</Text>
