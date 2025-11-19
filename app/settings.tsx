@@ -217,5 +217,6 @@ const styles = StyleSheet.create({
   logoutText: {
     color: ALERT,
     fontWeight: "700",
+    fontSize: 18,
   },
 });
