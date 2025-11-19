@@ -52,7 +52,7 @@ export default function DeckProgressScreen() {
           </View>
         </View>
 
-        {/* removed divider and extra title per request */}
+        
       </ScrollView>
 
       <Pressable
@@ -102,6 +102,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginBottom: 12,
     position: "relative",
+    minHeight: 340,
   },
   illustration: {
     width: 280,
@@ -127,6 +128,7 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: TEXT,
     marginBottom: 12,
+    marginTop: 24,
     textAlign: "center",
   },
   actionsRow: {
@@ -141,7 +143,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 48,
-    marginTop: 8,
+    marginTop: 16,
     marginBottom: 12,
   },
   statItem: {
