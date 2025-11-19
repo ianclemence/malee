@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 const ACCENT = "#F1FF00";
+const ACCENT_DIM = "rgba(241,255,0,0.4)";
 const TEXT = "#000000";
 const PAGE_BG = "#EFEFEF";
 
@@ -19,6 +20,13 @@ export default function DeckProgressScreen() {
   const total = Number(count ?? "0");
   const prog = Number(progress ?? "0");
   const known = Math.max(0, Math.min(total, Math.round(prog * total)));
+  const ringProg = Math.min(0.6, isNaN(prog) ? 0.6 : Math.max(0, prog));
+  const ringColors = {
+    borderTopColor: ACCENT,
+    borderRightColor: ringProg >= 0.3 ? ACCENT : 'transparent',
+    borderBottomColor: 'transparent',
+    borderLeftColor: 'transparent',
+  } as const;
 
   return (
     <View style={styles.page}>
@@ -69,7 +77,7 @@ export default function DeckProgressScreen() {
         }
       >
         <View style={styles.btnSide}>
-          <View style={styles.playProgress}>
+          <View style={[styles.playProgress, ringColors]}>
             <MaterialIcons name="play-arrow" size={20} color={ACCENT} />
           </View>
         </View>
@@ -212,7 +220,6 @@ const styles = StyleSheet.create({
     height: 32,
     borderRadius: 16,
     borderWidth: 3,
-    borderColor: ACCENT,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#000000",
