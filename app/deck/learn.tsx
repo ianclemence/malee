@@ -1,8 +1,8 @@
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 import { useBottomSheet } from "@/hooks/bottom-sheet-store";
 import { Pressable, StyleSheet, Text, View, ScrollView } from "react-native";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -40,6 +40,7 @@ export default function LearnScreen() {
   const scaleNext = useSharedValue(0.96);
   const [progress, setProgress] = useState(0);
   const [todayCount, setTodayCount] = useState(0);
+  const [started, setStarted] = useState(false);
 
   const topCardStyle = useAnimatedStyle(() => ({
     transform: [
@@ -72,6 +73,16 @@ export default function LearnScreen() {
     })();
   }, [slug, cards.length]);
 
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        if (started) {
+          bottomSheet.show({ slug: String(slug), title: deck?.title || String(title || 'Deck'), count: String(cards.length) }, progress);
+        }
+      };
+    }, [started, slug, deck?.title, cards.length, progress])
+  );
+
   function goNext() {
     flip.value = 0;
     setFlipped(false);
@@ -102,11 +113,17 @@ export default function LearnScreen() {
           </View>
         </View>
         <Pressable style={styles.pauseBtn} onPress={() => {
-          bottomSheet.show({ slug: (slug as string) || '', title: (title as string) || 'Deck', count: (count as string) || '0' });
-          router.back();
+          if (!started) {
+            setStarted(true);
+            bottomSheet.hide();
+            setCurrentDeck({ slug: String(slug), title: deck?.title || String(title || 'Deck'), count: cards.length, progress });
+          } else {
+            bottomSheet.show({ slug: String(slug), title: deck?.title || String(title || 'Deck'), count: String(cards.length) }, progress);
+            router.back();
+          }
         }}>
-          <MaterialIcons name="pause" size={18} color={TEXT} />
-          <Text style={styles.pauseText}>Pause</Text>
+          <MaterialIcons name={started ? "pause" : "play-arrow"} size={18} color={TEXT} />
+          <Text style={styles.pauseText}>{started ? "Pause" : "Start"}</Text>
         </Pressable>
       </View>
 
@@ -161,21 +178,24 @@ export default function LearnScreen() {
 
       <View style={styles.assessRow}>
         <Pressable
-          style={styles.assessBtn}
+          style={[styles.assessBtn, !started && { opacity: 0.5 }]}
+          disabled={!started}
           onPress={() => onAssess('unknown')}
         >
           <MaterialIcons name="thumb-down" size={22} color={TEXT} />
           <Text style={styles.assessText}>Don't know</Text>
         </Pressable>
         <Pressable
-          style={styles.assessBtn}
+          style={[styles.assessBtn, !started && { opacity: 0.5 }]}
+          disabled={!started}
           onPress={() => onAssess('difficult')}
         >
           <MaterialIcons name="thumbs-up-down" size={22} color={TEXT} />
           <Text style={styles.assessText}>Know, but difficult</Text>
         </Pressable>
         <Pressable
-          style={styles.assessBtn}
+          style={[styles.assessBtn, !started && { opacity: 0.5 }]}
+          disabled={!started}
           onPress={() => onAssess('known')}
         >
           <MaterialIcons name="thumb-up" size={22} color={TEXT} />

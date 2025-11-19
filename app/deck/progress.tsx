@@ -1,7 +1,8 @@
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Image } from "expo-image";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useCallback } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { getDeckBySlug } from "@/data/decks";
 import { getDeckProgressStats } from "@/lib/storage";
@@ -30,6 +31,22 @@ export default function DeckProgressScreen() {
       setProg(stats.progress);
     })();
   }, [slug, total]);
+
+  useFocusEffect(
+    useCallback(() => {
+      let mounted = true;
+      (async () => {
+        const stats = await getDeckProgressStats(String(slug), total);
+        if (mounted) {
+          setKnown(stats.known);
+          setProg(stats.progress);
+        }
+      })();
+      return () => {
+        mounted = false;
+      };
+    }, [slug, total])
+  );
   const ringProg = 0.6;
   const ringColors = {
     borderTopColor: ACCENT,
