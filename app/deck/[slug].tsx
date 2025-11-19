@@ -37,6 +37,8 @@ export default function DeckScreen() {
           </Pressable>
         </View>
 
+        <View style={styles.separator} />
+
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
             <Text style={styles.statValue}>0%</Text>
@@ -108,7 +110,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: 12,
-    marginBottom: 12,
+    marginBottom: 15,
   },
   outlineButton: {
     flexDirection: 'row',
