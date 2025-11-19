@@ -29,11 +29,13 @@ export default function SettingsScreen() {
           </Pressable>
 
           <View style={styles.avatarRow}>
-            <View style={styles.avatarHolder}>
-              <Image
-                source={require("@/assets/images/react-logo.png")}
-                style={styles.avatar}
-              />
+            <View style={styles.avatarWrap}>
+              <View style={styles.avatarHolder}>
+                <Image
+                  source={require("@/assets/images/react-logo.png")}
+                  style={styles.avatar}
+                />
+              </View>
               <View style={styles.cameraBadge}>
                 <MaterialIcons name="photo-camera" size={16} color={TEXT} />
               </View>
@@ -137,6 +139,10 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: TEXT,
     overflow: "hidden",
+  },
+  avatarWrap: {
+    width: 96,
+    height: 96,
     position: "relative",
   },
   avatar: {
@@ -145,8 +151,8 @@ const styles = StyleSheet.create({
   },
   cameraBadge: {
     position: "absolute",
-    right: -6,
-    bottom: -6,
+    right: -1,
+    bottom: 1,
     width: 32,
     height: 32,
     borderRadius: 16,
@@ -155,6 +161,7 @@ const styles = StyleSheet.create({
     borderColor: TEXT,
     alignItems: "center",
     justifyContent: "center",
+    zIndex: 10,
   },
   name: {
     fontSize: 28,
