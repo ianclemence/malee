@@ -191,9 +191,6 @@ const styles = StyleSheet.create({
     color: TEXT,
   },
   listSection: {
-    backgroundColor: BG,
-    borderRadius: 16,
-    overflow: "hidden",
     marginTop: 24,
   },
   listItem: {
