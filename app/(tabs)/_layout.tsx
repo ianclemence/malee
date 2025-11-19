@@ -74,7 +74,7 @@ export default function TabLayout() {
           name="explore"
           options={{
             title: 'Decks',
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+            tabBarIcon: ({ color }) => <IconSymbol size={28} name="rectangle.stack.fill" color={color} />,
           }}
         />
       </Tabs>
