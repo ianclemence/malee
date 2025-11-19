@@ -1,8 +1,9 @@
-import { Tabs } from 'expo-router';
+import { Tabs, useRouter } from 'expo-router';
 import { BottomTabBar } from '@react-navigation/bottom-tabs';
 import React from 'react';
-import { View } from 'react-native';
+import { View, Pressable } from 'react-native';
 import BottomPlayer from '@/components/bottom-player';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -11,6 +12,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const router = useRouter();
 
   return (
     <View style={{ flex: 1 }}>
@@ -20,7 +22,7 @@ export default function TabLayout() {
           tabBarInactiveTintColor: '#808080',
           headerShown: false,
           tabBarButton: HapticTab,
-          tabBarStyle: { backgroundColor: '#000000', borderTopWidth: 0, elevation: 0 },
+          tabBarStyle: { backgroundColor: '#000000', borderTopWidth: 0, elevation: 0, justifyContent: 'space-between' },
           sceneContainerStyle: { backgroundColor: 'transparent' },
           tabBarBackground: () => <View style={{ backgroundColor: '#000000' }} />,
         }}
@@ -36,6 +38,36 @@ export default function TabLayout() {
           options={{
             title: 'Home',
             tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          }}
+        />
+        <Tabs.Screen
+          name="add"
+          options={{
+            title: '',
+            tabBarLabel: () => null,
+            tabBarButton: (props) => (
+              <Pressable
+                {...props}
+                onPress={() => router.push('/add')}
+                style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
+              >
+                <View
+                  style={{
+                    width: 56,
+                    height: 56,
+                    borderRadius: 28,
+                    backgroundColor: '#F1FF00',
+                    borderWidth: 2,
+                    borderColor: '#000000',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginTop: -12,
+                  }}
+                >
+                  <MaterialIcons name="add" size={28} color="#000000" />
+                </View>
+              </Pressable>
+            ),
           }}
         />
         <Tabs.Screen
