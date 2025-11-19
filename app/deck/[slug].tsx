@@ -54,8 +54,13 @@ export default function DeckScreen() {
       </ScrollView>
 
       <Pressable style={styles.floatingLearnBar} onPress={() => router.push({ pathname: '/deck/learn', params: { slug: slug ?? '', title: title ?? 'Deck', count: count ?? '0' } })}>
-        <MaterialIcons name="play-arrow" size={28} color={ACCENT} />
+        <View style={styles.btnSide}>
+          <View style={styles.playProgress}>
+            <MaterialIcons name="play-arrow" size={20} color={ACCENT} />
+          </View>
+        </View>
         <Text style={styles.learnText}>Learn</Text>
+        <View style={styles.btnSide} />
       </Pressable>
     </View>
   );
@@ -162,7 +167,7 @@ const styles = StyleSheet.create({
     bottom: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     height: 56,
     backgroundColor: '#000000',
     borderRadius: 16,
@@ -171,10 +176,26 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
+    paddingHorizontal: 12,
   },
   learnText: {
     color: ACCENT,
     fontWeight: '700',
     fontSize: 22,
+    textAlign: 'center',
+    flex: 1,
+  },
+  btnSide: {
+    width: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  playProgress: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#000000',
   },
 });
