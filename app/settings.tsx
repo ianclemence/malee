@@ -120,8 +120,8 @@ const styles = StyleSheet.create({
   },
   closeBtn: {
     position: "absolute",
-    right: 16,
-    top: 16,
+    right: 8,
+    top: 8,
     width: 36,
     height: 36,
     alignItems: "center",
