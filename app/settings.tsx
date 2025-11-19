@@ -166,6 +166,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
     color: TEXT,
     opacity: 0.9,
+    fontSize: 18,
   },
   metricsRow: {
     flexDirection: "row",
@@ -177,17 +178,19 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   metricValue: {
-    fontSize: 26,
+    fontSize: 30,
     fontWeight: "700",
     color: TEXT,
   },
   metricLabel: {
     color: TEXT,
     opacity: 0.8,
+    fontSize: 18,
   },
   subscription: {
     marginTop: 16,
     color: TEXT,
+    fontSize: 18,
   },
   listSection: {
     marginTop: 24,
