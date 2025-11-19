@@ -1,5 +1,6 @@
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useBottomSheet } from "@/hooks/bottom-sheet-store";
 import { Pressable, StyleSheet, Text, View, ScrollView } from "react-native";
 import { PanGestureHandler } from "react-native-gesture-handler";
 import Animated, {
@@ -16,11 +17,13 @@ const PAGE_BG = "#EDE6D6";
 type CardData = { front: string; back: string };
 
 export default function LearnScreen() {
-  const { title, count } = useLocalSearchParams<{
+  const { title, count, slug } = useLocalSearchParams<{
     title?: string;
     count?: string;
+    slug?: string;
   }>();
   const router = useRouter();
+  const bottomSheet = useBottomSheet();
   const cards: CardData[] = [
     {
       front: "In my opinion, based on my experience…",
@@ -100,7 +103,10 @@ export default function LearnScreen() {
             <Text style={styles.goalCount}>13 / 50</Text>
           </View>
         </View>
-        <Pressable style={styles.pauseBtn} onPress={() => router.back()}>
+        <Pressable style={styles.pauseBtn} onPress={() => {
+          bottomSheet.show({ slug: (slug as string) || '', title: (title as string) || 'Deck', count: (count as string) || '0' });
+          router.back();
+        }}>
           <MaterialIcons name="pause" size={18} color={TEXT} />
           <Text style={styles.pauseText}>Pause</Text>
         </Pressable>

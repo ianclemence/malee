@@ -182,29 +182,7 @@ export default function HomeScreen() {
         </Pressable>
       </View>
 
-      <View style={styles.bottomSheet}>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            gap: 8,
-            flex: 1,
-          }}
-        >
-          <MaterialIcons name="list-alt" size={20} color={TEXT} />
-          <Text style={styles.sheetTitle}>Interview preparation</Text>
-        </View>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-            <MaterialIcons name="style" size={18} color={TEXT} />
-            <Text style={styles.sheetCount}>28</Text>
-          </View>
-          <Pressable style={styles.sheetPlay}>
-            <MaterialIcons name="play-arrow" size={20} color={TEXT} />
-          </Pressable>
-          <MaterialIcons name="close" size={20} color={TEXT} />
-        </View>
-      </View>
+      
     </ScrollView>
   );
 }
@@ -380,35 +358,6 @@ const styles = StyleSheet.create({
     height: 30,
     borderRadius: 15,
     backgroundColor: TEXT,
-    borderWidth: 2,
-    borderColor: TEXT,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  bottomSheet: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "#F5F5F5",
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    marginTop: 16,
-  },
-  sheetTitle: {
-    color: TEXT,
-    fontWeight: "600",
-  },
-  sheetCount: {
-    color: TEXT,
-    fontWeight: "700",
-  },
-  sheetPlay: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: ACCENT,
     borderWidth: 2,
     borderColor: TEXT,
     alignItems: "center",
