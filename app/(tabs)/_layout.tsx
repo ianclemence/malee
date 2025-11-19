@@ -41,14 +41,14 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="add"
+          name="add-word"
           options={{
             title: '',
             tabBarLabel: () => null,
             tabBarButton: (props) => (
               <Pressable
                 {...props}
-                onPress={() => router.push('/add')}
+                onPress={() => router.push('/add-word')}
                 style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
               >
                 <View
