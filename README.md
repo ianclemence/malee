@@ -1,50 +1,70 @@
-# Welcome to your Expo app 👋
+# Malee — Practical English Vocabulary for Thai Learners
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Malee is a vocabulary learning app that helps Thai speakers learn practical English words and phrases using spaced repetition, flashcards, and self‑assessment. It focuses on Thai learners’ real needs, with pronunciation support and context‑based decks.
 
-## Get started
+## Core Purpose
+
+- Teach useful English vocabulary Thai people actually need and use
+- Reduce pronunciation pain points and common Thai→English mistakes
+- Build confidence through daily goals and clear progress tracking
+
+## How It Works
+
+- Spaced Repetition: schedules review at optimal times for retention
+- Flashcards: Thai → English practice with contextual examples
+- Self‑Assessment: “Don’t know”, “Know, but difficult”, “Know, and easy” to adapt scheduling
+- Pronunciation Focus: audio and phonetic aids for every card
+
+## Key Features
+
+- Organized Decks by real‑life situations (travel, interviews, daily conversations, business, social)
+- Daily Learning Goals with motivational streaks and progress bar
+- Personal Dictionary for saved words and favorites
+- Progress & Achievements with simple statistics
+- Audio playback and pronunciation hints on card fronts
+
+## Target Users
+
+- Thai students and professionals improving practical English for travel, jobs, daily life, business, and social contexts
+
+## App Overview (paths)
+
+- Explore decks: `app/(tabs)/explore.tsx` — browse All / My Decks / Favorites, search, like decks
+- Learn flow: `app/deck/learn.tsx` — stacked Tinder‑style cards, tap to flip, button‑only progression
+- Shared UI: components in `components/` (e.g., bottom player)
+- Routing: [Expo Router] with file‑based routes under `app/`
+
+## Design Principles
+
+- Simple, friendly, high‑contrast UI with consistent colors and typography
+- Clear affordances for flipping, rating, and audio
+- Mobile‑first interactions (no swipe to advance; buttons determine progression)
+
+## Getting Started
 
 1. Install dependencies
-
    ```bash
    npm install
    ```
-
-2. Start the app
-
+2. Run the app
    ```bash
    npx expo start
    ```
+3. Open on device or emulator (Android emulator, iOS simulator, or Expo Go)
 
-In the output, you'll find options to open the app in a
+## Development Notes
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- Tech: React Native, Expo, Expo Router, Reanimated
+- State: local component state with UI‑driven animations (Reanimated)
+- Audio: Material Icons for UI; plug in TTS or audio assets per deck
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Roadmap
 
-## Get a fresh project
+- Persist favorites, goals, and progress across sessions
+- Deck authoring tools and community‑driven contributions
+- Enhanced pronunciation (IPA, slow playback, syllable emphasis)
+- Rich analytics for mastery and streaks
 
-When you're ready, run:
+## License
 
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Proprietary. All rights reserved.
