@@ -54,6 +54,16 @@ export default function LearnScreen() {
     transform: [{ scale: scaleNext.value }],
   }));
 
+  const frontFaceStyle = useAnimatedStyle(() => ({
+    transform: [{ rotateY: `${-flip.value * 180}deg` }],
+    opacity: 1 - flip.value,
+  }));
+
+  const backFaceStyle = useAnimatedStyle(() => ({
+    transform: [{ rotateY: `${180 - flip.value * 180}deg` }],
+    opacity: flip.value,
+  }));
+
   function goNext() {
     flip.value = 0;
     setFlipped(false);
@@ -116,7 +126,7 @@ export default function LearnScreen() {
               flip.value = withTiming(next);
             }}
           >
-            <View style={[styles.cardFace, styles.cardFaceFront]}>
+            <Animated.View style={[styles.cardFace, styles.cardFaceFront, frontFaceStyle]}>
               <Text style={styles.cardText}>{cards[index].front}</Text>
               <View style={styles.speakerRowFront}>
                 <MaterialIcons name="volume-up" size={24} color={TEXT} />
@@ -124,13 +134,13 @@ export default function LearnScreen() {
               <View style={styles.tapHintRow}>
                 <Text style={styles.tapHint}>Tap to flip</Text>
               </View>
-            </View>
-            <View style={[styles.cardFace, styles.cardFaceBack]}>
+            </Animated.View>
+            <Animated.View style={[styles.cardFace, styles.cardFaceBack, backFaceStyle]}>
               <Text style={styles.cardText}>{cards[index].back}</Text>
               <View style={styles.tapHintRow}>
                 <Text style={styles.tapHint}>Tap to flip</Text>
               </View>
-            </View>
+            </Animated.View>
           </Pressable>
         </Animated.View>
       </View>
