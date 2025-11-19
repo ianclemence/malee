@@ -1,6 +1,6 @@
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { useRouter } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { useRouter, useFocusEffect } from "expo-router";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View, TextInput } from "react-native";
 import { DEFAULT_DECKS } from "@/data/decks";
 import { getFavorites, setFavorite, getMyDecks } from "@/lib/storage";
@@ -27,6 +27,23 @@ export default function DecksScreen() {
       setMyDecksState(mine);
     })();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      let mounted = true;
+      (async () => {
+        const fav = await getFavorites();
+        const mine = await getMyDecks();
+        if (mounted) {
+          setFavorites(fav);
+          setMyDecksState(mine);
+        }
+      })();
+      return () => {
+        mounted = false;
+      };
+    }, [])
+  );
 
   const decks = useMemo(() => DEFAULT_DECKS.map(d => ({ ...d, count: d.words.length })), []);
 

@@ -2,8 +2,8 @@ import { DEFAULT_DECKS } from "@/data/decks";
 import { getFavorites, setFavorite } from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Image } from "expo-image";
-import { useRouter } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { useRouter, useFocusEffect } from "expo-router";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 const ACCENT = "#F1FF00";
@@ -23,6 +23,19 @@ export default function HomeScreen() {
       setFavorites(fav);
     })();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      let mounted = true;
+      (async () => {
+        const fav = await getFavorites();
+        if (mounted) setFavorites(fav);
+      })();
+      return () => {
+        mounted = false;
+      };
+    }, [])
+  );
 
   const picked = useMemo(() => {
     const decks = DEFAULT_DECKS.map((d) => ({ ...d, count: d.words.length }));
