@@ -19,7 +19,7 @@ export default function AddWordScreen() {
   const [word, setWord] = useState("");
   const [translation, setTranslation] = useState("");
 
-  const suggestions = ["Щегольской", "Франтовый", "Пижонский"];
+  const suggestions = ["Dapper", "Fancy", "Posh"];
 
   return (
     <View style={styles.page}>
