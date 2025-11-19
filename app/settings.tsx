@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     top: 0,
-    height: Math.round(Dimensions.get("window").height * 0.5),
+    height: Math.round(Dimensions.get("window").height * 0.4),
     backgroundColor: ACCENT,
   },
   closeBtn: {
