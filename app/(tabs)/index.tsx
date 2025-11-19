@@ -1,8 +1,10 @@
+import { DEFAULT_DECKS } from "@/data/decks";
+import { getFavorites, setFavorite } from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
+import { useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { useState } from "react";
 
 const ACCENT = "#F1FF00";
 const BG = "#FFFFFF";
@@ -13,13 +15,20 @@ const PURPLE_BG = "#D9D4F6";
 export default function HomeScreen() {
   const progress = 11 / 50;
   const router = useRouter();
-  const [likes, setLikes] = useState<{ [key: string]: boolean }>({
-    airport: false,
-    job: false,
-    restaurant: false,
-    clothing: false,
-    aviation: false,
-  });
+  const [favorites, setFavorites] = useState<{ [key: string]: boolean }>({});
+
+  useEffect(() => {
+    (async () => {
+      const fav = await getFavorites();
+      setFavorites(fav);
+    })();
+  }, []);
+
+  const picked = useMemo(() => {
+    const decks = DEFAULT_DECKS.map((d) => ({ ...d, count: d.words.length }));
+    const shuffled = decks.sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 4);
+  }, []);
 
   return (
     <ScrollView
@@ -28,7 +37,7 @@ export default function HomeScreen() {
     >
       <View style={styles.header}>
         <Text style={styles.logo}>MALEE</Text>
-        <Pressable onPress={() => router.push('/settings')}>
+        <Pressable onPress={() => router.push("/settings")}>
           <MaterialIcons name="settings" size={24} color={TEXT} />
         </Pressable>
       </View>
@@ -68,123 +77,57 @@ export default function HomeScreen() {
 
       <Text style={styles.featuredTitle}>Picked by Malee</Text>
       <View style={styles.featuredGrid}>
-        <Pressable
-          style={styles.featuredCardPurple}
-          onPress={() =>
-            router.push({ pathname: "/deck/[slug]", params: { slug: "airport", title: "At the airport", count: "46" } })
-          }
-        >
-          <View style={styles.cardContent}>
-            <MaterialIcons name="flight" size={48} color={TEXT} style={{ alignSelf: "flex-start" }} />
-          </View>
-          <View style={styles.cardFooter}>
-            <View style={styles.cardFooterLeft}>
-              <Text style={styles.deckLabel}>At the airport</Text>
-              <View style={styles.cardCountRow}>
-                <MaterialIcons name="style" size={18} color={TEXT} />
-                <Text style={styles.cardCountText}>46</Text>
-              </View>
+        {picked.map((d, i) => (
+          <Pressable
+            key={d.slug}
+            style={
+              i % 2 === 0 ? styles.featuredCardPurple : styles.featuredCardGray
+            }
+            onPress={() =>
+              router.push({
+                pathname: "/deck/[slug]",
+                params: {
+                  slug: d.slug,
+                  title: d.title,
+                  count: String(d.count),
+                },
+              })
+            }
+          >
+            <View style={styles.cardContent}>
+              <MaterialIcons
+                name={d.icon as any}
+                size={48}
+                color={TEXT}
+                style={{ alignSelf: "flex-start" }}
+              />
             </View>
-            <Pressable style={styles.cardLikeBtn} onPress={() => setLikes((p) => ({ ...p, airport: !p.airport }))}>
-              <MaterialIcons name={likes.airport ? "favorite" : "favorite-border"} size={18} color={ACCENT} />
-            </Pressable>
-          </View>
-        </Pressable>
-
-        <Pressable
-          style={styles.featuredCardGray}
-          onPress={() =>
-            router.push({ pathname: "/deck/[slug]", params: { slug: "job-interview", title: "Job interview", count: "32" } })
-          }
-        >
-          <View style={styles.cardContent}>
-            <MaterialIcons name="work" size={48} color={TEXT} style={{ alignSelf: "flex-start" }} />
-          </View>
-          <View style={styles.cardFooter}>
-            <View style={styles.cardFooterLeft}>
-              <Text style={styles.deckLabel}>Job interview</Text>
-              <View style={styles.cardCountRow}>
-                <MaterialIcons name="style" size={18} color={TEXT} />
-                <Text style={styles.cardCountText}>32</Text>
+            <View style={styles.cardFooter}>
+              <View style={styles.cardFooterLeft}>
+                <Text style={styles.deckLabel}>{d.title}</Text>
+                <View style={styles.cardCountRow}>
+                  <MaterialIcons name="style" size={18} color={TEXT} />
+                  <Text style={styles.cardCountText}>{d.count}</Text>
+                </View>
               </View>
+              <Pressable
+                style={styles.cardLikeBtn}
+                onPress={async () => {
+                  const next = !favorites[d.slug];
+                  setFavorites((p) => ({ ...p, [d.slug]: next }));
+                  await setFavorite(d.slug, next);
+                }}
+              >
+                <MaterialIcons
+                  name={favorites[d.slug] ? "favorite" : "favorite-border"}
+                  size={18}
+                  color={ACCENT}
+                />
+              </Pressable>
             </View>
-            <Pressable style={styles.cardLikeBtn} onPress={() => setLikes((p) => ({ ...p, job: !p.job }))}>
-              <MaterialIcons name={likes.job ? "favorite" : "favorite-border"} size={18} color={ACCENT} />
-            </Pressable>
-          </View>
-        </Pressable>
-
-        <Pressable
-          style={styles.featuredCardPurple}
-          onPress={() =>
-            router.push({ pathname: "/deck/[slug]", params: { slug: "restaurant", title: "Restaurant ordering", count: "28" } })
-          }
-        >
-          <View style={styles.cardContent}>
-            <MaterialIcons name="restaurant" size={48} color={TEXT} style={{ alignSelf: "flex-start" }} />
-          </View>
-          <View style={styles.cardFooter}>
-            <View style={styles.cardFooterLeft}>
-              <Text style={styles.deckLabel}>Restaurant ordering</Text>
-              <View style={styles.cardCountRow}>
-                <MaterialIcons name="style" size={18} color={TEXT} />
-                <Text style={styles.cardCountText}>28</Text>
-              </View>
-            </View>
-            <Pressable style={styles.cardLikeBtn} onPress={() => setLikes((p) => ({ ...p, restaurant: !p.restaurant }))}>
-              <MaterialIcons name={likes.restaurant ? "favorite" : "favorite-border"} size={18} color={ACCENT} />
-            </Pressable>
-          </View>
-        </Pressable>
-
-        <Pressable
-          style={styles.featuredCardGray}
-          onPress={() =>
-            router.push({ pathname: "/deck/[slug]", params: { slug: "clothing", title: "Clothing", count: "46" } })
-          }
-        >
-          <View style={styles.cardContent}>
-            <MaterialIcons name="checkroom" size={48} color={TEXT} style={{ alignSelf: "flex-start" }} />
-          </View>
-          <View style={styles.cardFooter}>
-            <View style={styles.cardFooterLeft}>
-              <Text style={styles.deckLabel}>Clothing</Text>
-              <View style={styles.cardCountRow}>
-                <MaterialIcons name="style" size={18} color={TEXT} />
-                <Text style={styles.cardCountText}>46</Text>
-              </View>
-            </View>
-            <Pressable style={styles.cardLikeBtn} onPress={() => setLikes((p) => ({ ...p, clothing: !p.clothing }))}>
-              <MaterialIcons name={likes.clothing ? "favorite" : "favorite-border"} size={18} color={ACCENT} />
-            </Pressable>
-          </View>
-        </Pressable>
-
-        <Pressable
-          style={styles.featuredCardPurple}
-          onPress={() =>
-            router.push({ pathname: "/deck/[slug]", params: { slug: "aviation", title: "Aviation", count: "40" } })
-          }
-        >
-          <View style={styles.cardContent}>
-            <MaterialIcons name="flight-takeoff" size={48} color={TEXT} style={{ alignSelf: "flex-start" }} />
-          </View>
-          <View style={styles.cardFooter}>
-            <View style={styles.cardFooterLeft}>
-              <Text style={styles.deckLabel}>Aviation</Text>
-              <View style={styles.cardCountRow}>
-                <MaterialIcons name="style" size={18} color={TEXT} />
-                <Text style={styles.cardCountText}>40</Text>
-              </View>
-            </View>
-            <Pressable style={styles.cardLikeBtn} onPress={() => setLikes((p) => ({ ...p, aviation: !p.aviation }))}>
-              <MaterialIcons name={likes.aviation ? "favorite" : "favorite-border"} size={18} color={ACCENT} />
-            </Pressable>
-          </View>
-        </Pressable>
+          </Pressable>
+        ))}
       </View>
-
-      
     </ScrollView>
   );
 }

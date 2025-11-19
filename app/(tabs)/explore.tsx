@@ -1,8 +1,9 @@
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { Image } from "expo-image";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View, TextInput } from "react-native";
+import { DEFAULT_DECKS } from "@/data/decks";
+import { getFavorites, setFavorite, getMyDecks } from "@/lib/storage";
 
 const ACCENT = "#F1FF00";
 const TEXT = "#000000";
@@ -13,37 +14,26 @@ const BEIGE_BG = "#EDE6D6";
 
 export default function DecksScreen() {
   const router = useRouter();
-  const [liked, setLiked] = useState(false);
-  const [cardLikes, setCardLikes] = useState<{ [key: string]: boolean }>({
-    aviation: false,
-    airport: false,
-  });
+  const [favorites, setFavorites] = useState<{ [key: string]: boolean }>({});
+  const [myDecks, setMyDecksState] = useState<{ [key: string]: boolean }>({});
   const [view, setView] = useState<"all" | "my" | "favorites">("all");
   const [query, setQuery] = useState("");
 
-  const decks = [
-    {
-      slug: "aviation",
-      title: "Aviation",
-      count: 40,
-      icon: "flight-takeoff",
-      bg: GREEN_BG,
-      owned: true,
-    },
-    {
-      slug: "airport",
-      title: "At the airport",
-      count: 46,
-      icon: "flight",
-      bg: BEIGE_BG,
-      owned: false,
-    },
-  ];
+  useEffect(() => {
+    (async () => {
+      const fav = await getFavorites();
+      const mine = await getMyDecks();
+      setFavorites(fav);
+      setMyDecksState(mine);
+    })();
+  }, []);
+
+  const decks = useMemo(() => DEFAULT_DECKS.map(d => ({ ...d, count: d.words.length })), []);
 
   const visibleDecks = decks
     .filter((d) => {
-      if (view === "favorites") return !!cardLikes[d.slug];
-      if (view === "my") return d.owned;
+      if (view === "favorites") return !!favorites[d.slug];
+      if (view === "my") return !!myDecks[d.slug];
       return true;
     })
     .filter((d) =>
@@ -164,12 +154,14 @@ export default function DecksScreen() {
               </View>
               <Pressable
                 style={styles.cardLikeBtn}
-                onPress={() =>
-                  setCardLikes((p) => ({ ...p, [d.slug]: !p[d.slug] }))
-                }
+                onPress={async () => {
+                  const next = !favorites[d.slug];
+                  setFavorites((p) => ({ ...p, [d.slug]: next }));
+                  await setFavorite(d.slug, next);
+                }}
               >
                 <MaterialIcons
-                  name={cardLikes[d.slug] ? "favorite" : "favorite-border"}
+                  name={favorites[d.slug] ? "favorite" : "favorite-border"}
                   size={18}
                   color={ACCENT}
                 />
