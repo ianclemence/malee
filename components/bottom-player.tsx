@@ -92,7 +92,8 @@ export default function BottomPlayer({ inline = false }: { inline?: boolean }) {
             <MaterialIcons name="style" size={18} color={TEXT} />
             <Text style={styles.count}>{state.deck.count}</Text>
           </View>
-          <Pressable style={[styles.play, ringColors]} onPress={onResume}>
+          <Pressable style={styles.play} onPress={onResume}>
+            <View style={[styles.playProgressRing, ringColors]} />
             <MaterialIcons name="play-arrow" size={20} color={ACCENT} />
           </Pressable>
           <Pressable onPress={hide}>
@@ -139,13 +140,24 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   play: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: '#000000',
-    borderWidth: 3,
-    borderColor: 'transparent',
+    borderWidth: 2,
+    borderColor: TEXT,
     alignItems: "center",
     justifyContent: "center",
+    position: 'relative',
+  },
+  playProgressRing: {
+    position: 'absolute',
+    left: 1,
+    right: 1,
+    top: 1,
+    bottom: 1,
+    borderWidth: 3,
+    borderColor: 'transparent',
+    borderRadius: 16,
   },
 });
