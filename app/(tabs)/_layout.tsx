@@ -19,9 +19,12 @@ export default function TabLayout() {
           tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
           headerShown: false,
           tabBarButton: HapticTab,
+          tabBarStyle: { backgroundColor: 'transparent', borderTopWidth: 0, elevation: 0 },
+          sceneContainerStyle: { backgroundColor: 'transparent' },
+          tabBarBackground: () => <View style={{ backgroundColor: 'transparent' }} />,
         }}
         tabBar={(props) => (
-          <View>
+          <View style={{ backgroundColor: 'transparent' }}>
             <BottomPlayer inline />
             <BottomTabBar {...props} />
           </View>
