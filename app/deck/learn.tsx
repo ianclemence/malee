@@ -2,11 +2,10 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useBottomSheet } from "@/hooks/bottom-sheet-store";
 import { Pressable, StyleSheet, Text, View, ScrollView } from "react-native";
-import { PanGestureHandler } from "react-native-gesture-handler";
+import { useState } from "react";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
-  withSpring,
   withTiming,
 } from "react-native-reanimated";
 
@@ -39,17 +38,15 @@ export default function LearnScreen() {
     },
   ];
 
-  const index = useSharedValue(0);
-  const flipped = useSharedValue(0);
-  const translateX = useSharedValue(0);
-  const translateY = useSharedValue(0);
+  const [index, setIndex] = useState(0);
+  const [flipped, setFlipped] = useState(false);
+  const flip = useSharedValue(0);
   const scaleNext = useSharedValue(0.96);
 
   const topCardStyle = useAnimatedStyle(() => ({
     transform: [
-      { translateX: translateX.value },
-      { translateY: translateY.value },
-      { rotateY: `${flipped.value * 180}deg` },
+      { perspective: 1000 },
+      { rotateY: `${flip.value * 180}deg` },
     ],
   }));
 
@@ -58,40 +55,17 @@ export default function LearnScreen() {
   }));
 
   function goNext() {
-    translateX.value = withTiming(0);
-    translateY.value = withTiming(0);
-    flipped.value = 0;
+    flip.value = 0;
+    setFlipped(false);
     scaleNext.value = withTiming(0.96);
-    index.value = Math.min(index.value + 1, cards.length - 1);
+    setIndex((prev) => Math.min(prev + 1, cards.length - 1));
   }
 
   function onAssess() {
     goNext();
   }
 
-  function onPanGesture(event: any) {
-    translateX.value = event.translationX;
-    translateY.value = event.translationY;
-  }
-
-  function onPanEnd(event: any) {
-    const dx = event.translationX;
-    const dy = event.translationY;
-    if (Math.abs(dx) > 120 || Math.abs(dy) > 120) {
-      translateX.value = withTiming(
-        dx > 0 ? 400 : -400,
-        { duration: 200 },
-        () => {
-          translateX.value = 0;
-          translateY.value = 0;
-        }
-      );
-      onAssess();
-    } else {
-      translateX.value = withSpring(0);
-      translateY.value = withSpring(0);
-    }
-  }
+  
 
   return (
       <ScrollView style={{ backgroundColor: PAGE_BG }} contentContainerStyle={styles.page}>
@@ -117,46 +91,43 @@ export default function LearnScreen() {
       </View>
 
       <View style={styles.cardArea}>
-        {index.value < cards.length - 1 && (
+        {index < cards.length - 1 && (
           <Animated.View style={[styles.card, styles.nextCard, nextCardStyle]}>
-            <Text style={styles.cardText}>{cards[index.value + 1].front}</Text>
+            <Text style={styles.cardText}>{cards[index + 1].front}</Text>
           </Animated.View>
         )}
-        <PanGestureHandler
-          onGestureEvent={onPanGesture as any}
-          onEnded={onPanEnd as any}
-        >
-          <Animated.View style={[styles.card, topCardStyle]}>
-            <Pressable
-              style={{ flex: 1 }}
-              onPress={() => (flipped.value = flipped.value ? 0 : 1)}
-            >
-              <View style={styles.cardFace}>
-                <Text style={styles.cardText}>
-                  {flipped.value
-                    ? cards[index.value].back
-                    : cards[index.value].front}
-                </Text>
-                {!flipped.value && (
-                  <View style={styles.tapHintRow}>
-                    <Text style={styles.tapHint}>Tap to flip</Text>
-                  </View>
-                )}
-                {flipped.value === 1 ? (
-                  <View style={styles.speakerRow}>
-                    <MaterialIcons name="volume-up" size={24} color={TEXT} />
-                  </View>
-                ) : null}
-              </View>
-            </Pressable>
-          </Animated.View>
-        </PanGestureHandler>
+        <Animated.View style={[styles.card, topCardStyle]}>
+          <Pressable
+            style={{ flex: 1 }}
+            onPress={() => {
+              const next = flipped ? 0 : 1;
+              setFlipped(!flipped);
+              flip.value = withTiming(next);
+            }}
+          >
+            <View style={styles.cardFace}>
+              <Text style={styles.cardText}>
+                {flipped ? cards[index].back : cards[index].front}
+              </Text>
+              {!flipped && (
+                <View style={styles.tapHintRow}>
+                  <Text style={styles.tapHint}>Tap to flip</Text>
+                </View>
+              )}
+              {flipped ? (
+                <View style={styles.speakerRow}>
+                  <MaterialIcons name="volume-up" size={24} color={TEXT} />
+                </View>
+              ) : null}
+            </View>
+          </Pressable>
+        </Animated.View>
       </View>
 
       <View style={styles.assessRow}>
         <Pressable
           style={styles.assessBtn}
-          disabled={!flipped.value}
+          disabled={!flipped}
           onPress={onAssess}
         >
           <MaterialIcons name="thumb-down" size={22} color={TEXT} />
@@ -164,7 +135,7 @@ export default function LearnScreen() {
         </Pressable>
         <Pressable
           style={styles.assessBtn}
-          disabled={!flipped.value}
+          disabled={!flipped}
           onPress={onAssess}
         >
           <MaterialIcons name="thumbs-up-down" size={22} color={TEXT} />
@@ -172,7 +143,7 @@ export default function LearnScreen() {
         </Pressable>
         <Pressable
           style={styles.assessBtn}
-          disabled={!flipped.value}
+          disabled={!flipped}
           onPress={onAssess}
         >
           <MaterialIcons name="thumb-up" size={22} color={TEXT} />
