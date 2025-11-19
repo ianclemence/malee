@@ -8,6 +8,7 @@ import {
   Switch,
   Text,
   View,
+  Dimensions,
 } from "react-native";
 
 const ACCENT = "#F1FF00";
@@ -20,6 +21,7 @@ export default function SettingsScreen() {
 
   return (
     <View style={styles.page}>
+      <View style={styles.accentBg} />
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.headerCard}>
           <Pressable onPress={() => router.back()} style={styles.closeBtn}>
@@ -102,12 +104,20 @@ const styles = StyleSheet.create({
     marginTop: 48,
   },
   headerCard: {
-    backgroundColor: ACCENT,
+    backgroundColor: "transparent",
     borderRadius: 0,
-    padding: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 12,
     marginBottom: 16,
-    marginHorizontal: -16,
     position: "relative",
+  },
+  accentBg: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    height: Math.round(Dimensions.get("window").height * 0.5),
+    backgroundColor: ACCENT,
   },
   closeBtn: {
     position: "absolute",
