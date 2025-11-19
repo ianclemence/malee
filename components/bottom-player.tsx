@@ -39,6 +39,20 @@ export default function BottomPlayer({ inline = false }: { inline?: boolean }) {
     }
   }
 
+  function onOpenProgress() {
+    if (state.deck) {
+      router.push({
+        pathname: "/deck/progress",
+        params: {
+          slug: state.deck.slug,
+          title: state.deck.title,
+          count: state.deck.count,
+          progress: state.progress ? String(state.progress) : "0",
+        },
+      });
+    }
+  }
+
   if (!state.visible || !state.deck) return null;
 
   return (
@@ -52,17 +66,18 @@ export default function BottomPlayer({ inline = false }: { inline?: boolean }) {
       }}
     >
       <Animated.View style={[inline ? styles.inline : styles.container, sheetStyle]}>
-        <View
+        <Pressable
           style={{
             flexDirection: "row",
             alignItems: "center",
             gap: 8,
             flex: 1,
           }}
+          onPress={onOpenProgress}
         >
           <MaterialIcons name="list-alt" size={20} color={TEXT} />
           <Text style={styles.title}>{state.deck.title}</Text>
-        </View>
+        </Pressable>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
             <MaterialIcons name="style" size={18} color={TEXT} />
