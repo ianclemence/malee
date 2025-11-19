@@ -37,8 +37,6 @@ export default function DeckScreen() {
           </Pressable>
         </View>
 
-        <View style={styles.separator} />
-
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
             <Text style={styles.statValue}>0%</Text>
