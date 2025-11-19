@@ -16,12 +16,13 @@ export default function TabLayout() {
     <View style={{ flex: 1 }}>
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+          tabBarActiveTintColor: '#FFFFFF',
+          tabBarInactiveTintColor: '#808080',
           headerShown: false,
           tabBarButton: HapticTab,
-          tabBarStyle: { backgroundColor: 'transparent', borderTopWidth: 0, elevation: 0 },
+          tabBarStyle: { backgroundColor: '#000000', borderTopWidth: 0, elevation: 0 },
           sceneContainerStyle: { backgroundColor: 'transparent' },
-          tabBarBackground: () => <View style={{ backgroundColor: 'transparent' }} />,
+          tabBarBackground: () => <View style={{ backgroundColor: '#000000' }} />,
         }}
         tabBar={(props) => (
           <View style={{ backgroundColor: 'transparent' }}>
