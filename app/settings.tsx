@@ -68,6 +68,7 @@ export default function SettingsScreen() {
               value={true}
               trackColor={{ false: TEXT, true: TEXT }}
               thumbColor={BG}
+              style={styles.switch}
             />
           </View>
           <View style={styles.separator} />
@@ -219,6 +220,9 @@ const styles = StyleSheet.create({
     backgroundColor: TEXT,
     opacity: 0.1,
     marginHorizontal: 16,
+  },
+  switch: {
+    transform: [{ scale: 1.3 }],
   },
   logoutBtn: {
     paddingHorizontal: 16,
