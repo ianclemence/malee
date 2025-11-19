@@ -20,7 +20,9 @@ export default function DecksScreen() {
     <ScrollView style={{ backgroundColor: BG }} contentContainerStyle={styles.container}>
       <View style={styles.header}>
         <Text style={styles.logo}>MALEE</Text>
-        <MaterialIcons name="settings" size={24} color={TEXT} />
+        <Pressable onPress={() => router.push('/settings')}>
+          <MaterialIcons name="settings" size={24} color={TEXT} />
+        </Pressable>
       </View>
 
       <View style={styles.featuredLarge}>
