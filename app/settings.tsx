@@ -202,6 +202,7 @@ const styles = StyleSheet.create({
   listLabel: {
     color: TEXT,
     fontWeight: "700",
+    fontSize: 18,
   },
   separator: {
     height: 1,
