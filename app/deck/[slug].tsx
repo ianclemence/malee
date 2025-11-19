@@ -8,8 +8,8 @@ import {
 } from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Image } from "expo-image";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 const ACCENT = "#F1FF00";
@@ -42,6 +42,25 @@ export default function DeckScreen() {
       setProgress(stats.progress);
     })();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      let mounted = true;
+      (async () => {
+        const fav = await getFavorites();
+        const mine = await getMyDecks();
+        const stats = await getDeckProgressStats(String(slug), wordCount);
+        if (mounted) {
+          setFavorites(fav);
+          setMyDecksState(mine);
+          setProgress(stats.progress);
+        }
+      })();
+      return () => {
+        mounted = false;
+      };
+    }, [slug, wordCount])
+  );
 
   return (
     <View style={styles.page}>
