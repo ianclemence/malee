@@ -104,13 +104,13 @@ const styles = StyleSheet.create({
   },
   title: {
     color: TEXT_COLOR,
-    fontWeight: "700",
-    fontSize: 14,
+    fontFamily: 'Inter_700Bold',
+    fontSize: 16,
   },
   subtitle: {
     color: TEXT_COLOR,
     fontSize: 12,
-    opacity: 0.7,
+    opacity: 0.6,
   },
   controls: {
     flexDirection: "row",
