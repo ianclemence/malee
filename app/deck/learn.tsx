@@ -46,6 +46,7 @@ export default function LearnScreen() {
   const [loading, setLoading] = useState(true);
   const [deckStats, setDeckStats] = useState<DeckProgress>({});
   const [history, setHistory] = useState<Array<{ index: number; stats: SRSStats }>>([]);
+  const [learnedWordsCount, setLearnedWordsCount] = useState(0); // Track learned words
 
   const [flipped, setFlipped] = useState(false);
   const flip = useSharedValue(0);
@@ -107,14 +108,21 @@ export default function LearnScreen() {
       const dueIndices: number[] = [];
       const newIndices: number[] = [];
 
+      // Count how many words have been learned (have stats)
+      let learnedCount = 0;
       cards.forEach((_, i) => {
         const stats = p[i];
         if (!stats) {
           newIndices.push(i);
-        } else if (stats.dueDate <= now) {
-          dueIndices.push(i);
+        } else {
+          learnedCount++; // This word has been interacted with
+          if (stats.dueDate <= now) {
+            dueIndices.push(i);
+          }
         }
       });
+
+      setLearnedWordsCount(learnedCount);
 
       // Prioritize Due cards, then New cards
       setQueue([...dueIndices, ...newIndices]);
@@ -207,6 +215,7 @@ export default function LearnScreen() {
   async function onAssess(rating: 'difficult' | 'known') {
     const grade = mapRatingToGrade(rating);
     const currentStats = deckStats[activeCardIndex] || INITIAL_STATS;
+    const wasNew = !deckStats[activeCardIndex]; // Track if this was a new word
 
     // Save history for Undo
     setHistory(prev => [...prev, { index: activeCardIndex, stats: currentStats }]);
@@ -216,6 +225,11 @@ export default function LearnScreen() {
 
     // Update local stats immediately
     setDeckStats(prev => ({ ...prev, [activeCardIndex]: newStats }));
+
+    // If this was a new word, increment learned count
+    if (wasNew) {
+      setLearnedWordsCount(prev => prev + 1);
+    }
 
     const today = await incTodayInteractions(1);
     const stats = await getDeckProgressStats(String(slug), cards.length);
@@ -233,9 +247,17 @@ export default function LearnScreen() {
     const newHistory = history.slice(0, -1);
     setHistory(newHistory);
 
+    // Check if this was a newly learned word (had no stats before)
+    const wasNew = !last.stats || last.stats.repetition === 0;
+
     // Restore stats
     await saveWordStats(String(slug), last.index, last.stats);
     setDeckStats(prev => ({ ...prev, [last.index]: last.stats }));
+
+    // If this was a new word, decrement learned count
+    if (wasNew && last.stats.repetition === 0) {
+      setLearnedWordsCount(prev => Math.max(0, prev - 1));
+    }
 
     // Go back
     if (currentIndex > 0) {
@@ -280,7 +302,7 @@ export default function LearnScreen() {
           <Text style={styles.goalLabel}>Deck Progress</Text>
           <View style={styles.goalCountRow}>
             <MaterialIcons name="style" size={20} color={TEXT} />
-            <Text style={styles.goalCount}>{currentIndex} / {cards.length}</Text>
+            <Text style={styles.goalCount}>{learnedWordsCount} / {cards.length}</Text>
           </View>
         </View>
         <Pressable style={styles.pauseBtn} onPress={() => {
@@ -299,7 +321,7 @@ export default function LearnScreen() {
       </View>
 
       <View style={styles.progressTrack}>
-        <View style={[styles.progressFill, { width: `${Math.min(100, Math.round((currentIndex / cards.length) * 100))}%` }]} />
+        <View style={[styles.progressFill, { width: `${Math.min(100, Math.round((learnedWordsCount / cards.length) * 100))}%` }]} />
       </View>
 
       <View style={styles.cardArea}>
