@@ -536,33 +536,35 @@ export default function LearnScreen() {
             <Animated.View
               style={[styles.cardFace, styles.cardFaceBack, backFaceStyle]}
             >
-              <ThemedText
-                type="phrase"
-                style={[
-                  styles.cardText,
-                  { fontSize: FontSizes.phrase * textSizeMultiplier },
-                ]}
-              >
-                {activeCard.back}
-              </ThemedText>
-              {activeCard.example && (
-                <View style={styles.exampleContainer}>
-                  <ThemedText
-                    type="defaultSemiBold"
-                    style={styles.exampleLabel}
-                  >
-                    Example:
-                  </ThemedText>
-                  <ThemedText
-                    style={[
-                      styles.exampleText,
-                      { fontSize: 18 * textSizeMultiplier },
-                    ]}
-                  >
-                    "{activeCard.example}"
-                  </ThemedText>
-                </View>
-              )}
+              <View style={styles.backContent}>
+                <ThemedText
+                  type="phrase"
+                  style={[
+                    styles.cardText,
+                    { fontSize: FontSizes.phrase * textSizeMultiplier },
+                  ]}
+                >
+                  {activeCard.back}
+                </ThemedText>
+                {activeCard.example && (
+                  <View style={styles.exampleContainer}>
+                    <ThemedText
+                      type="defaultSemiBold"
+                      style={styles.exampleLabel}
+                    >
+                      Example:
+                    </ThemedText>
+                    <ThemedText
+                      style={[
+                        styles.exampleText,
+                        { fontSize: 18 * textSizeMultiplier },
+                      ]}
+                    >
+                      "{activeCard.example}"
+                    </ThemedText>
+                  </View>
+                )}
+              </View>
             </Animated.View>
           </View>
         </Animated.View>
@@ -685,6 +687,9 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backfaceVisibility: "hidden",
+    transform: [{ rotateY: "180deg" }],
+  },
+  backContent: {
     transform: [{ rotateY: "180deg" }],
   },
   cardText: {
