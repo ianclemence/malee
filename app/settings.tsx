@@ -391,9 +391,9 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   rowIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: Palette.white,
     alignItems: "center",
     justifyContent: "center",
