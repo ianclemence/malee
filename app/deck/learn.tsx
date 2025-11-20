@@ -349,7 +349,7 @@ export default function LearnScreen() {
     <ScrollView style={{ backgroundColor: PAGE_BG }} contentContainerStyle={styles.page}>
       <View style={styles.headerRow}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.goalLabel}>Deck Progress</Text>
+          <Text style={styles.goalLabel}>{deck?.title || title || "Deck"}</Text>
           <View style={styles.goalCountRow}>
             <MaterialIcons name="style" size={20} color={TEXT} />
             <Text style={styles.goalCount}>{learnedWordsCount} / {cards.length}</Text>
