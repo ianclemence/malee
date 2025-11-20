@@ -1,6 +1,6 @@
 import { addWordToCustomDeck, CustomDeck, getCustomDecks, saveCustomDeck } from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   Alert,
@@ -26,9 +26,11 @@ export default function AddWordScreen() {
   const [isCreatingDeck, setIsCreatingDeck] = useState(false);
   const [newDeckName, setNewDeckName] = useState("");
 
-  React.useEffect(() => {
-    loadDecks();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      loadDecks();
+    }, [])
+  );
 
   const loadDecks = async () => {
     const d = await getCustomDecks();

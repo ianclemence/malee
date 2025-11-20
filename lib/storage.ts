@@ -178,9 +178,15 @@ export async function saveCustomDeck(deck: CustomDeck): Promise<void> {
   await AsyncStorage.setItem(CUSTOM_DECKS_KEY, JSON.stringify(next));
 }
 
-export async function addWordToCustomDeck(slug: string, word: { en: string; th: string; example?: string }): Promise<void> {
+export async function deleteCustomDeck(slug: string): Promise<void> {
   const decks = await getCustomDecks();
-  const deckIndex = decks.findIndex(d => d.slug === slug);
+  const newDecks = decks.filter(d => d.slug !== slug);
+  await AsyncStorage.setItem(CUSTOM_DECKS_KEY, JSON.stringify(newDecks));
+}
+
+export async function addWordToCustomDeck(deckSlug: string, word: { en: string; th: string; example?: string }): Promise<void> {
+  const decks = await getCustomDecks();
+  const deckIndex = decks.findIndex(d => d.slug === deckSlug);
 
   if (deckIndex >= 0) {
     const deck = decks[deckIndex];
