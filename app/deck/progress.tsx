@@ -46,6 +46,8 @@ export default function DeckProgressScreen() {
 
   // Ring Progress Calculation
   const ringProg = Math.max(0, Math.min(1, stats.progress));
+  const showRing = ringProg > 0;
+
   const ringColors = {
     borderTopColor: ringProg > 0 ? ACCENT : 'transparent',
     borderRightColor: ringProg >= 0.25 ? ACCENT : 'transparent',
@@ -112,7 +114,8 @@ export default function DeckProgressScreen() {
         }
       >
         <View style={styles.btnSide}>
-          <View style={[styles.playProgressRing, ringColors]}>
+          <View style={styles.playWrapper}>
+            {showRing && <View style={[styles.playProgressRing, ringColors]} />}
             <MaterialIcons name="play-arrow" size={20} color={ACCENT} />
           </View>
         </View>
@@ -253,14 +256,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  playProgressRing: {
+  playWrapper: {
     width: 32,
     height: 32,
-    borderRadius: 16,
-    borderWidth: 3,
-    borderColor: 'transparent', // Base border
     alignItems: "center",
     justifyContent: "center",
-    // The colored borders will be applied via inline styles
+    position: 'relative',
+  },
+  playProgressRing: {
+    position: 'absolute',
+    left: -2,
+    right: -2,
+    top: -2,
+    bottom: -2,
+    borderWidth: 3,
+    borderColor: 'transparent',
+    borderRadius: 22,
+    transform: [{ rotate: '-45deg' }],
   },
 });
