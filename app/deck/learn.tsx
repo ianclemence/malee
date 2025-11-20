@@ -448,20 +448,20 @@ export default function LearnScreen() {
           <Text style={styles.assessText}>Undo</Text>
         </Pressable>
         <Pressable
-          style={[styles.assessBtn, !started && { opacity: 0.5 }]}
+          style={[styles.assessBtn, styles.assessBtnGood, !started && { opacity: 0.5 }]}
           disabled={!started}
           onPress={() => onAssess('known')}
         >
-          <MaterialIcons name="sentiment-satisfied" size={22} color={TEXT} />
-          <Text style={styles.assessText}>Good</Text>
+          <MaterialIcons name="sentiment-satisfied" size={22} color="#1E8E3E" />
+          <Text style={[styles.assessText, styles.assessTextGood]}>Good</Text>
         </Pressable>
         <Pressable
-          style={[styles.assessBtn, !started && { opacity: 0.5 }]}
+          style={[styles.assessBtn, styles.assessBtnHard, !started && { opacity: 0.5 }]}
           disabled={!started}
           onPress={() => onAssess('difficult')}
         >
-          <MaterialIcons name="sentiment-neutral" size={22} color={TEXT} />
-          <Text style={styles.assessText}>Hard</Text>
+          <MaterialIcons name="sentiment-neutral" size={22} color="#D93025" />
+          <Text style={[styles.assessText, styles.assessTextHard]}>Hard</Text>
         </Pressable>
       </View>
     </ScrollView>
@@ -638,6 +638,20 @@ const styles = StyleSheet.create({
     color: TEXT,
     fontWeight: "700",
     fontSize: 16,
+  },
+  assessBtnGood: {
+    backgroundColor: "#E6F4EA",
+    borderColor: "#34A853",
+  },
+  assessTextGood: {
+    color: "#1E8E3E",
+  },
+  assessBtnHard: {
+    backgroundColor: "#FCE8E6",
+    borderColor: "#EA4335",
+  },
+  assessTextHard: {
+    color: "#D93025",
   },
   doneText: {
     fontSize: 24,
