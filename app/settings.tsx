@@ -1,5 +1,5 @@
 import { DEFAULT_DECKS } from "@/data/decks";
-import { AppSettings, getCustomDecks, getSettings, getStreak, getTotalLearned, saveSettings } from "@/lib/storage";
+import { AppSettings, getCustomDecks, getHeatmapData, getSettings, getStreak, getTotalLearned, saveSettings } from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
@@ -16,12 +16,19 @@ import {
 const ACCENT = "#F1FF00";
 const TEXT = "#000000";
 const BG = "#FFFFFF";
-const ALERT = "#FF6A3D";
+
+const BADGES = [
+  { id: 'streak_3', icon: 'local-fire-department', title: '3 Day Streak', condition: (s: any) => s.streak >= 3 },
+  { id: 'words_10', icon: 'school', title: '10 Words', condition: (s: any) => s.words >= 10 },
+  { id: 'words_50', icon: 'verified', title: '50 Words', condition: (s: any) => s.words >= 50 },
+  { id: 'early_bird', icon: 'wb-sunny', title: 'Early Bird', condition: () => true }, // Mocked for now
+];
 
 export default function SettingsScreen() {
   const router = useRouter();
   const [stats, setStats] = useState({ words: 0, time: "4h", streak: 0 });
-  const [settings, setSettings] = useState<AppSettings>({ dailyReminders: true, soundEffects: true });
+  const [settings, setSettings] = useState<AppSettings>({ dailyReminders: true, soundEffects: true, dailyGoal: 50, textSize: 1 });
+  const [heatmap, setHeatmap] = useState<{ [date: string]: number }>({});
 
   useEffect(() => {
     loadData();
@@ -35,8 +42,10 @@ export default function SettingsScreen() {
     const customDecks = await getCustomDecks();
     const allSlugs = [...DEFAULT_DECKS.map((d) => d.slug), ...customDecks.map((d) => d.slug)];
     const learned = await getTotalLearned(allSlugs);
+    const hm = await getHeatmapData();
 
     setStats({ words: learned, time: "4h", streak });
+    setHeatmap(hm);
   };
 
   const toggleSetting = async (key: keyof AppSettings) => {
@@ -44,6 +53,19 @@ export default function SettingsScreen() {
     setSettings(next);
     await saveSettings(next);
   };
+
+  const updateSetting = async (key: keyof AppSettings, value: any) => {
+    const next = { ...settings, [key]: value };
+    setSettings(next);
+    await saveSettings(next);
+  };
+
+  // Generate last 60 days for heatmap
+  const heatmapDays = Array.from({ length: 60 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (59 - i));
+    return d.toISOString().slice(0, 10);
+  });
 
   return (
     <View style={styles.page}>
@@ -81,6 +103,97 @@ export default function SettingsScreen() {
           <View style={styles.statCard}>
             <Text style={styles.statValue}>{stats.streak}</Text>
             <Text style={styles.statLabel}>Streak</Text>
+          </View>
+        </View>
+
+        {/* Heatmap */}
+        <View style={styles.section}>
+          <Text style={styles.sectionHeader}>Activity</Text>
+          <View style={styles.heatmapContainer}>
+            {heatmapDays.map((date) => {
+              const count = heatmap[date] || 0;
+              const opacity = count === 0 ? 0.1 : Math.min(1, 0.2 + count * 0.1);
+              return (
+                <View
+                  key={date}
+                  style={[
+                    styles.heatmapSquare,
+                    { backgroundColor: count > 0 ? ACCENT : "#E0E0E0", opacity: count > 0 ? 1 : 0.3 }
+                  ]}
+                />
+              );
+            })}
+          </View>
+        </View>
+
+        {/* Badges */}
+        <View style={styles.section}>
+          <Text style={styles.sectionHeader}>Badges</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.badgesRow}>
+            {BADGES.map((badge) => {
+              const unlocked = badge.condition(stats);
+              return (
+                <View key={badge.id} style={[styles.badgeCard, !unlocked && styles.badgeLocked]}>
+                  <View style={[styles.badgeIcon, unlocked && { backgroundColor: ACCENT }]}>
+                    <MaterialIcons name={badge.icon as any} size={24} color={TEXT} />
+                  </View>
+                  <Text style={styles.badgeTitle}>{badge.title}</Text>
+                </View>
+              );
+            })}
+          </ScrollView>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionHeader}>Study Settings</Text>
+          <View style={styles.card}>
+            {/* Daily Goal */}
+            <View style={styles.row}>
+              <View style={styles.rowIcon}>
+                <MaterialIcons name="flag" size={20} color={TEXT} />
+              </View>
+              <Text style={styles.rowLabel}>Daily Goal</Text>
+              <View style={styles.toggles}>
+                {[10, 20, 50].map(val => (
+                  <Pressable
+                    key={val}
+                    style={[styles.toggleBtn, settings.dailyGoal === val && styles.toggleBtnActive]}
+                    onPress={() => updateSetting('dailyGoal', val)}
+                  >
+                    <Text style={[styles.toggleText, settings.dailyGoal === val && styles.toggleTextActive]}>{val}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+            <View style={styles.divider} />
+
+            {/* Text Size */}
+            <View style={styles.row}>
+              <View style={styles.rowIcon}>
+                <MaterialIcons name="format-size" size={20} color={TEXT} />
+              </View>
+              <Text style={styles.rowLabel}>Text Size</Text>
+              <View style={styles.toggles}>
+                <Pressable
+                  style={[styles.toggleBtn, settings.textSize === 0.8 && styles.toggleBtnActive]}
+                  onPress={() => updateSetting('textSize', 0.8)}
+                >
+                  <Text style={[styles.toggleText, { fontSize: 12 }, settings.textSize === 0.8 && styles.toggleTextActive]}>A</Text>
+                </Pressable>
+                <Pressable
+                  style={[styles.toggleBtn, settings.textSize === 1 && styles.toggleBtnActive]}
+                  onPress={() => updateSetting('textSize', 1)}
+                >
+                  <Text style={[styles.toggleText, { fontSize: 16 }, settings.textSize === 1 && styles.toggleTextActive]}>A</Text>
+                </Pressable>
+                <Pressable
+                  style={[styles.toggleBtn, settings.textSize === 1.2 && styles.toggleBtnActive]}
+                  onPress={() => updateSetting('textSize', 1.2)}
+                >
+                  <Text style={[styles.toggleText, { fontSize: 20 }, settings.textSize === 1.2 && styles.toggleTextActive]}>A</Text>
+                </Pressable>
+              </View>
+            </View>
           </View>
         </View>
 
@@ -308,5 +421,67 @@ const styles = StyleSheet.create({
     opacity: 0.3,
     fontSize: 14,
     fontWeight: "600",
+  },
+  heatmapContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 4,
+  },
+  heatmapSquare: {
+    width: 12,
+    height: 12,
+    borderRadius: 2,
+  },
+  badgesRow: {
+    gap: 12,
+    paddingRight: 16,
+  },
+  badgeCard: {
+    width: 100,
+    height: 120,
+    backgroundColor: "#F5F5F5",
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 12,
+    gap: 12,
+  },
+  badgeLocked: {
+    opacity: 0.5,
+  },
+  badgeIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#E0E0E0",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  badgeTitle: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: TEXT,
+    textAlign: "center",
+  },
+  toggles: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  toggleBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    backgroundColor: "#F5F5F5",
+  },
+  toggleBtnActive: {
+    backgroundColor: TEXT,
+  },
+  toggleText: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: TEXT,
+  },
+  toggleTextActive: {
+    color: ACCENT,
   },
 });

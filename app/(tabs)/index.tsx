@@ -1,6 +1,6 @@
 import { ProgressRing } from "@/components/progress-ring";
 import { DEFAULT_DECKS } from "@/data/decks";
-import { CurrentDeck, getAllDueCards, getCurrentDeck, getCustomDecks, getFavorites, getTodayInteractions, setFavorite } from "@/lib/storage";
+import { CurrentDeck, getAllDueCards, getCurrentDeck, getCustomDecks, getFavorites, getSettings, getTodayInteractions, setFavorite } from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Image } from "expo-image";
 import { useFocusEffect, useRouter } from "expo-router";
@@ -10,7 +10,6 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 const ACCENT = "#F1FF00";
 const BG = "#FFFFFF";
 const TEXT = "#000000";
-const CARD_BG = "#EDE6D6";
 const PURPLE_BG = "#D9D4F6";
 
 export default function HomeScreen() {
@@ -19,11 +18,13 @@ export default function HomeScreen() {
   const [favorites, setFavorites] = useState<{ [key: string]: boolean }>({});
   const [currentDeck, setCurrentDeck] = useState<CurrentDeck | null>(null);
   const [totalDue, setTotalDue] = useState(0);
+  const [dailyGoal, setDailyGoal] = useState(50);
 
   const loadData = async () => {
     const fav = await getFavorites();
     const t = await getTodayInteractions();
     const c = await getCurrentDeck();
+    const s = await getSettings();
 
     const customDecks = await getCustomDecks();
     const allDecks = [...DEFAULT_DECKS, ...customDecks];
@@ -35,6 +36,7 @@ export default function HomeScreen() {
     setTodayCount(t);
     setCurrentDeck(c);
     setTotalDue(due);
+    setDailyGoal(s.dailyGoal);
   };
 
   useEffect(() => {
@@ -53,8 +55,8 @@ export default function HomeScreen() {
     return shuffled.slice(0, 4);
   }, []);
 
-  const dailyProgress = Math.min(1, todayCount / 50);
-  const greeting = todayCount === 0 ? "Good Morning!" : (todayCount >= 50 ? "Goal Reached!" : "Keep it up!");
+  const dailyProgress = Math.min(1, todayCount / dailyGoal);
+  const greeting = todayCount === 0 ? "Good Morning!" : (todayCount >= dailyGoal ? "Goal Reached!" : "Keep it up!");
 
   return (
     <ScrollView
@@ -78,7 +80,7 @@ export default function HomeScreen() {
           <View>
             <Text style={styles.heroGreeting}>{greeting}</Text>
             <Text style={styles.heroSubtext}>
-              {todayCount >= 50 ? "You're on fire!" : "Let's hit your daily goal."}
+              {todayCount >= dailyGoal ? "You're on fire!" : "Let's hit your daily goal."}
             </Text>
             <Pressable
               style={styles.heroButton}
@@ -99,7 +101,7 @@ export default function HomeScreen() {
             <ProgressRing radius={50} stroke={8} progress={dailyProgress} color={ACCENT} trackColor="rgba(0,0,0,0.1)" />
             <View style={styles.ringInner}>
               <Text style={styles.ringCount}>{todayCount}</Text>
-              <Text style={styles.ringLabel}>/ 50 XP</Text>
+              <Text style={styles.ringLabel}>/ {dailyGoal} XP</Text>
             </View>
           </View>
         </View>
@@ -108,7 +110,6 @@ export default function HomeScreen() {
         <MaterialIcons name="bolt" size={120} color="rgba(0,0,0,0.03)" style={styles.heroBgIcon} />
       </View>
 
-      {/* Jump Back In */}
       {/* Daily Review or Jump Back In */}
       {totalDue > 0 ? (
         <View style={styles.section}>
@@ -116,9 +117,6 @@ export default function HomeScreen() {
           <Pressable
             style={styles.resumeCard}
             onPress={() => {
-              // Ideally this would go to a "Review All" mode, but for now let's go to the first deck with due cards
-              // Or just the current deck if it has due cards.
-              // For simplicity in this iteration: Go to current deck or explore
               if (currentDeck) {
                 router.push({ pathname: '/deck/learn', params: { slug: currentDeck.slug, title: currentDeck.title, count: String(currentDeck.count) } });
               } else {

@@ -1,3 +1,4 @@
+import { Confetti } from "@/components/confetti";
 import { getDeckBySlug } from "@/data/decks";
 import { useBottomSheet } from "@/hooks/bottom-sheet-store";
 import { calculateNextReview, INITIAL_STATS, mapRatingToGrade, SRSStats } from "@/lib/srs";
@@ -16,6 +17,7 @@ import {
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useAudioPlayer, useAudioRecorder } from 'expo-audio';
 import { Audio } from 'expo-av';
+import * as Haptics from 'expo-haptics';
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import * as Speech from 'expo-speech';
 import { useCallback, useEffect, useState } from "react";
@@ -44,7 +46,7 @@ export default function LearnScreen() {
 
   const [deck, setDeck] = useState<any>(getDeckBySlug(String(slug)));
   const [cards, setCards] = useState<CardData[]>([]);
-  const [settings, setSettings] = useState<AppSettings>({ dailyReminders: true, soundEffects: true });
+  const [settings, setSettings] = useState<AppSettings>({ dailyReminders: true, soundEffects: true, dailyGoal: 50, textSize: 1 });
 
   // Queue management
   const [queue, setQueue] = useState<number[]>([]);
@@ -241,6 +243,7 @@ export default function LearnScreen() {
   }
 
   function handleFlip() {
+    Haptics.selectionAsync();
     const next = flipped ? 0 : 1;
     setFlipped(!flipped);
     flip.value = withTiming(next);
@@ -258,11 +261,13 @@ export default function LearnScreen() {
       setCurrentIndex(prev => prev + 1);
     } else {
       // End of queue
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setCurrentIndex(prev => prev + 1); // To trigger empty state
     }
   }
 
   async function onAssess(rating: 'difficult' | 'known') {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     const grade = mapRatingToGrade(rating);
     const currentStats = deckStats[activeCardIndex] || INITIAL_STATS;
     const wasNew = !deckStats[activeCardIndex]; // Track if this was a new word
@@ -335,6 +340,7 @@ export default function LearnScreen() {
   if (currentIndex >= queue.length) {
     return (
       <View style={[styles.page, { justifyContent: 'center', alignItems: 'center' }]}>
+        <Confetti />
         <MaterialIcons name="check-circle" size={64} color={ACCENT} />
         <Text style={styles.doneText}>All caught up!</Text>
         <Text style={styles.doneSubText}>Come back later for more reviews.</Text>
@@ -344,6 +350,8 @@ export default function LearnScreen() {
       </View>
     );
   }
+
+  const textSizeMultiplier = settings.textSize || 1;
 
   return (
     <ScrollView style={{ backgroundColor: PAGE_BG }} contentContainerStyle={styles.page}>
@@ -379,7 +387,7 @@ export default function LearnScreen() {
         {currentIndex + 1 < queue.length && (
           <Animated.View style={[styles.card, nextCardStyle]}>
             <View style={styles.cardFace}>
-              <Text style={styles.cardText}>{cards[queue[currentIndex + 1]].front}</Text>
+              <Text style={[styles.cardText, { fontSize: 32 * textSizeMultiplier }]}>{cards[queue[currentIndex + 1]].front}</Text>
             </View>
           </Animated.View>
         )}
@@ -389,7 +397,7 @@ export default function LearnScreen() {
           <View style={{ flex: 1 }}>
             {/* Front Face */}
             <Animated.View style={[styles.cardFace, styles.cardFaceFront, frontFaceStyle]}>
-              <Text style={styles.cardText}>{activeCard.front}</Text>
+              <Text style={[styles.cardText, { fontSize: 32 * textSizeMultiplier }]}>{activeCard.front}</Text>
 
               {/* Controls Row: Stop Propagation by handling press */}
               <View style={[styles.controlsRow, !started && { opacity: 0.5 }]}>
@@ -421,11 +429,11 @@ export default function LearnScreen() {
 
             {/* Back Face */}
             <Animated.View style={[styles.cardFace, styles.cardFaceBack, backFaceStyle]}>
-              <Text style={styles.cardText}>{activeCard.back}</Text>
+              <Text style={[styles.cardText, { fontSize: 32 * textSizeMultiplier }]}>{activeCard.back}</Text>
               {activeCard.example && (
                 <View style={styles.exampleContainer}>
                   <Text style={styles.exampleLabel}>Example:</Text>
-                  <Text style={styles.exampleText}>"{activeCard.example}"</Text>
+                  <Text style={[styles.exampleText, { fontSize: 18 * textSizeMultiplier }]}>"{activeCard.example}"</Text>
                 </View>
               )}
             </Animated.View>

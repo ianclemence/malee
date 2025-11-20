@@ -205,11 +205,15 @@ const SETTINGS_KEY = "malee:settings";
 export type AppSettings = {
   dailyReminders: boolean;
   soundEffects: boolean;
+  dailyGoal: number; // New: Configurable daily goal
+  textSize: number; // New: Font size multiplier (0.8, 1, 1.2)
 };
 
 const DEFAULT_SETTINGS: AppSettings = {
   dailyReminders: true,
   soundEffects: true,
+  dailyGoal: 50,
+  textSize: 1,
 };
 
 export async function getSettings(): Promise<AppSettings> {
@@ -222,6 +226,11 @@ export async function saveSettings(settings: AppSettings): Promise<void> {
 }
 
 // --- Advanced Stats ---
+
+export async function getHeatmapData(): Promise<{ [date: string]: number }> {
+  const v = await AsyncStorage.getItem(DAILY_KEY);
+  return v ? JSON.parse(v) : {};
+}
 
 export async function getStreak(): Promise<number> {
   const v = await AsyncStorage.getItem(DAILY_KEY);
