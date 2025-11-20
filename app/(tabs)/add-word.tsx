@@ -75,7 +75,16 @@ export default function AddWordScreen() {
     });
 
     Alert.alert("Success", "Word added to deck!", [
-      { text: "OK", onPress: () => router.back() }
+      {
+        text: "Add Another",
+        onPress: () => {
+          setWord("");
+          setTranslation("");
+          setNewDeckName("");
+          // Keep the selected deck for convenience
+        }
+      },
+      { text: "Done", onPress: () => router.back() }
     ]);
   };
 
@@ -138,26 +147,16 @@ export default function AddWordScreen() {
                   ]}>{d.title}</Text>
                 </Pressable>
               ))}
-
-              <Pressable
-                style={[
-                  styles.suggestionChip,
-                  styles.newDeckChip,
-                  isCreatingDeck && styles.chipActive
-                ]}
-                onPress={() => setIsCreatingDeck(true)}
-              >
-                <MaterialIcons name="add" size={16} color={isCreatingDeck ? ACCENT : TEXT} />
-                <Text style={[
-                  styles.suggestionText,
-                  isCreatingDeck && styles.chipTextActive
-                ]}>New Deck</Text>
-              </Pressable>
             </View>
 
-            {isCreatingDeck && (
+            {isCreatingDeck ? (
               <View style={styles.newDeckInput}>
-                <Text style={styles.label}>New Deck Name</Text>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                  <Text style={styles.label}>New Deck Name</Text>
+                  <Pressable onPress={() => setIsCreatingDeck(false)}>
+                    <Text style={{ color: TEXT, opacity: 0.5, fontSize: 12, fontWeight: '600' }}>Cancel</Text>
+                  </Pressable>
+                </View>
                 <TextInput
                   value={newDeckName}
                   onChangeText={setNewDeckName}
@@ -167,6 +166,17 @@ export default function AddWordScreen() {
                   autoFocus
                 />
               </View>
+            ) : (
+              <Pressable
+                style={styles.createDeckBtn}
+                onPress={() => {
+                  setIsCreatingDeck(true);
+                  setSelectedDeckSlug(null);
+                }}
+              >
+                <MaterialIcons name="add" size={20} color={TEXT} />
+                <Text style={styles.createDeckText}>Create New Deck</Text>
+              </Pressable>
             )}
           </View>
         </View>
@@ -253,11 +263,23 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "transparent",
   },
-  newDeckChip: {
-    paddingHorizontal: 24,
+  createDeckBtn: {
+    marginTop: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    justifyContent: 'center',
+    padding: 16,
+    backgroundColor: "#F5F5F5",
+    borderRadius: 16,
+    gap: 8,
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+    borderStyle: 'dashed',
+  },
+  createDeckText: {
+    color: TEXT,
+    fontWeight: "700",
+    fontSize: 16,
   },
   suggestionText: {
     color: TEXT,
