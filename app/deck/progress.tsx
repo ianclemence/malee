@@ -1,3 +1,4 @@
+import { ProgressRing } from "@/components/progress-ring";
 import { getDeckBySlug } from "@/data/decks";
 import { DetailedStats, getDetailedDeckStats } from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -45,15 +46,7 @@ export default function DeckProgressScreen() {
   );
 
   // Ring Progress Calculation
-  const ringProg = Math.max(0, Math.min(1, stats.progress));
-  const showRing = ringProg > 0;
-
-  const ringColors = {
-    borderTopColor: ringProg > 0 ? ACCENT : 'transparent',
-    borderRightColor: ringProg >= 0.25 ? ACCENT : 'transparent',
-    borderBottomColor: ringProg >= 0.5 ? ACCENT : 'transparent',
-    borderLeftColor: ringProg >= 0.75 ? ACCENT : 'transparent',
-  } as const;
+  const showRing = stats.progress > 0;
 
   return (
     <View style={styles.page}>
@@ -115,7 +108,11 @@ export default function DeckProgressScreen() {
       >
         <View style={styles.btnSide}>
           <View style={styles.playWrapper}>
-            {showRing && <View style={[styles.playProgressRing, ringColors]} />}
+            {showRing && (
+              <View style={styles.ringContainer}>
+                <ProgressRing radius={18} stroke={3} progress={stats.progress} color={ACCENT} />
+              </View>
+            )}
             <MaterialIcons name="play-arrow" size={20} color={ACCENT} />
           </View>
         </View>
@@ -263,15 +260,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     position: 'relative',
   },
-  playProgressRing: {
+  ringContainer: {
     position: 'absolute',
-    left: -2,
-    right: -2,
-    top: -2,
-    bottom: -2,
-    borderWidth: 3,
-    borderColor: 'transparent',
-    borderRadius: 22,
-    transform: [{ rotate: '-45deg' }],
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

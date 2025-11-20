@@ -1,3 +1,4 @@
+import { ProgressRing } from "@/components/progress-ring";
 import { useBottomSheet } from "@/hooks/bottom-sheet-store";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useRouter } from "expo-router";
@@ -54,17 +55,9 @@ export default function BottomPlayer({ inline = false }: { inline?: boolean }) {
   }
 
   const prog = typeof state.progress === 'number' ? state.progress : 0;
-  const ringProg = Math.max(0, Math.min(1, prog));
 
   // Only show ring if progress > 0
-  const showRing = ringProg > 0;
-
-  const ringColors = {
-    borderTopColor: ringProg > 0 ? ACCENT : 'transparent',
-    borderRightColor: ringProg >= 0.25 ? ACCENT : 'transparent',
-    borderBottomColor: ringProg >= 0.5 ? ACCENT : 'transparent',
-    borderLeftColor: ringProg >= 0.75 ? ACCENT : 'transparent',
-  } as const;
+  const showRing = prog > 0;
 
   if (!state.visible || !state.deck) return null;
 
@@ -97,7 +90,11 @@ export default function BottomPlayer({ inline = false }: { inline?: boolean }) {
             <Text style={styles.count}>{state.deck.count}</Text>
           </View>
           <Pressable style={styles.play} onPress={onResume}>
-            {showRing && <View style={[styles.playProgressRing, ringColors]} />}
+            {showRing && (
+              <View style={styles.ringContainer}>
+                <ProgressRing radius={22} stroke={3} progress={prog} color={ACCENT} />
+              </View>
+            )}
             <MaterialIcons name="play-arrow" size={20} color={ACCENT} />
           </Pressable>
           <Pressable onPress={hide}>
@@ -156,15 +153,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     position: 'relative',
   },
-  playProgressRing: {
+  ringContainer: {
     position: 'absolute',
-    left: -2,
-    right: -2,
-    top: -2,
-    bottom: -2,
-    borderWidth: 3,
-    borderColor: 'transparent',
-    borderRadius: 22,
-    transform: [{ rotate: '-45deg' }], // Start from top-leftish or adjust as needed
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
