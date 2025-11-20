@@ -262,9 +262,12 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "rgba(255,255,255,0.6)",
+    backgroundColor: Palette.white,
     alignItems: "center",
     justifyContent: "center",
+    borderWidth: Strokes.thin,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
   },
   cardContent: {
     gap: 8,
