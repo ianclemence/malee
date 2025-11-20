@@ -273,6 +273,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: TEXT,
     marginBottom: 16,
+    fontFamily: 'PlayfairDisplay_600SemiBold',
   },
   resumeCard: {
     backgroundColor: Palette.white,
