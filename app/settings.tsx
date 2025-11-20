@@ -146,8 +146,8 @@ const styles = StyleSheet.create({
     backgroundColor: BG,
   },
   container: {
-    paddingHorizontal: 24,
-    paddingBottom: 40,
+    paddingHorizontal: 16,
+    paddingBottom: 100,
     marginTop: 48,
   },
   headerRow: {

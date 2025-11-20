@@ -20,7 +20,6 @@ export default function AddWordScreen() {
   const router = useRouter();
   const [word, setWord] = useState("");
   const [translation, setTranslation] = useState("");
-  const [example, setExample] = useState("");
 
   const [decks, setDecks] = useState<CustomDeck[]>([]);
   const [selectedDeckSlug, setSelectedDeckSlug] = useState<string | null>(null);
@@ -73,7 +72,6 @@ export default function AddWordScreen() {
     await addWordToCustomDeck(targetSlug, {
       en: word,
       th: translation,
-      example: example.trim() || undefined,
     });
 
     Alert.alert("Success", "Word added to deck!", [
@@ -119,17 +117,6 @@ export default function AddWordScreen() {
             />
           </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Example Sentence (Optional)</Text>
-            <TextInput
-              value={example}
-              onChangeText={setExample}
-              placeholder="e.g. He looked very dapper."
-              placeholderTextColor="rgba(0,0,0,0.3)"
-              style={styles.input}
-            />
-          </View>
-
           <View style={styles.suggestionsContainer}>
             <Text style={styles.helperText}>Add to Deck</Text>
             <View style={styles.suggestionsRow}>
@@ -155,6 +142,7 @@ export default function AddWordScreen() {
               <Pressable
                 style={[
                   styles.suggestionChip,
+                  styles.newDeckChip,
                   isCreatingDeck && styles.chipActive
                 ]}
                 onPress={() => setIsCreatingDeck(true)}
@@ -264,6 +252,12 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: "transparent",
+  },
+  newDeckChip: {
+    paddingHorizontal: 24,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   suggestionText: {
     color: TEXT,
