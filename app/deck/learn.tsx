@@ -24,6 +24,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { ThemedText } from '@/components/themed-text';
 import { ProgressBar } from '@/components/ui/progress-bar';
+import { IconButton } from '@/components/ui/icon-button';
 import { Palette, Radii, Strokes, Shadows, FontSizes } from '@/constants/theme';
 import Animated, {
   interpolate,
@@ -402,29 +403,19 @@ export default function LearnScreen() {
 
               {/* Controls Row: Stop Propagation by handling press */}
               <View style={[styles.controlsRow, !started && { opacity: 0.5 }]}>
-                <Pressable
-                  style={styles.iconBtn}
+                <IconButton icon="volume-up" size={64} disabled={!started} onPress={() => speak(activeCard.front)} />
+                <IconButton
+                  icon={isRecording ? "stop" : (recordedUri ? (isPlaying ? "volume-up" : "play-arrow") : "mic")}
+                  size={64}
                   disabled={!started}
-                  onPress={() => speak(activeCard.front)}
-                >
-                  <MaterialIcons name="volume-up" size={28} color={TEXT} />
-                </Pressable>
-
-                <Pressable
-                  style={[styles.iconBtn, isRecording && styles.recordingBtn]}
-                  disabled={!started}
+                  variant={isRecording ? 'danger' : 'default'}
+                  iconColor={isRecording ? '#FFFFFF' : TEXT}
                   onPress={() => {
                     if (isRecording) stopRecording();
                     else if (recordedUri) playRecording();
                     else startRecording();
                   }}
-                >
-                  <MaterialIcons
-                    name={isRecording ? "stop" : (recordedUri ? (isPlaying ? "volume-up" : "play-arrow") : "mic")}
-                    size={28}
-                    color={isRecording ? "#FFFFFF" : TEXT}
-                  />
-                </Pressable>
+                />
               </View>
             </Animated.View>
 
@@ -448,27 +439,9 @@ export default function LearnScreen() {
       </View>
 
       <View style={styles.assessRow}>
-        <Pressable
-          style={({ pressed }) => [styles.assessBtnCircle, (!started || history.length === 0) && { opacity: 0.5 }, pressed && { backgroundColor: Palette.pastelBlue }]}
-          disabled={!started || history.length === 0}
-          onPress={onUndo}
-        >
-          <MaterialIcons name="undo" size={28} color={TEXT} />
-        </Pressable>
-        <Pressable
-          style={({ pressed }) => [styles.assessBtnCircle, !started && { opacity: 0.5 }, pressed && { backgroundColor: Palette.pastelGreen }]}
-          disabled={!started}
-          onPress={() => onAssess('known')}
-        >
-          <MaterialIcons name="thumb-up" size={28} color={Palette.success} />
-        </Pressable>
-        <Pressable
-          style={({ pressed }) => [styles.assessBtnCircle, !started && { opacity: 0.5 }, pressed && { backgroundColor: Palette.pastelBeige }]}
-          disabled={!started}
-          onPress={() => onAssess('difficult')}
-        >
-          <MaterialIcons name="thumb-down" size={28} color={Palette.error} />
-        </Pressable>
+        <IconButton icon="undo" size={64} disabled={!started || history.length === 0} onPress={onUndo} />
+        <IconButton icon="thumb-up" size={64} disabled={!started} onPress={() => onAssess('known')} iconColor={Palette.success} />
+        <IconButton icon="thumb-down" size={64} disabled={!started} onPress={() => onAssess('difficult')} iconColor={Palette.error} />
       </View>
     </ScrollView>
   );
@@ -584,37 +557,12 @@ const styles = StyleSheet.create({
     gap: 24,
     marginBottom: 24,
   },
-  iconBtn: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: Palette.white,
-    borderWidth: Strokes.thin,
-    borderColor: Palette.black,
-    ...Shadows.brutalist,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  recordingBtn: {
-    backgroundColor: Palette.error,
-  },
   assessRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     gap: 12,
     marginTop: 24,
-  },
-  assessBtnCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: Palette.white,
-    borderWidth: Strokes.regular,
-    borderColor: Palette.black,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...Shadows.brutalist,
   },
   doneText: {
     fontSize: FontSizes.phrase,

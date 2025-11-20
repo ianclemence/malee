@@ -1,4 +1,3 @@
-import { ProgressRing } from "@/components/progress-ring";
 import { ThemedText } from '@/components/themed-text';
 import { FontSizes, Palette, Radii, Shadows, Strokes } from '@/constants/theme';
 import { getDeckBySlug } from "@/data/decks";
@@ -17,6 +16,8 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { HeaderBar } from '@/components/ui/header-bar';
+import { FloatingActionBar } from '@/components/ui/floating-action-bar';
 import { WordCard } from '@/components/ui/word-card';
 
 const ACCENT = Palette.primary;
@@ -98,12 +99,7 @@ export default function DeckScreen() {
   return (
     <View style={styles.page}>
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        <View style={styles.headerRow}>
-          <Pressable onPress={() => router.back()} style={styles.iconButton}>
-            <MaterialIcons name="arrow-back" size={24} color={TEXT} />
-          </Pressable>
-
-        </View>
+        <HeaderBar leftIconName="arrow-back" onLeftPress={() => router.back()} />
 
         <View style={styles.heroSection}>
           <View style={styles.heroIcon}>
@@ -179,38 +175,16 @@ export default function DeckScreen() {
         )}
       </ScrollView>
 
-      <Pressable
-        style={styles.floatingLearnBar}
+      <FloatingActionBar
+        label={isMine || isCustom ? 'Start Learning' : 'Try this Deck'}
+        progress={progress}
         onPress={() => {
-          if (!isMine) {
-            // Auto-add to my decks if starting learn? Or just let them learn.
-            // For now, just push.
-          }
           router.push({
-            pathname: "/deck/learn",
-            params: {
-              slug: String(slug) ?? "",
-              title: deck?.title ?? String(title) ?? "Deck",
-              count: String(wordCount),
-            },
+            pathname: '/deck/learn',
+            params: { slug: String(slug) ?? '', title: deck?.title ?? String(title) ?? 'Deck', count: String(wordCount) },
           });
         }}
-      >
-        <View style={styles.btnSide}>
-          <View style={styles.playWrapper}>
-            {showRing && (
-              <View style={styles.ringContainer}>
-                <ProgressRing radius={18} stroke={3} progress={progress} color={ACCENT} />
-              </View>
-            )}
-            <MaterialIcons name="play-arrow" size={20} color={ACCENT} />
-          </View>
-        </View>
-        <ThemedText style={styles.learnText}>
-          {isMine || isCustom ? "Start Learning" : "Try this Deck"}
-        </ThemedText>
-        <View style={styles.btnSide} />
-      </Pressable>
+      />
     </View>
   );
 }
@@ -224,23 +198,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 120,
     marginTop: 48,
-  },
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 24,
-  },
-  iconButton: {
-    width: 40,
-    height: 40,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: Palette.white,
-    borderRadius: 20,
-    borderWidth: Strokes.thin,
-    borderColor: Palette.black,
-    ...Shadows.brutalist,
   },
   heroSection: {
     alignItems: "center",
@@ -347,45 +304,5 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   
-  floatingLearnBar: {
-    position: "absolute",
-    left: 16,
-    right: 16,
-    bottom: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    height: 64,
-    backgroundColor: Palette.black,
-    borderRadius: Radii.button,
-    gap: 8,
-    borderWidth: Strokes.regular,
-    borderColor: Palette.black,
-    ...Shadows.brutalist,
-    paddingHorizontal: 16,
-  },
-  learnText: {
-    color: ACCENT,
-    fontFamily: 'Inter_700Bold',
-    fontSize: FontSizes.button,
-    textAlign: "center",
-    flex: 1,
-  },
-  btnSide: {
-    width: 40,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  playWrapper: {
-    width: 36,
-    height: 36,
-    alignItems: "center",
-    justifyContent: "center",
-    position: 'relative',
-  },
-  ringContainer: {
-    position: 'absolute',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  
 });

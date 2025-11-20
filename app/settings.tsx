@@ -7,14 +7,8 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  View,
-} from "react-native";
+import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
+import { HeaderBar } from '@/components/ui/header-bar';
 
 const ACCENT = Palette.primary;
 const TEXT = Palette.black;
@@ -82,11 +76,7 @@ export default function SettingsScreen() {
   return (
     <View style={styles.page}>
       <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.headerRow}>
-          <Pressable onPress={() => router.back()} style={styles.iconButton}>
-            <MaterialIcons name="close" size={24} color={TEXT} />
-          </Pressable>
-        </View>
+        <HeaderBar rightIconName="close" onRightPress={() => router.back()} />
 
         <View style={styles.profileSection}>
           <View style={styles.avatarContainer}>
@@ -274,29 +264,7 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
     marginTop: 48,
   },
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "flex-end",
-    marginBottom: 32,
-  },
-  headerTitle: {
-    fontSize: 32,
-    fontWeight: "900",
-    color: TEXT,
-    letterSpacing: -1,
-  },
-  iconButton: {
-    width: 40,
-    height: 40,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: Palette.white,
-    borderRadius: 20,
-    borderWidth: Strokes.thin,
-    borderColor: Palette.black,
-    ...Shadows.brutalist,
-  },
+  
   profileSection: {
     alignItems: "center",
     marginBottom: 32,

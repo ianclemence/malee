@@ -1,4 +1,3 @@
-import { ProgressRing } from "@/components/progress-ring";
 import { ThemedText } from '@/components/themed-text';
 import { FontSizes, Palette, Radii, Shadows, Strokes } from '@/constants/theme';
 import { getDeckBySlug } from "@/data/decks";
@@ -8,6 +7,8 @@ import { Image } from "expo-image";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { HeaderBar } from '@/components/ui/header-bar';
+import { FloatingActionBar } from '@/components/ui/floating-action-bar';
 
 const ACCENT = Palette.primary;
 const TEXT = Palette.black;
@@ -53,11 +54,7 @@ export default function DeckProgressScreen() {
   return (
     <View style={styles.page}>
       <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.headerRow}>
-          <Pressable onPress={() => router.back()} style={styles.iconButton}>
-            <MaterialIcons name="close" size={24} color={TEXT} />
-          </Pressable>
-        </View>
+        <HeaderBar rightIconName="close" onRightPress={() => router.back()} />
 
         <View style={styles.illustrationHolder}>
           <Image
@@ -95,32 +92,13 @@ export default function DeckProgressScreen() {
 
       </ScrollView>
 
-      <Pressable
-        style={styles.floatingLearnBar}
+      <FloatingActionBar
+        label="Continue Learning"
+        progress={stats.progress}
         onPress={() =>
-          router.push({
-            pathname: "/deck/learn",
-            params: {
-              slug: slug ?? "",
-              title: title ?? "Deck",
-              count: count ?? "0",
-            },
-          })
+          router.push({ pathname: '/deck/learn', params: { slug: slug ?? '', title: title ?? 'Deck', count: count ?? '0' } })
         }
-      >
-        <View style={styles.btnSide}>
-          <View style={styles.playWrapper}>
-            {showRing && (
-              <View style={styles.ringContainer}>
-                <ProgressRing radius={18} stroke={3} progress={stats.progress} color={ACCENT} />
-              </View>
-            )}
-            <MaterialIcons name="play-arrow" size={20} color={ACCENT} />
-          </View>
-        </View>
-        <ThemedText style={styles.learnText}>Continue Learning</ThemedText>
-        <View style={styles.btnSide} />
-      </Pressable>
+      />
     </View>
   );
 }
@@ -134,23 +112,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 120,
     marginTop: 48,
-  },
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 24,
-  },
-  iconButton: {
-    width: 40,
-    height: 40,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: Palette.white,
-    borderRadius: 20,
-    borderWidth: Strokes.thin,
-    borderColor: Palette.black,
-    ...Shadows.brutalist,
   },
   illustrationHolder: {
     alignItems: "center",
@@ -232,46 +193,6 @@ const styles = StyleSheet.create({
     opacity: 0.6,
     fontFamily: 'Inter_500Medium',
   },
-  floatingLearnBar: {
-    position: "absolute",
-    left: 16,
-    right: 16,
-    bottom: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    height: 64,
-    backgroundColor: Palette.black,
-    borderRadius: Radii.button,
-    gap: 8,
-    borderWidth: Strokes.regular,
-    borderColor: Palette.black,
-    ...Shadows.brutalist,
-    paddingHorizontal: 16,
-  },
-  learnText: {
-    color: ACCENT,
-    fontFamily: 'Inter_700Bold',
-    fontSize: FontSizes.button,
-    textAlign: "center",
-    flex: 1,
-  },
-  btnSide: {
-    width: 40,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  playWrapper: {
-    width: 36,
-    height: 36,
-    alignItems: "center",
-    justifyContent: "center",
-    position: 'relative',
-  },
-  ringContainer: {
-    position: 'absolute',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  
 });
 
