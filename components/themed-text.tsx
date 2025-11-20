@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: FontSizes.h1,
     lineHeight: 32,
-    fontFamily: 'LibreCaslonText_700Bold',
+    fontFamily: 'PlayfairDisplay_700Bold',
   },
   subtitle: {
     fontSize: FontSizes.h2,
@@ -63,6 +63,6 @@ const styles = StyleSheet.create({
   },
   phrase: {
     fontSize: FontSizes.phrase,
-    fontFamily: 'LibreCaslonText_400Regular',
+    fontFamily: 'PlayfairDisplay_500Medium',
   },
 });

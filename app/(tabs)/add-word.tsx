@@ -258,7 +258,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: Strokes.regular,
     borderColor: Palette.black,
     paddingVertical: 8,
-    fontFamily: 'LibreCaslonText_400Regular',
+    fontFamily: 'PlayfairDisplay_500Medium',
   },
   suggestionsContainer: {
     marginTop: 8,

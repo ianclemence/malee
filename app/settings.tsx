@@ -334,7 +334,7 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.phrase,
     color: TEXT,
     marginBottom: 4,
-    fontFamily: 'LibreCaslonText_400Regular',
+    fontFamily: 'PlayfairDisplay_500Medium',
   },
   level: {
     fontSize: FontSizes.body,
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.phrase,
     color: TEXT,
     marginBottom: 4,
-    fontFamily: 'LibreCaslonText_400Regular',
+    fontFamily: 'PlayfairDisplay_500Medium',
   },
   statLabel: {
     fontSize: FontSizes.small,
@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: TEXT,
     marginBottom: 16,
-    fontFamily: 'LibreCaslonText_700Bold',
+    fontFamily: 'PlayfairDisplay_600SemiBold',
   },
   card: {
     backgroundColor: Palette.white,

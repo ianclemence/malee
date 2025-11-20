@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 8,
     letterSpacing: -1,
-    fontFamily: 'LibreCaslonText_700Bold',
+    fontFamily: 'PlayfairDisplay_700Bold',
   },
   metaRow: {
     flexDirection: "row",
@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     color: TEXT,
-    fontFamily: 'LibreCaslonText_700Bold',
+    fontFamily: 'PlayfairDisplay_600SemiBold',
   },
   wordCountBadge: {
     fontSize: 14,

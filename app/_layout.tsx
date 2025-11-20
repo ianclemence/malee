@@ -1,15 +1,15 @@
 import { ToastProvider } from '@/components/ui/toast-context';
 import { BottomSheetProvider } from '@/hooks/bottom-sheet-store';
 import { registerForPushNotificationsAsync } from '@/lib/notifications';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { useFonts } from 'expo-font';
 import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular';
 import { Inter_500Medium } from '@expo-google-fonts/inter/500Medium';
 import { Inter_700Bold } from '@expo-google-fonts/inter/700Bold';
-import { LibreCaslonText_400Regular } from '@expo-google-fonts/libre-caslon-text/400Regular';
-import { LibreCaslonText_700Bold } from '@expo-google-fonts/libre-caslon-text/700Bold';
+import { PlayfairDisplay_500Medium } from '@expo-google-fonts/playfair-display/500Medium';
+import { PlayfairDisplay_700Bold } from '@expo-google-fonts/playfair-display/700Bold';
+import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { useFonts } from 'expo-font';
+import { Stack } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
@@ -26,8 +26,8 @@ export default function RootLayout() {
     Inter_400Regular,
     Inter_500Medium,
     Inter_700Bold,
-    LibreCaslonText_400Regular,
-    LibreCaslonText_700Bold,
+    PlayfairDisplay_500Medium,
+    PlayfairDisplay_700Bold,
   });
 
   useEffect(() => {

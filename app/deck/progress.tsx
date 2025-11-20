@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     textAlign: "center",
     letterSpacing: -1,
-    fontFamily: 'LibreCaslonText_700Bold',
+    fontFamily: 'PlayfairDisplay_700Bold',
   },
   statsRow: {
     flexDirection: "row",
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: FontSizes.phrase,
     color: TEXT,
-    fontFamily: 'LibreCaslonText_400Regular',
+    fontFamily: 'PlayfairDisplay_500Medium',
   },
   statLabel: {
     color: TEXT,
