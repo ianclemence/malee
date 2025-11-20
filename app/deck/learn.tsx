@@ -1,7 +1,16 @@
 import { Confetti } from "@/components/confetti";
+import { ThemedText } from "@/components/themed-text";
+import { IconButton } from "@/components/ui/icon-button";
+import { ProgressBar } from "@/components/ui/progress-bar";
+import { FontSizes, Palette, Radii, Shadows, Strokes } from "@/constants/theme";
 import { getDeckBySlug } from "@/data/decks";
 import { useBottomSheet } from "@/hooks/bottom-sheet-store";
-import { calculateNextReview, INITIAL_STATS, mapRatingToGrade, SRSStats } from "@/lib/srs";
+import {
+  calculateNextReview,
+  INITIAL_STATS,
+  mapRatingToGrade,
+  SRSStats,
+} from "@/lib/srs";
 import {
   AppSettings,
   DeckProgress,
@@ -12,25 +21,27 @@ import {
   getTodayInteractions,
   incTodayInteractions,
   saveWordStats,
-  setCurrentDeck
+  setCurrentDeck,
 } from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { useAudioPlayer, useAudioRecorder } from 'expo-audio';
-import { Audio } from 'expo-av';
-import * as Haptics from 'expo-haptics';
+import { Audio, useAudioPlayer, useAudioRecorder } from "expo-audio";
+import * as Haptics from "expo-haptics";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import * as Speech from 'expo-speech';
+import * as Speech from "expo-speech";
 import { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { ThemedText } from '@/components/themed-text';
-import { ProgressBar } from '@/components/ui/progress-bar';
-import { IconButton } from '@/components/ui/icon-button';
-import { Palette, Radii, Strokes, Shadows, FontSizes } from '@/constants/theme';
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import Animated, {
   interpolate,
   useAnimatedStyle,
   useSharedValue,
-  withTiming
+  withTiming,
 } from "react-native-reanimated";
 
 const ACCENT = Palette.primary;
@@ -50,14 +61,21 @@ export default function LearnScreen() {
 
   const [deck, setDeck] = useState<any>(getDeckBySlug(String(slug)));
   const [cards, setCards] = useState<CardData[]>([]);
-  const [settings, setSettings] = useState<AppSettings>({ dailyReminders: true, soundEffects: true, dailyGoal: 50, textSize: 1 });
+  const [settings, setSettings] = useState<AppSettings>({
+    dailyReminders: true,
+    soundEffects: true,
+    dailyGoal: 50,
+    textSize: 1,
+  });
 
   // Queue management
   const [queue, setQueue] = useState<number[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0); // Index within the queue
   const [loading, setLoading] = useState(true);
   const [deckStats, setDeckStats] = useState<DeckProgress>({});
-  const [history, setHistory] = useState<Array<{ index: number; stats: SRSStats }>>([]);
+  const [history, setHistory] = useState<{ index: number; stats: SRSStats }[]>(
+    []
+  );
   const [learnedWordsCount, setLearnedWordsCount] = useState(0); // Track learned words
 
   const [flipped, setFlipped] = useState(false);
@@ -69,18 +87,18 @@ export default function LearnScreen() {
 
   // Audio Recording State
   const recorder = useAudioRecorder({
-    extension: 'm4a',
+    extension: "m4a",
     numberOfChannels: 1,
     sampleRate: 44100,
     bitRate: 128000,
     android: {
-      extension: 'm4a',
-      outputFormat: 'mpeg4' as any,
-      audioEncoder: 'aac' as any,
+      extension: "m4a",
+      outputFormat: "mpeg4" as any,
+      audioEncoder: "aac" as any,
     },
     ios: {
-      extension: 'm4a',
-      outputFormat: 'mpeg4AAC',
+      extension: "m4a",
+      outputFormat: "mpeg4AAC",
       audioQuality: 127,
     },
   });
@@ -94,17 +112,14 @@ export default function LearnScreen() {
 
   const topCardStyle = useAnimatedStyle(() => ({
     zIndex: 10,
-    transform: [
-      { perspective: 1000 },
-      { rotateY: `${flip.value * 180}deg` },
-    ],
+    transform: [{ perspective: 1000 }, { rotateY: `${flip.value * 180}deg` }],
   }));
 
   const nextCardStyle = useAnimatedStyle(() => ({
     zIndex: 1,
     transform: [
       { scale: scaleNext.value },
-      { translateY: interpolate(scaleNext.value, [0.96, 1], [20, 0]) } // Move up as it scales up
+      { translateY: interpolate(scaleNext.value, [0.96, 1], [20, 0]) }, // Move up as it scales up
     ],
     opacity: interpolate(flip.value, [0, 0.5], [1, 0]), // Fade out quickly when flipping starts
   }));
@@ -141,7 +156,11 @@ export default function LearnScreen() {
         return;
       }
 
-      const currentCards = d.words.map((w: any) => ({ front: w.en, back: w.th, example: w.example }));
+      const currentCards = d.words.map((w: any) => ({
+        front: w.en,
+        back: w.th,
+        example: w.example,
+      }));
       setCards(currentCards);
 
       const p = await getDeckProgress(String(slug));
@@ -172,9 +191,17 @@ export default function LearnScreen() {
       setLoading(false);
 
       // Update header stats
-      const stats = await getDeckProgressStats(String(slug), currentCards.length);
+      const stats = await getDeckProgressStats(
+        String(slug),
+        currentCards.length
+      );
       setProgress(stats.progress);
-      await setCurrentDeck({ slug: String(slug), title: d.title || String(title || 'Deck'), count: currentCards.length, progress: stats.progress });
+      await setCurrentDeck({
+        slug: String(slug),
+        title: d.title || String(title || "Deck"),
+        count: currentCards.length,
+        progress: stats.progress,
+      });
       const today = await getTodayInteractions();
       setTodayCount(today);
     })();
@@ -184,7 +211,14 @@ export default function LearnScreen() {
     useCallback(() => {
       return () => {
         if (started) {
-          bottomSheet.show({ slug: String(slug), title: deck?.title || String(title || 'Deck'), count: String(cards.length) }, progress);
+          bottomSheet.show(
+            {
+              slug: String(slug),
+              title: deck?.title || String(title || "Deck"),
+              count: String(cards.length),
+            },
+            progress
+          );
         }
       };
     }, [started, slug, deck?.title, cards.length, progress])
@@ -193,7 +227,7 @@ export default function LearnScreen() {
   // Audio Functions
   async function speak(text: string) {
     if (settings.soundEffects) {
-      Speech.speak(text, { language: 'en' });
+      Speech.speak(text, { language: "en" });
     }
   }
 
@@ -204,7 +238,7 @@ export default function LearnScreen() {
       if (!granted) {
         const { granted: newGranted } = await Audio.requestPermissionsAsync();
         if (!newGranted) {
-          console.log('Microphone permission denied');
+          console.log("Microphone permission denied");
           return;
         }
       }
@@ -217,7 +251,7 @@ export default function LearnScreen() {
         setIsRecording(true);
       }
     } catch (err) {
-      console.error('Failed to toggle recording', err);
+      console.error("Failed to toggle recording", err);
       setIsRecording(false);
     }
   }
@@ -262,39 +296,47 @@ export default function LearnScreen() {
     scaleNext.value = withTiming(0.96);
 
     if (currentIndex < queue.length - 1) {
-      setCurrentIndex(prev => prev + 1);
+      setCurrentIndex((prev) => prev + 1);
     } else {
       // End of queue
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      setCurrentIndex(prev => prev + 1); // To trigger empty state
+      setCurrentIndex((prev) => prev + 1); // To trigger empty state
     }
   }
 
-  async function onAssess(rating: 'difficult' | 'known') {
+  async function onAssess(rating: "difficult" | "known") {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     const grade = mapRatingToGrade(rating);
     const currentStats = deckStats[activeCardIndex] || INITIAL_STATS;
     const wasNew = !deckStats[activeCardIndex]; // Track if this was a new word
 
     // Save history for Undo
-    setHistory(prev => [...prev, { index: activeCardIndex, stats: currentStats }]);
+    setHistory((prev) => [
+      ...prev,
+      { index: activeCardIndex, stats: currentStats },
+    ]);
 
     const newStats = calculateNextReview(currentStats, grade);
     await saveWordStats(String(slug), activeCardIndex, newStats);
 
     // Update local stats immediately
-    setDeckStats(prev => ({ ...prev, [activeCardIndex]: newStats }));
+    setDeckStats((prev) => ({ ...prev, [activeCardIndex]: newStats }));
 
     // If this was a new word, increment learned count
     if (wasNew) {
-      setLearnedWordsCount(prev => prev + 1);
+      setLearnedWordsCount((prev) => prev + 1);
     }
 
     const today = await incTodayInteractions(1);
     const stats = await getDeckProgressStats(String(slug), cards.length);
     setProgress(stats.progress);
     setTodayCount(today);
-    await setCurrentDeck({ slug: String(slug), title: deck?.title || String(title || 'Deck'), count: cards.length, progress: stats.progress });
+    await setCurrentDeck({
+      slug: String(slug),
+      title: deck?.title || String(title || "Deck"),
+      count: cards.length,
+      progress: stats.progress,
+    });
 
     goNext();
   }
@@ -311,16 +353,16 @@ export default function LearnScreen() {
 
     // Restore stats
     await saveWordStats(String(slug), last.index, last.stats);
-    setDeckStats(prev => ({ ...prev, [last.index]: last.stats }));
+    setDeckStats((prev) => ({ ...prev, [last.index]: last.stats }));
 
     // If this was a new word, decrement learned count
     if (wasNew && last.stats.repetition === 0) {
-      setLearnedWordsCount(prev => Math.max(0, prev - 1));
+      setLearnedWordsCount((prev) => Math.max(0, prev - 1));
     }
 
     // Go back
     if (currentIndex > 0) {
-      setCurrentIndex(prev => prev - 1);
+      setCurrentIndex((prev) => prev - 1);
       flip.value = 0; // Reset flip
       setFlipped(false);
     }
@@ -335,7 +377,12 @@ export default function LearnScreen() {
 
   if (loading) {
     return (
-      <View style={[styles.page, { justifyContent: 'center', alignItems: 'center' }]}>
+      <View
+        style={[
+          styles.page,
+          { justifyContent: "center", alignItems: "center" },
+        ]}
+      >
         <ActivityIndicator size="large" color={TEXT} />
       </View>
     );
@@ -343,11 +390,18 @@ export default function LearnScreen() {
 
   if (currentIndex >= queue.length) {
     return (
-      <View style={[styles.page, { justifyContent: 'center', alignItems: 'center' }]}>
+      <View
+        style={[
+          styles.page,
+          { justifyContent: "center", alignItems: "center" },
+        ]}
+      >
         <Confetti />
         <MaterialIcons name="check-circle" size={64} color={ACCENT} />
         <Text style={styles.doneText}>All caught up!</Text>
-        <Text style={styles.doneSubText}>Come back later for more reviews.</Text>
+        <Text style={styles.doneSubText}>
+          Come back later for more reviews.
+        </Text>
         <Pressable style={styles.backBtn} onPress={() => router.back()}>
           <Text style={styles.backBtnText}>Back to Decks</Text>
         </Pressable>
@@ -358,39 +412,74 @@ export default function LearnScreen() {
   const textSizeMultiplier = settings.textSize || 1;
 
   return (
-    <ScrollView style={{ backgroundColor: PAGE_BG }} contentContainerStyle={styles.page}>
+    <ScrollView
+      style={{ backgroundColor: PAGE_BG }}
+      contentContainerStyle={styles.page}
+    >
       <View style={styles.headerRow}>
         <View style={{ flex: 1 }}>
           <Text style={styles.goalLabel}>{deck?.title || title || "Deck"}</Text>
           <View style={styles.goalCountRow}>
             <MaterialIcons name="style" size={20} color={TEXT} />
-            <ThemedText type="title" style={styles.goalCount}>{learnedWordsCount} / {cards.length}</ThemedText>
+            <ThemedText type="title" style={styles.goalCount}>
+              {learnedWordsCount} / {cards.length}
+            </ThemedText>
           </View>
         </View>
-        <Pressable style={styles.pauseBtn} onPress={() => {
-          if (!started) {
-            setStarted(true);
-            bottomSheet.hide();
-            setCurrentDeck({ slug: String(slug), title: deck?.title || String(title || 'Deck'), count: cards.length, progress });
-          } else {
-            bottomSheet.show({ slug: String(slug), title: deck?.title || String(title || 'Deck'), count: String(cards.length) }, progress);
-            router.back();
-          }
-        }}>
+        <Pressable
+          style={styles.pauseBtn}
+          onPress={() => {
+            if (!started) {
+              setStarted(true);
+              bottomSheet.hide();
+              setCurrentDeck({
+                slug: String(slug),
+                title: deck?.title || String(title || "Deck"),
+                count: cards.length,
+                progress,
+              });
+            } else {
+              bottomSheet.show(
+                {
+                  slug: String(slug),
+                  title: deck?.title || String(title || "Deck"),
+                  count: String(cards.length),
+                },
+                progress
+              );
+              router.back();
+            }
+          }}
+        >
           <Text style={styles.pauseText}>{started ? "Pause" : "Start"}</Text>
-          <MaterialIcons name={started ? "pause" : "play-arrow"} size={20} color={ACCENT} />
+          <MaterialIcons
+            name={started ? "pause" : "play-arrow"}
+            size={20}
+            color={ACCENT}
+          />
         </Pressable>
       </View>
 
-      <ProgressBar progress={cards.length ? learnedWordsCount / cards.length : 0} style={{ marginBottom: 32 }} />
+      <ProgressBar
+        progress={cards.length ? learnedWordsCount / cards.length : 0}
+        style={{ marginBottom: 32 }}
+      />
 
       <View style={styles.cardArea}>
         {/* Next Card (Visual Only) */}
         {currentIndex + 1 < queue.length && (
           <Animated.View style={[styles.card, nextCardStyle]}>
-          <View style={styles.cardFace}>
-              <ThemedText type="phrase" style={[styles.cardText, { fontSize: FontSizes.phrase * textSizeMultiplier }]}>{cards[queue[currentIndex + 1]].front}</ThemedText>
-          </View>
+            <View style={styles.cardFace}>
+              <ThemedText
+                type="phrase"
+                style={[
+                  styles.cardText,
+                  { fontSize: FontSizes.phrase * textSizeMultiplier },
+                ]}
+              >
+                {cards[queue[currentIndex + 1]].front}
+              </ThemedText>
+            </View>
           </Animated.View>
         )}
 
@@ -398,18 +487,41 @@ export default function LearnScreen() {
         <Animated.View style={[styles.card, topCardStyle]}>
           <View style={{ flex: 1 }}>
             {/* Front Face */}
-            <Animated.View style={[styles.cardFace, styles.cardFaceFront, frontFaceStyle]}>
-              <ThemedText type="phrase" style={[styles.cardText, { fontSize: FontSizes.phrase * textSizeMultiplier }]}>{activeCard.front}</ThemedText>
+            <Animated.View
+              style={[styles.cardFace, styles.cardFaceFront, frontFaceStyle]}
+            >
+              <ThemedText
+                type="phrase"
+                style={[
+                  styles.cardText,
+                  { fontSize: FontSizes.phrase * textSizeMultiplier },
+                ]}
+              >
+                {activeCard.front}
+              </ThemedText>
 
               {/* Controls Row: Stop Propagation by handling press */}
               <View style={[styles.controlsRow, !started && { opacity: 0.5 }]}>
-                <IconButton icon="volume-up" size={64} disabled={!started} onPress={() => speak(activeCard.front)} />
                 <IconButton
-                  icon={isRecording ? "stop" : (recordedUri ? (isPlaying ? "volume-up" : "play-arrow") : "mic")}
+                  icon="volume-up"
                   size={64}
                   disabled={!started}
-                  variant={isRecording ? 'danger' : 'default'}
-                  iconColor={isRecording ? '#FFFFFF' : TEXT}
+                  onPress={() => speak(activeCard.front)}
+                />
+                <IconButton
+                  icon={
+                    isRecording
+                      ? "stop"
+                      : recordedUri
+                      ? isPlaying
+                        ? "volume-up"
+                        : "play-arrow"
+                      : "mic"
+                  }
+                  size={64}
+                  disabled={!started}
+                  variant={isRecording ? "danger" : "default"}
+                  iconColor={isRecording ? "#FFFFFF" : TEXT}
                   onPress={() => {
                     if (isRecording) stopRecording();
                     else if (recordedUri) playRecording();
@@ -420,12 +532,34 @@ export default function LearnScreen() {
             </Animated.View>
 
             {/* Back Face */}
-            <Animated.View style={[styles.cardFace, styles.cardFaceBack, backFaceStyle]}>
-              <ThemedText type="phrase" style={[styles.cardText, { fontSize: FontSizes.phrase * textSizeMultiplier }]}>{activeCard.back}</ThemedText>
+            <Animated.View
+              style={[styles.cardFace, styles.cardFaceBack, backFaceStyle]}
+            >
+              <ThemedText
+                type="phrase"
+                style={[
+                  styles.cardText,
+                  { fontSize: FontSizes.phrase * textSizeMultiplier },
+                ]}
+              >
+                {activeCard.back}
+              </ThemedText>
               {activeCard.example && (
                 <View style={styles.exampleContainer}>
-                  <ThemedText type="defaultSemiBold" style={styles.exampleLabel}>Example:</ThemedText>
-                  <ThemedText style={[styles.exampleText, { fontSize: 18 * textSizeMultiplier }]}>"{activeCard.example}"</ThemedText>
+                  <ThemedText
+                    type="defaultSemiBold"
+                    style={styles.exampleLabel}
+                  >
+                    Example:
+                  </ThemedText>
+                  <ThemedText
+                    style={[
+                      styles.exampleText,
+                      { fontSize: 18 * textSizeMultiplier },
+                    ]}
+                  >
+                    "{activeCard.example}"
+                  </ThemedText>
                 </View>
               )}
             </Animated.View>
@@ -439,9 +573,26 @@ export default function LearnScreen() {
       </View>
 
       <View style={styles.assessRow}>
-        <IconButton icon="undo" size={64} disabled={!started || history.length === 0} onPress={onUndo} />
-        <IconButton icon="thumb-up" size={64} disabled={!started} onPress={() => onAssess('known')} iconColor={Palette.success} />
-        <IconButton icon="thumb-down" size={64} disabled={!started} onPress={() => onAssess('difficult')} iconColor={Palette.error} />
+        <IconButton
+          icon="undo"
+          size={64}
+          disabled={!started || history.length === 0}
+          onPress={onUndo}
+        />
+        <IconButton
+          icon="thumb-up"
+          size={64}
+          disabled={!started}
+          onPress={() => onAssess("known")}
+          iconColor={Palette.success}
+        />
+        <IconButton
+          icon="thumb-down"
+          size={64}
+          disabled={!started}
+          onPress={() => onAssess("difficult")}
+          iconColor={Palette.error}
+        />
       </View>
     </ScrollView>
   );
@@ -489,14 +640,14 @@ const styles = StyleSheet.create({
   },
   pauseText: {
     color: ACCENT,
-    fontFamily: 'Inter_700Bold',
+    fontFamily: "Inter_700Bold",
     fontSize: FontSizes.body,
   },
   cardArea: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    position: 'relative',
+    position: "relative",
     minHeight: 400,
   },
   card: {
@@ -586,7 +737,7 @@ const styles = StyleSheet.create({
     ...Shadows.brutalist,
   },
   backBtnText: {
-    fontFamily: 'Inter_700Bold',
+    fontFamily: "Inter_700Bold",
     color: TEXT,
     fontSize: FontSizes.button,
   },
