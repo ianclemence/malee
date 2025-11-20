@@ -190,7 +190,6 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: 32,
     marginBottom: 32,
-    minHeight: 220,
     position: 'relative',
     overflow: 'hidden',
   },
