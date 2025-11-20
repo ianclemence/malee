@@ -423,7 +423,8 @@ const styles = StyleSheet.create({
   divider: {
     height: Strokes.thin,
     backgroundColor: Palette.black,
-    marginLeft: 60,
+    alignSelf: 'stretch',
+    marginLeft: 0,
   },
   logoutBtn: {
     height: 56,
