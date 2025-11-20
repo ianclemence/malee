@@ -1,4 +1,7 @@
 import { ProgressRing } from "@/components/progress-ring";
+import { ThemedText } from '@/components/themed-text';
+import { Button } from '@/components/ui/button';
+import { FontSizes, Palette, Radii, Shadows, Strokes } from '@/constants/theme';
 import { DEFAULT_DECKS } from "@/data/decks";
 import { CurrentDeck, getAllDueCards, getCurrentDeck, getCustomDecks, getFavorites, getSettings, getTodayInteractions, setFavorite } from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -6,9 +9,6 @@ import { Image } from "expo-image";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { Palette, Radii, Strokes, Shadows, FontSizes } from '@/constants/theme';
-import { ThemedText } from '@/components/themed-text';
-import { Button } from '@/components/ui/button';
 
 const ACCENT = Palette.primary;
 const BG = Palette.cream;
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
     opacity: 0.8,
     marginBottom: 16,
   },
-  
+
   ringWrapper: {
     position: 'relative',
     alignItems: 'center',
@@ -273,7 +273,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: TEXT,
     marginBottom: 16,
-    fontFamily: 'PlayfairDisplay_600SemiBold',
+    fontFamily: 'LibreCaslonText_700Bold',
   },
   resumeCard: {
     backgroundColor: Palette.white,

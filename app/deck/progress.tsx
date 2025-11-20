@@ -1,13 +1,13 @@
 import { ProgressRing } from "@/components/progress-ring";
+import { ThemedText } from '@/components/themed-text';
+import { FontSizes, Palette, Radii, Shadows, Strokes } from '@/constants/theme';
 import { getDeckBySlug } from "@/data/decks";
 import { DetailedStats, getDetailedDeckStats } from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Image } from "expo-image";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { Palette, Radii, Strokes, Shadows, FontSizes } from '@/constants/theme';
-import { ThemedText } from '@/components/themed-text';
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 
 const ACCENT = Palette.primary;
 const TEXT = Palette.black;
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     textAlign: "center",
     letterSpacing: -1,
-    fontFamily: 'PlayfairDisplay_700Bold',
+    fontFamily: 'LibreCaslonText_700Bold',
   },
   statsRow: {
     flexDirection: "row",
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: FontSizes.phrase,
     color: TEXT,
-    fontFamily: 'PlayfairDisplay_500Medium',
+    fontFamily: 'LibreCaslonText_400Regular',
   },
   statLabel: {
     color: TEXT,

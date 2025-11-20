@@ -1,4 +1,6 @@
 import { ProgressRing } from "@/components/progress-ring";
+import { ThemedText } from '@/components/themed-text';
+import { FontSizes, Palette, Radii, Shadows, Strokes } from '@/constants/theme';
 import { getDeckBySlug } from "@/data/decks";
 import {
   DeckProgress,
@@ -15,8 +17,6 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { Palette, Radii, Strokes, Shadows, FontSizes } from '@/constants/theme';
-import { ThemedText } from '@/components/themed-text';
 
 const ACCENT = Palette.primary;
 const TEXT = Palette.black;
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 8,
     letterSpacing: -1,
-    fontFamily: 'PlayfairDisplay_700Bold',
+    fontFamily: 'LibreCaslonText_700Bold',
   },
   metaRow: {
     flexDirection: "row",
@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     color: TEXT,
-    fontFamily: 'PlayfairDisplay_600SemiBold',
+    fontFamily: 'LibreCaslonText_700Bold',
   },
   wordCountBadge: {
     fontSize: 14,

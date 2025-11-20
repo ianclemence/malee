@@ -1,5 +1,6 @@
+import { ThemedText } from '@/components/themed-text';
+import { FontSizes, Palette, Radii, Shadows, Strokes } from '@/constants/theme';
 import { addWordToCustomDeck, CustomDeck, getCustomDecks, saveCustomDeck } from "@/lib/storage";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useFocusEffect, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -11,9 +12,6 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { Palette, Radii, Strokes, Shadows, FontSizes } from '@/constants/theme';
-import { Button } from '@/components/ui/button';
-import { ThemedText } from '@/components/themed-text';
 
 const ACCENT = Palette.primary;
 const TEXT = Palette.black;
@@ -260,7 +258,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: Strokes.regular,
     borderColor: Palette.black,
     paddingVertical: 8,
-    fontFamily: 'PlayfairDisplay_500Medium',
+    fontFamily: 'LibreCaslonText_400Regular',
   },
   suggestionsContainer: {
     marginTop: 8,
@@ -336,5 +334,5 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter_700Bold',
     fontSize: FontSizes.button,
   },
-  
+
 });

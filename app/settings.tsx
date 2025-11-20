@@ -1,3 +1,5 @@
+import { ThemedText } from '@/components/themed-text';
+import { FontSizes, Palette, Radii, Shadows, Strokes } from '@/constants/theme';
 import { DEFAULT_DECKS } from "@/data/decks";
 import { cancelAllNotifications, scheduleDailyReminder } from "@/lib/notifications";
 import { AppSettings, getCustomDecks, getHeatmapData, getSettings, getStreak, getTotalLearned, saveSettings } from "@/lib/storage";
@@ -13,8 +15,6 @@ import {
   Text,
   View,
 } from "react-native";
-import { Palette, Radii, Strokes, Shadows, FontSizes } from '@/constants/theme';
-import { ThemedText } from '@/components/themed-text';
 
 const ACCENT = Palette.primary;
 const TEXT = Palette.black;
@@ -334,7 +334,7 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.phrase,
     color: TEXT,
     marginBottom: 4,
-    fontFamily: 'PlayfairDisplay_500Medium',
+    fontFamily: 'LibreCaslonText_400Regular',
   },
   level: {
     fontSize: FontSizes.body,
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.phrase,
     color: TEXT,
     marginBottom: 4,
-    fontFamily: 'PlayfairDisplay_500Medium',
+    fontFamily: 'LibreCaslonText_400Regular',
   },
   statLabel: {
     fontSize: FontSizes.small,
@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: TEXT,
     marginBottom: 16,
-    fontFamily: 'PlayfairDisplay_600SemiBold',
+    fontFamily: 'LibreCaslonText_700Bold',
   },
   card: {
     backgroundColor: Palette.white,

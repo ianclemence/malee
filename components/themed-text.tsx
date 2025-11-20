@@ -1,7 +1,7 @@
 import { StyleSheet, Text, type TextProps } from 'react-native';
 
-import { useThemeColor } from '@/hooks/use-theme-color';
 import { FontSizes, Palette } from '@/constants/theme';
+import { useThemeColor } from '@/hooks/use-theme-color';
 
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: FontSizes.h1,
     lineHeight: 32,
-    fontFamily: 'PlayfairDisplay_700Bold',
+    fontFamily: 'LibreCaslonText_700Bold',
   },
   subtitle: {
     fontSize: FontSizes.h2,
@@ -63,6 +63,6 @@ const styles = StyleSheet.create({
   },
   phrase: {
     fontSize: FontSizes.phrase,
-    fontFamily: 'PlayfairDisplay_500Medium',
+    fontFamily: 'LibreCaslonText_400Regular',
   },
 });
