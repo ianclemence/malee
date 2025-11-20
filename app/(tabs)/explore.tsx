@@ -182,10 +182,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   logo: {
-    fontSize: 32,
-    fontWeight: "900",
     color: TEXT,
-    letterSpacing: -1,
   },
   searchBar: {
     flexDirection: "row",
@@ -220,12 +217,13 @@ const styles = StyleSheet.create({
   tabBtn: {
     flex: 1,
     paddingVertical: 12,
-    borderRadius: 16,
-    backgroundColor: "#F5F5F5",
+    borderRadius: Radii.button,
+    backgroundColor: Palette.white,
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 2,
-    borderColor: "transparent",
+    borderWidth: Strokes.thin,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
   },
   tabBtnActive: {
     backgroundColor: TEXT,
@@ -233,9 +231,9 @@ const styles = StyleSheet.create({
   },
   tabText: {
     fontSize: 16,
-    fontWeight: "700",
     color: TEXT,
     opacity: 0.6,
+    fontFamily: 'Inter_700Bold',
   },
   tabTextActive: {
     color: ACCENT,

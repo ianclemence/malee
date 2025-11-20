@@ -123,13 +123,15 @@ export default function SettingsScreen() {
           <View style={styles.heatmapContainer}>
             {heatmapDays.map((date) => {
               const count = heatmap[date] || 0;
-              const opacity = count === 0 ? 0.1 : Math.min(1, 0.2 + count * 0.1);
+              const isActive = count > 0;
               return (
                 <View
                   key={date}
                   style={[
                     styles.heatmapSquare,
-                    { backgroundColor: count > 0 ? ACCENT : "#E0E0E0", opacity: count > 0 ? 1 : 0.3 }
+                    isActive
+                      ? { backgroundColor: ACCENT, borderWidth: Strokes.thin, borderColor: Palette.black }
+                      : { backgroundColor: Palette.white, borderWidth: Strokes.thin, borderColor: Palette.black, opacity: 0.5, ...Shadows.brutalist }
                   ]}
                 />
               );

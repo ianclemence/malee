@@ -203,7 +203,9 @@ export default function AddWordScreen() {
           </View>
         </View>
 
-        <Button title="Add to Deck" onPress={handleSave} />
+        <Pressable style={styles.submitBar} onPress={handleSave}>
+          <ThemedText style={styles.submitText}>Add to Deck</ThemedText>
+        </Pressable>
       </ScrollView>
     </View>
   );
@@ -318,6 +320,21 @@ const styles = StyleSheet.create({
   newDeckInput: {
     marginTop: 16,
     gap: 8,
+  },
+  submitBar: {
+    height: 64,
+    backgroundColor: Palette.black,
+    borderRadius: Radii.button,
+    borderWidth: Strokes.regular,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  submitText: {
+    color: ACCENT,
+    fontFamily: 'Inter_700Bold',
+    fontSize: FontSizes.button,
   },
   
 });
