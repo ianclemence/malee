@@ -1,14 +1,14 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { SRSStats } from "./srs";
 
 const FAVORITES_KEY = "malee:favorites";
 const MYDECKS_KEY = "malee:myDecks";
-const PROGRESS_PREFIX = "malee:progress:";
+const PROGRESS_PREFIX = "malee:progress:v2:"; // Changed prefix to reset/migrate
 const DAILY_KEY = "malee:dailyInteractions";
 const CURRENT_DECK_KEY = "malee:currentDeck";
 
 export type BoolMap = { [key: string]: boolean };
-export type WordStatus = "unknown" | "difficult" | "known";
-export type DeckProgress = { [wordIndex: number]: WordStatus };
+export type DeckProgress = { [wordIndex: number]: SRSStats };
 export type CurrentDeck = {
   slug: string;
   title: string;
@@ -43,13 +43,13 @@ export async function getDeckProgress(slug: string): Promise<DeckProgress> {
   return v ? JSON.parse(v) : {};
 }
 
-export async function setDeckWordStatus(
+export async function saveWordStats(
   slug: string,
   wordIndex: number,
-  status: WordStatus
+  stats: SRSStats
 ): Promise<void> {
   const current = await getDeckProgress(slug);
-  const next = { ...current, [wordIndex]: status };
+  const next = { ...current, [wordIndex]: stats };
   await AsyncStorage.setItem(PROGRESS_PREFIX + slug, JSON.stringify(next));
 }
 
@@ -59,10 +59,9 @@ export async function getDeckProgressStats(
 ): Promise<{ interacted: number; known: number; progress: number }> {
   const p = await getDeckProgress(slug);
   const interacted = Object.keys(p).length;
-  const known = Object.values(p).filter(
-    (s) => s === "difficult" || s === "known"
-  ).length;
-  const progress = totalWords > 0 ? interacted / totalWords : 0;
+  // Consider "known" if repetition > 0 (passed at least once)
+  const known = Object.values(p).filter((s) => s.repetition > 0).length;
+  const progress = totalWords > 0 ? known / totalWords : 0;
   return { interacted, known, progress };
 }
 
