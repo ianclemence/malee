@@ -95,7 +95,15 @@ export default function AddWordScreen() {
           // Keep the selected deck for convenience
         }
       },
-      { text: "Done", onPress: () => router.back() }
+      {
+        text: "Done",
+        onPress: () => {
+          setWord("");
+          setTranslation("");
+          setNewDeckName("");
+          router.back();
+        }
+      }
     ]);
   };
 
