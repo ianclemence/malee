@@ -233,12 +233,13 @@ const styles = StyleSheet.create({
   },
   heroGreeting: {
     color: "#FFFFFF",
+    marginBottom: 4,
   },
   heroSubtext: {
     fontSize: FontSizes.small,
     color: "#FFFFFF",
     opacity: 0.8,
-    marginBottom: 16,
+    marginBottom: 18,
   },
 
   ringWrapper: {
