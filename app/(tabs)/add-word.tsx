@@ -120,10 +120,11 @@ export default function AddWordScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.headerRow}>
-          <Text style={styles.headerTitle}>Add Word</Text>
           <Pressable onPress={() => router.back()} style={styles.iconButton}>
             <MaterialIcons name="close" size={24} color={TEXT} />
           </Pressable>
+          <Text style={styles.headerTitle}>Add Word</Text>
+          <View style={styles.iconButton} />
         </View>
 
         <View style={styles.form}>
@@ -225,7 +226,7 @@ const styles = StyleSheet.create({
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "center",
     marginBottom: 24,
   },
   headerTitle: {

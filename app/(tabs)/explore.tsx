@@ -62,7 +62,7 @@ export default function DecksScreen() {
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.header}>
-        <Text style={styles.logo}>Explore</Text>
+        <Text style={styles.logo}>Malee</Text>
         <Pressable onPress={() => router.push("/settings")}>
           <Image
             source={require("@/assets/images/react-logo.png")}

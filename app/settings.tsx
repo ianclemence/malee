@@ -1,4 +1,5 @@
 import { DEFAULT_DECKS } from "@/data/decks";
+import { cancelAllNotifications, scheduleDailyReminder } from "@/lib/notifications";
 import { AppSettings, getCustomDecks, getHeatmapData, getSettings, getStreak, getTotalLearned, saveSettings } from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Image } from "expo-image";
@@ -49,9 +50,18 @@ export default function SettingsScreen() {
   };
 
   const toggleSetting = async (key: keyof AppSettings) => {
-    const next = { ...settings, [key]: !settings[key] };
+    const nextValue = !settings[key];
+    const next = { ...settings, [key]: nextValue };
     setSettings(next);
     await saveSettings(next);
+
+    if (key === 'dailyReminders') {
+      if (nextValue) {
+        await scheduleDailyReminder();
+      } else {
+        await cancelAllNotifications();
+      }
+    }
   };
 
   const updateSetting = async (key: keyof AppSettings, value: any) => {
@@ -71,7 +81,7 @@ export default function SettingsScreen() {
     <View style={styles.page}>
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.headerRow}>
-          <Text style={styles.headerTitle}>Settings</Text>
+          <View style={styles.iconButton} />
           <Pressable onPress={() => router.back()} style={styles.iconButton}>
             <MaterialIcons name="close" size={24} color={TEXT} />
           </Pressable>
@@ -229,15 +239,13 @@ export default function SettingsScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>Account</Text>
+          <Text style={styles.sectionHeader}>Subscription</Text>
           <View style={styles.card}>
             <Pressable style={styles.row}>
-              <Text style={styles.rowLabel}>Personal Data</Text>
-              <MaterialIcons name="chevron-right" size={24} color={TEXT} style={{ opacity: 0.3 }} />
-            </Pressable>
-            <View style={styles.divider} />
-            <Pressable style={styles.row}>
-              <Text style={styles.rowLabel}>Subscription</Text>
+              <View style={styles.rowIcon}>
+                <MaterialIcons name="workspace-premium" size={20} color={TEXT} />
+              </View>
+              <Text style={styles.rowLabel}>Current Plan</Text>
               <Text style={styles.rowValue}>Pro</Text>
             </Pressable>
           </View>
@@ -472,6 +480,9 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 8,
     backgroundColor: "#F5F5F5",
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 40,
   },
   toggleBtnActive: {
     backgroundColor: TEXT,

@@ -65,7 +65,7 @@ export default function HomeScreen() {
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.header}>
-        <Text style={styles.logo}>MALEE</Text>
+        <Text style={styles.logo}>Malee</Text>
         <Pressable onPress={() => router.push("/settings")}>
           <Image
             source={require("@/assets/images/react-logo.png")}
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   logo: {
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: "900",
     color: TEXT,
     letterSpacing: -1,
