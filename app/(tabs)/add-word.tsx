@@ -75,6 +75,10 @@ export default function AddWordScreen() {
         };
         await saveCustomDeck(newDeck);
         targetSlug = slug;
+        // Refresh decks list and select the new one
+        await loadDecks();
+        setSelectedDeckSlug(slug);
+        setIsCreatingDeck(false);
       }
     }
 
