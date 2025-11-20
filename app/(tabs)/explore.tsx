@@ -5,6 +5,7 @@ import { Image } from "expo-image";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { ThemedText } from '@/components/themed-text';
 import { Palette, Radii, Strokes, Shadows } from '@/constants/theme';
 
 const ACCENT = Palette.primary;
@@ -63,7 +64,7 @@ export default function DecksScreen() {
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.header}>
-        <Text style={styles.logo}>Malee</Text>
+        <ThemedText type="title" style={styles.logo}>Malee</ThemedText>
         <Pressable onPress={() => router.push("/settings")}>
           <Image
             source={require("@/assets/images/react-logo.png")}

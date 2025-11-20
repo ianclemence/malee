@@ -197,7 +197,6 @@ export default function AddWordScreen() {
                   setSelectedDeckSlug(null);
                 }}
               >
-                <MaterialIcons name="add" size={20} color={TEXT} />
                 <ThemedText style={styles.createDeckText}>Create New Deck</ThemedText>
               </Pressable>
             )}
@@ -293,6 +292,7 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: Palette.white,
     borderRadius: Radii.button,
+    borderStyle: 'dotted',
     gap: 8,
     borderWidth: Strokes.regular,
     borderColor: Palette.black,
