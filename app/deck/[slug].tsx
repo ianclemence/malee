@@ -141,10 +141,7 @@ export default function DeckScreen() {
       </ScrollView>
 
       <Pressable
-        style={[
-          styles.floatingLearnBar,
-          !isMine && { opacity: 0.9 }, // Less opacity change, just style change
-        ]}
+        style={styles.floatingLearnBar}
         onPress={() => {
           if (!isMine) {
             // Auto-add to my decks if starting learn? Or just let them learn.
