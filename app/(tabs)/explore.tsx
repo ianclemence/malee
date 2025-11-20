@@ -7,6 +7,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { ThemedText } from '@/components/themed-text';
 import { Palette, Radii, Strokes, Shadows } from '@/constants/theme';
+import { DeckCard } from '@/components/ui/deck-card';
+import { ChipGroup } from '@/components/ui/chip-group';
+import { SearchBar } from '@/components/ui/search-bar';
 
 const ACCENT = Palette.primary;
 const TEXT = Palette.black;
@@ -73,88 +76,41 @@ export default function DecksScreen() {
         </Pressable>
       </View>
 
-      <View style={styles.searchBar}>
-        <View style={styles.searchIconBox}>
-          <MaterialIcons name="search" size={20} color={TEXT} />
-        </View>
-        <TextInput
-          value={query}
-          onChangeText={setQuery}
-          placeholder="Search decks..."
-          placeholderTextColor="rgba(0,0,0,0.4)"
-          style={styles.searchInput}
-        />
-        {/* Clear button removed as requested */}
-      </View>
+      <SearchBar value={query} onChangeText={setQuery} />
 
-      <View style={styles.tabsContainer}>
-        {(["all", "my", "favorites"] as const).map((v) => (
-          <Pressable
-            key={v}
-            style={[
-              styles.tabBtn,
-              view === v && styles.tabBtnActive,
-            ]}
-            onPress={() => setView(v)}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                view === v && styles.tabTextActive,
-              ]}
-            >
-              {v === "all" ? "All" : v === "my" ? "My Decks" : "Favorites"}
-            </Text>
-          </Pressable>
-        ))}
-      </View>
+      <ChipGroup
+        options={[
+          { label: 'All', value: 'all' },
+          { label: 'My Decks', value: 'my' },
+          { label: 'Favorites', value: 'favorites' },
+        ]}
+        value={view}
+        onChange={(val) => setView(val as any)}
+      />
 
       <View style={styles.grid}>
         {visibleDecks.map((d, i) => (
-          <Pressable
+          <DeckCard
             key={d.slug}
-            style={[styles.card, { backgroundColor: i % 2 === 0 ? PURPLE_BG : Palette.pastelGreen }]}
+            title={d.title}
+            icon={d.icon as any}
+            count={d.count}
+            favorited={!!favorites[d.slug]}
+            variant="grid"
+            backgroundColor={i % 2 === 0 ? PURPLE_BG : Palette.pastelGreen}
             onPress={() =>
               router.push({
                 pathname: "/deck/[slug]",
-                params: {
-                  slug: d.slug,
-                  title: d.title,
-                  count: String(d.count),
-                },
+                params: { slug: d.slug, title: d.title, count: String(d.count) },
               })
             }
-          >
-            <View style={styles.cardIcon}>
-              <MaterialIcons
-                name={d.icon as any}
-                size={32}
-                color={TEXT}
-              />
-            </View>
-
-            <View style={styles.cardContent}>
-              <Text style={styles.cardTitle} numberOfLines={2}>{d.title}</Text>
-              <View style={styles.cardMeta}>
-                <Text style={styles.cardCount}>{d.count} words</Text>
-                <Pressable
-                  hitSlop={10}
-                  onPress={async (e) => {
-                    e.stopPropagation();
-                    const next = !favorites[d.slug];
-                    setFavorites((p) => ({ ...p, [d.slug]: next }));
-                    await setFavorite(d.slug, next);
-                  }}
-                >
-                  <MaterialIcons
-                    name={favorites[d.slug] ? "favorite" : "favorite-border"}
-                    size={20}
-                    color={favorites[d.slug] ? "#FF4444" : TEXT}
-                  />
-                </Pressable>
-              </View>
-            </View>
-          </Pressable>
+            onToggleFavorite={async (e) => {
+              e?.stopPropagation?.();
+              const next = !favorites[d.slug];
+              setFavorites((p) => ({ ...p, [d.slug]: next }));
+              await setFavorite(d.slug, next);
+            }}
+          />
         ))}
       </View>
 
@@ -182,117 +138,16 @@ const styles = StyleSheet.create({
   logo: {
     color: TEXT,
   },
-  searchBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    height: 56,
-    borderRadius: Radii.button,
-    backgroundColor: Palette.white,
-    paddingHorizontal: 16,
-    marginBottom: 24,
-    borderWidth: Strokes.regular,
-    borderColor: Palette.black,
-    ...Shadows.brutalist,
-    gap: 12,
-  },
-  searchIconBox: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: Palette.white,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: Strokes.thin,
-    borderColor: Palette.black,
-    ...Shadows.brutalist,
-  },
-  searchInput: {
-    flex: 1,
-    color: TEXT,
-    fontSize: 16,
-    fontFamily: 'Inter_400Regular',
-  },
   
-  tabsContainer: {
-    flexDirection: "row",
-    marginBottom: 24,
-    gap: 8,
-  },
-  tabBtn: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: Radii.button,
-    backgroundColor: Palette.white,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: Strokes.thin,
-    borderColor: Palette.black,
-    ...Shadows.brutalist,
-  },
-  tabBtnActive: {
-    backgroundColor: TEXT,
-    borderColor: TEXT,
-  },
-  tabText: {
-    fontSize: 16,
-    color: TEXT,
-    opacity: 0.6,
-    fontFamily: 'Inter_700Bold',
-  },
-  tabTextActive: {
-    color: ACCENT,
-    opacity: 1,
-  },
+  
+  
   grid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
     gap: 12,
   },
-  card: {
-    width: "48%",
-    minWidth: 160,
-    flex: 1,
-    aspectRatio: 0.85,
-    borderRadius: Radii.card,
-    padding: 16,
-    justifyContent: "space-between",
-    marginBottom: 4,
-    borderWidth: Strokes.thin,
-    borderColor: Palette.black,
-    ...Shadows.brutalist,
-  },
-  cardIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: Palette.white,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: Strokes.thin,
-    borderColor: Palette.black,
-    ...Shadows.brutalist,
-  },
-  cardContent: {
-    gap: 8,
-  },
-  cardTitle: {
-    fontSize: 18,
-    color: TEXT,
-    lineHeight: 22,
-    fontFamily: 'Inter_700Bold',
-  },
-  cardMeta: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  cardCount: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: TEXT,
-    opacity: 0.6,
-  },
+  
   emptyState: {
     padding: 40,
     alignItems: "center",

@@ -17,6 +17,7 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { WordCard } from '@/components/ui/word-card';
 
 const ACCENT = Palette.primary;
 const TEXT = Palette.black;
@@ -165,18 +166,13 @@ export default function DeckScreen() {
             {deck.words.map((w: any, i: number) => {
               const isLearned = deckStats[i] && deckStats[i].repetition > 0;
               return (
-                <View key={`${deck.slug}-${i}`} style={styles.wordCard}>
-                  <View style={styles.wordContent}>
-                    <ThemedText style={styles.wordEn}>{w.en}</ThemedText>
-                    <ThemedText style={styles.wordTh}>{w.th}</ThemedText>
-                  </View>
-                  <Pressable
-                    style={[styles.wordAudioBtn, isLearned && styles.wordAudioBtnActive]}
-                    disabled={!isLearned}
-                  >
-                    <MaterialIcons name="volume-up" size={20} color={isLearned ? ACCENT : TEXT} style={!isLearned && { opacity: 0.5 }} />
-                  </Pressable>
-                </View>
+                <WordCard
+                  key={`${deck.slug}-${i}`}
+                  en={w.en}
+                  th={w.th}
+                  learned={isLearned}
+                  onPlay={() => {}}
+                />
               );
             })}
           </View>
@@ -350,46 +346,7 @@ const styles = StyleSheet.create({
   wordsList: {
     gap: 12,
   },
-  wordCard: {
-    backgroundColor: Palette.white,
-    borderRadius: Radii.card,
-    padding: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderWidth: Strokes.thin,
-    borderColor: Palette.black,
-    ...Shadows.brutalist,
-  },
-  wordContent: {
-    flex: 1,
-  },
-  wordEn: {
-    fontSize: FontSizes.phrase,
-    color: TEXT,
-    marginBottom: 4,
-    fontFamily: 'Inter_700Bold',
-  },
-  wordTh: {
-    fontSize: FontSizes.body,
-    color: TEXT,
-    opacity: 0.6,
-    fontFamily: 'Inter_400Regular',
-  },
-  wordAudioBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Palette.white,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: Strokes.thin,
-    borderColor: Palette.black,
-    ...Shadows.brutalist,
-  },
-  wordAudioBtnActive: {
-    backgroundColor: "#000000",
-  },
+  
   floatingLearnBar: {
     position: "absolute",
     left: 16,

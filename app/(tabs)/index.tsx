@@ -9,6 +9,7 @@ import { Image } from "expo-image";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { DeckCard } from '@/components/ui/deck-card';
 
 const ACCENT = Palette.primary;
 const BG = Palette.cream;
@@ -161,40 +162,27 @@ export default function HomeScreen() {
         <ThemedText type="subtitle" style={styles.sectionTitle}>Picked by Malee</ThemedText>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalScroll}>
           {picked.map((d, i) => (
-            <Pressable
+            <DeckCard
               key={d.slug}
-              style={[styles.horizontalCard, { backgroundColor: i % 2 === 0 ? PURPLE_BG : "#EFEFEF" }]}
+              title={d.title}
+              icon={d.icon as any}
+              count={d.count}
+              favorited={!!favorites[d.slug]}
+              variant="horizontal"
+              backgroundColor={i % 2 === 0 ? PURPLE_BG : '#EFEFEF'}
               onPress={() =>
                 router.push({
-                  pathname: "/deck/[slug]",
-                  params: {
-                    slug: d.slug,
-                    title: d.title,
-                    count: String(d.count),
-                  },
+                  pathname: '/deck/[slug]',
+                  params: { slug: d.slug, title: d.title, count: String(d.count) },
                 })
               }
-            >
-              <View style={styles.cardIcon}>
-                <MaterialIcons name={d.icon as any} size={32} color={TEXT} />
-              </View>
-              <View style={styles.cardBottom}>
-                <ThemedText style={styles.cardTitle} numberOfLines={2}>{d.title}</ThemedText>
-                <View style={styles.cardMeta}>
-                  <ThemedText style={styles.cardCount}>{d.count} words</ThemedText>
-                  <Pressable
-                    onPress={(e) => {
-                      e.stopPropagation();
-                      const next = !favorites[d.slug];
-                      setFavorites((p) => ({ ...p, [d.slug]: next }));
-                      setFavorite(d.slug, next);
-                    }}
-                  >
-                    <MaterialIcons name={favorites[d.slug] ? "favorite" : "favorite-border"} size={20} color={favorites[d.slug] ? "#FF4444" : TEXT} />
-                  </Pressable>
-                </View>
-              </View>
-            </Pressable>
+              onToggleFavorite={(e) => {
+                e?.stopPropagation?.();
+                const next = !favorites[d.slug];
+                setFavorites((p) => ({ ...p, [d.slug]: next }));
+                setFavorite(d.slug, next);
+              }}
+            />
           ))}
         </ScrollView>
       </View>
@@ -313,43 +301,5 @@ const styles = StyleSheet.create({
     paddingRight: 16,
     gap: 16,
   },
-  horizontalCard: {
-    width: 160,
-    height: 180,
-    borderRadius: Radii.card,
-    padding: 16,
-    justifyContent: 'space-between',
-    borderWidth: Strokes.thin,
-    borderColor: Palette.black,
-    ...Shadows.brutalist,
-  },
-  cardIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: Palette.white,
-    borderWidth: Strokes.thin,
-    borderColor: Palette.black,
-    ...Shadows.brutalist,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cardBottom: {
-    gap: 8,
-  },
-  cardTitle: {
-    fontSize: 16,
-    color: TEXT,
-    fontFamily: 'Inter_700Bold',
-  },
-  cardMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  cardCount: {
-    fontSize: 12,
-    color: TEXT,
-    opacity: 0.6,
-  },
+  
 });
