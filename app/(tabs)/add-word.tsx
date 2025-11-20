@@ -1,7 +1,9 @@
+import { addWordToCustomDeck, CustomDeck, getCustomDecks, saveCustomDeck } from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
+  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -18,6 +20,66 @@ export default function AddWordScreen() {
   const router = useRouter();
   const [word, setWord] = useState("");
   const [translation, setTranslation] = useState("");
+  const [example, setExample] = useState("");
+
+  const [decks, setDecks] = useState<CustomDeck[]>([]);
+  const [selectedDeckSlug, setSelectedDeckSlug] = useState<string | null>(null);
+  const [isCreatingDeck, setIsCreatingDeck] = useState(false);
+  const [newDeckName, setNewDeckName] = useState("");
+
+  React.useEffect(() => {
+    loadDecks();
+  }, []);
+
+  const loadDecks = async () => {
+    const d = await getCustomDecks();
+    setDecks(d);
+    if (d.length > 0 && !selectedDeckSlug) {
+      setSelectedDeckSlug(d[0].slug);
+    } else if (d.length === 0) {
+      setIsCreatingDeck(true);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!word.trim() || !translation.trim()) {
+      Alert.alert("Missing Info", "Please enter both a word and translation.");
+      return;
+    }
+
+    let targetSlug = selectedDeckSlug;
+
+    // Create new deck if needed
+    if (isCreatingDeck) {
+      if (!newDeckName.trim()) {
+        Alert.alert("Missing Info", "Please enter a name for your new deck.");
+        return;
+      }
+      const slug = "custom-" + Date.now();
+      const newDeck: CustomDeck = {
+        slug,
+        title: newDeckName,
+        icon: "style", // Default icon
+        bg: "#EFEFEF",
+        createdAt: Date.now(),
+        words: [],
+      };
+      await saveCustomDeck(newDeck);
+      targetSlug = slug;
+    }
+
+    if (!targetSlug) return;
+
+    await addWordToCustomDeck(targetSlug, {
+      en: word,
+      th: translation,
+      example: example.trim() || undefined,
+    });
+
+    Alert.alert("Success", "Word added to deck!", [
+      { text: "OK", onPress: () => router.back() }
+    ]);
+  };
 
   const suggestions = ["Dapper", "Fancy", "Posh"];
 
@@ -57,23 +119,71 @@ export default function AddWordScreen() {
             />
           </View>
 
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Example Sentence (Optional)</Text>
+            <TextInput
+              value={example}
+              onChangeText={setExample}
+              placeholder="e.g. He looked very dapper."
+              placeholderTextColor="rgba(0,0,0,0.3)"
+              style={styles.input}
+            />
+          </View>
+
           <View style={styles.suggestionsContainer}>
-            <Text style={styles.helperText}>Suggestions</Text>
+            <Text style={styles.helperText}>Add to Deck</Text>
             <View style={styles.suggestionsRow}>
-              {suggestions.map((s) => (
+              {decks.map((d) => (
                 <Pressable
-                  key={s}
-                  style={styles.suggestionChip}
-                  onPress={() => setWord(s)}
+                  key={d.slug}
+                  style={[
+                    styles.suggestionChip,
+                    selectedDeckSlug === d.slug && !isCreatingDeck && styles.chipActive
+                  ]}
+                  onPress={() => {
+                    setSelectedDeckSlug(d.slug);
+                    setIsCreatingDeck(false);
+                  }}
                 >
-                  <Text style={styles.suggestionText}>{s}</Text>
+                  <Text style={[
+                    styles.suggestionText,
+                    selectedDeckSlug === d.slug && !isCreatingDeck && styles.chipTextActive
+                  ]}>{d.title}</Text>
                 </Pressable>
               ))}
+
+              <Pressable
+                style={[
+                  styles.suggestionChip,
+                  isCreatingDeck && styles.chipActive
+                ]}
+                onPress={() => setIsCreatingDeck(true)}
+              >
+                <MaterialIcons name="add" size={16} color={isCreatingDeck ? ACCENT : TEXT} />
+                <Text style={[
+                  styles.suggestionText,
+                  isCreatingDeck && styles.chipTextActive
+                ]}>New Deck</Text>
+              </Pressable>
             </View>
+
+            {isCreatingDeck && (
+              <View style={styles.newDeckInput}>
+                <Text style={styles.label}>New Deck Name</Text>
+                <TextInput
+                  value={newDeckName}
+                  onChangeText={setNewDeckName}
+                  placeholder="e.g. My Favorites"
+                  placeholderTextColor="rgba(0,0,0,0.3)"
+                  style={styles.input}
+                  autoFocus
+                />
+              </View>
+            )}
           </View>
         </View>
 
-        <Pressable style={styles.addButton}>
+        <Pressable style={styles.addButton} onPress={handleSave}>
           <Text style={styles.addButtonText}>Add to Deck</Text>
         </Pressable>
       </ScrollView>
@@ -159,6 +269,17 @@ const styles = StyleSheet.create({
     color: TEXT,
     fontWeight: "600",
     fontSize: 14,
+  },
+  chipActive: {
+    backgroundColor: "#000000",
+    borderColor: "#000000",
+  },
+  chipTextActive: {
+    color: ACCENT,
+  },
+  newDeckInput: {
+    marginTop: 16,
+    gap: 8,
   },
   addButton: {
     height: 64,

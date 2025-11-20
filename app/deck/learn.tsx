@@ -2,20 +2,23 @@ import { getDeckBySlug } from "@/data/decks";
 import { useBottomSheet } from "@/hooks/bottom-sheet-store";
 import { calculateNextReview, INITIAL_STATS, mapRatingToGrade, SRSStats } from "@/lib/srs";
 import {
+  AppSettings,
   DeckProgress,
+  getCustomDecks,
   getDeckProgress,
   getDeckProgressStats,
+  getSettings,
   getTodayInteractions,
   incTodayInteractions,
   saveWordStats,
-  setCurrentDeck,
+  setCurrentDeck
 } from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useAudioPlayer, useAudioRecorder } from 'expo-audio';
 import { Audio } from 'expo-av';
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import * as Speech from 'expo-speech';
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import Animated, {
   interpolate,
@@ -28,7 +31,7 @@ const ACCENT = "#F1FF00";
 const TEXT = "#000000";
 const PAGE_BG = "#FFFFFF";
 
-type CardData = { front: string; back: string };
+type CardData = { front: string; back: string; example?: string };
 
 export default function LearnScreen() {
   const { title, count, slug } = useLocalSearchParams<{
@@ -38,8 +41,10 @@ export default function LearnScreen() {
   }>();
   const router = useRouter();
   const bottomSheet = useBottomSheet();
-  const deck = useMemo(() => getDeckBySlug(String(slug)), [slug]);
-  const cards: CardData[] = (deck?.words || []).map((w) => ({ front: w.en, back: w.th }));
+
+  const [deck, setDeck] = useState<any>(getDeckBySlug(String(slug)));
+  const [cards, setCards] = useState<CardData[]>([]);
+  const [settings, setSettings] = useState<AppSettings>({ dailyReminders: true, soundEffects: true });
 
   // Queue management
   const [queue, setQueue] = useState<number[]>([]);
@@ -108,10 +113,31 @@ export default function LearnScreen() {
     opacity: interpolate(flip.value, [0.5, 0.51], [0, 1]), // Show halfway
   }));
 
-  // Load Queue
+  // Load Queue & Data
   useEffect(() => {
     (async () => {
       setLoading(true);
+
+      // Load Settings
+      const s = await getSettings();
+      setSettings(s);
+
+      // Load Deck (Default or Custom)
+      let d: any = getDeckBySlug(String(slug));
+      if (!d) {
+        const customDecks = await getCustomDecks();
+        d = customDecks.find((cd) => cd.slug === slug);
+      }
+      setDeck(d);
+
+      if (!d) {
+        setLoading(false);
+        return;
+      }
+
+      const currentCards = d.words.map((w: any) => ({ front: w.en, back: w.th, example: w.example }));
+      setCards(currentCards);
+
       const p = await getDeckProgress(String(slug));
       setDeckStats(p);
 
@@ -121,7 +147,7 @@ export default function LearnScreen() {
 
       // Count how many words have been learned (have stats)
       let learnedCount = 0;
-      cards.forEach((_, i) => {
+      currentCards.forEach((_: any, i: number) => {
         const stats = p[i];
         if (!stats) {
           newIndices.push(i);
@@ -140,13 +166,13 @@ export default function LearnScreen() {
       setLoading(false);
 
       // Update header stats
-      const stats = await getDeckProgressStats(String(slug), cards.length);
+      const stats = await getDeckProgressStats(String(slug), currentCards.length);
       setProgress(stats.progress);
-      await setCurrentDeck({ slug: String(slug), title: deck?.title || String(title || 'Deck'), count: cards.length, progress: stats.progress });
+      await setCurrentDeck({ slug: String(slug), title: d.title || String(title || 'Deck'), count: currentCards.length, progress: stats.progress });
       const today = await getTodayInteractions();
       setTodayCount(today);
     })();
-  }, [slug, cards.length]);
+  }, [slug]);
 
   useFocusEffect(
     useCallback(() => {
@@ -160,7 +186,9 @@ export default function LearnScreen() {
 
   // Audio Functions
   async function speak(text: string) {
-    Speech.speak(text, { language: 'en' });
+    if (settings.soundEffects) {
+      Speech.speak(text, { language: 'en' });
+    }
   }
 
   async function startRecording() {
@@ -394,6 +422,12 @@ export default function LearnScreen() {
             {/* Back Face */}
             <Animated.View style={[styles.cardFace, styles.cardFaceBack, backFaceStyle]}>
               <Text style={styles.cardText}>{activeCard.back}</Text>
+              {activeCard.example && (
+                <View style={styles.exampleContainer}>
+                  <Text style={styles.exampleLabel}>Example:</Text>
+                  <Text style={styles.exampleText}>"{activeCard.example}"</Text>
+                </View>
+              )}
             </Animated.View>
           </View>
         </Animated.View>
@@ -628,5 +662,26 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: TEXT,
     fontSize: 18,
+  },
+  exampleContainer: {
+    marginTop: 24,
+    padding: 16,
+    backgroundColor: "#F9F9F9",
+    borderRadius: 12,
+    width: "100%",
+  },
+  exampleLabel: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: TEXT,
+    opacity: 0.5,
+    marginBottom: 4,
+    textTransform: "uppercase",
+  },
+  exampleText: {
+    fontSize: 18,
+    color: TEXT,
+    fontStyle: "italic",
+    lineHeight: 24,
   },
 });

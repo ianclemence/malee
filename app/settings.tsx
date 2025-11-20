@@ -1,6 +1,9 @@
+import { DEFAULT_DECKS } from "@/data/decks";
+import { AppSettings, getCustomDecks, getSettings, getStreak, getTotalLearned, saveSettings } from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
   Pressable,
   ScrollView,
@@ -17,6 +20,30 @@ const ALERT = "#FF6A3D";
 
 export default function SettingsScreen() {
   const router = useRouter();
+  const [stats, setStats] = useState({ words: 0, time: "4h", streak: 0 });
+  const [settings, setSettings] = useState<AppSettings>({ dailyReminders: true, soundEffects: true });
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    const s = await getSettings();
+    setSettings(s);
+
+    const streak = await getStreak();
+    const customDecks = await getCustomDecks();
+    const allSlugs = [...DEFAULT_DECKS.map((d) => d.slug), ...customDecks.map((d) => d.slug)];
+    const learned = await getTotalLearned(allSlugs);
+
+    setStats({ words: learned, time: "4h", streak });
+  };
+
+  const toggleSetting = async (key: keyof AppSettings) => {
+    const next = { ...settings, [key]: !settings[key] };
+    setSettings(next);
+    await saveSettings(next);
+  };
 
   return (
     <View style={styles.page}>
@@ -44,15 +71,15 @@ export default function SettingsScreen() {
 
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
-            <Text style={styles.statValue}>32</Text>
+            <Text style={styles.statValue}>{stats.words}</Text>
             <Text style={styles.statLabel}>Words</Text>
           </View>
           <View style={styles.statCard}>
-            <Text style={styles.statValue}>4h</Text>
+            <Text style={styles.statValue}>{stats.time}</Text>
             <Text style={styles.statLabel}>Time</Text>
           </View>
           <View style={styles.statCard}>
-            <Text style={styles.statValue}>12</Text>
+            <Text style={styles.statValue}>{stats.streak}</Text>
             <Text style={styles.statLabel}>Streak</Text>
           </View>
         </View>
@@ -66,18 +93,24 @@ export default function SettingsScreen() {
               </View>
               <Text style={styles.rowLabel}>Daily Reminders</Text>
               <Switch
-                value={true}
+                value={settings.dailyReminders}
+                onValueChange={() => toggleSetting("dailyReminders")}
                 trackColor={{ false: "#E0E0E0", true: ACCENT }}
                 thumbColor={TEXT}
               />
             </View>
             <View style={styles.divider} />
-            <Pressable style={styles.row}>
+            <Pressable style={styles.row} onPress={() => toggleSetting("soundEffects")}>
               <View style={styles.rowIcon}>
                 <MaterialIcons name="volume-up" size={20} color={TEXT} />
               </View>
               <Text style={styles.rowLabel}>Sound Effects</Text>
-              <MaterialIcons name="chevron-right" size={24} color={TEXT} style={{ opacity: 0.3 }} />
+              <Switch
+                value={settings.soundEffects}
+                onValueChange={() => toggleSetting("soundEffects")}
+                trackColor={{ false: "#E0E0E0", true: ACCENT }}
+                thumbColor={TEXT}
+              />
             </Pressable>
           </View>
         </View>

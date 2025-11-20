@@ -1,4 +1,4 @@
-export type Word = { en: string; th: string };
+export type Word = { en: string; th: string; example?: string };
 export type Deck = {
   slug: string;
   title: string;
@@ -19,18 +19,18 @@ export const DEFAULT_DECKS: Deck[] = [
     icon: "flight",
     bg: BEIGE_BG,
     words: [
-      { en: "Check-in counter", th: "เคาน์เตอร์เช็คอิน" },
-      { en: "Boarding pass", th: "บัตรขึ้นเครื่อง" },
-      { en: "Gate", th: "ประตูทางออกขึ้นเครื่อง" },
-      { en: "Departure", th: "การออกเดินทาง" },
-      { en: "Arrival", th: "การเดินทางมาถึง" },
-      { en: "Security check", th: "ตรวจความปลอดภัย" },
-      { en: "Carry-on", th: "กระเป๋าถือขึ้นเครื่อง" },
-      { en: "Checked baggage", th: "กระเป๋าฝากใต้ท้องเครื่อง" },
-      { en: "Customs", th: "ศุลกากร" },
-      { en: "Immigration", th: "ตรวจคนเข้าเมือง" },
-      { en: "Delayed flight", th: "เที่ยวบินล่าช้า" },
-      { en: "On time", th: "ตรงเวลา" },
+      { en: "Check-in counter", th: "เคาน์เตอร์เช็คอิน", example: "Please go to the check-in counter to drop your bags." },
+      { en: "Boarding pass", th: "บัตรขึ้นเครื่อง", example: "You need your boarding pass to get on the plane." },
+      { en: "Gate", th: "ประตูทางออกขึ้นเครื่อง", example: "Our flight departs from Gate 12." },
+      { en: "Departure", th: "การออกเดินทาง", example: "The departure time is 10:00 AM." },
+      { en: "Arrival", th: "การเดินทางมาถึง", example: "Check the arrival screen for flight status." },
+      { en: "Security check", th: "ตรวจความปลอดภัย", example: "Remove your belt for the security check." },
+      { en: "Carry-on", th: "กระเป๋าถือขึ้นเครื่อง", example: "You can take one carry-on bag." },
+      { en: "Checked baggage", th: "กระเป๋าฝากใต้ท้องเครื่อง", example: "I have two pieces of checked baggage." },
+      { en: "Customs", th: "ศุลกากร", example: "We have nothing to declare at customs." },
+      { en: "Immigration", th: "ตรวจคนเข้าเมือง", example: "The line at immigration is very long." },
+      { en: "Delayed flight", th: "เที่ยวบินล่าช้า", example: "Our flight is delayed by two hours." },
+      { en: "On time", th: "ตรงเวลา", example: "The flight arrived on time." },
     ],
   },
   {

@@ -1,6 +1,6 @@
 import { ProgressRing } from "@/components/progress-ring";
 import { DEFAULT_DECKS } from "@/data/decks";
-import { CurrentDeck, getCurrentDeck, getFavorites, getTodayInteractions, setFavorite } from "@/lib/storage";
+import { CurrentDeck, getAllDueCards, getCurrentDeck, getCustomDecks, getFavorites, getTodayInteractions, setFavorite } from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Image } from "expo-image";
 import { useFocusEffect, useRouter } from "expo-router";
@@ -18,14 +18,23 @@ export default function HomeScreen() {
   const router = useRouter();
   const [favorites, setFavorites] = useState<{ [key: string]: boolean }>({});
   const [currentDeck, setCurrentDeck] = useState<CurrentDeck | null>(null);
+  const [totalDue, setTotalDue] = useState(0);
 
   const loadData = async () => {
     const fav = await getFavorites();
     const t = await getTodayInteractions();
     const c = await getCurrentDeck();
+
+    const customDecks = await getCustomDecks();
+    const allDecks = [...DEFAULT_DECKS, ...customDecks];
+    const slugs = allDecks.map(d => d.slug);
+    const sizes = allDecks.reduce((acc: any, d) => ({ ...acc, [d.slug]: d.words.length }), {});
+    const due = await getAllDueCards(slugs, sizes);
+
     setFavorites(fav);
     setTodayCount(t);
     setCurrentDeck(c);
+    setTotalDue(due);
   };
 
   useEffect(() => {
@@ -100,7 +109,35 @@ export default function HomeScreen() {
       </View>
 
       {/* Jump Back In */}
-      {currentDeck && (
+      {/* Daily Review or Jump Back In */}
+      {totalDue > 0 ? (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Daily Review</Text>
+          <Pressable
+            style={styles.resumeCard}
+            onPress={() => {
+              // Ideally this would go to a "Review All" mode, but for now let's go to the first deck with due cards
+              // Or just the current deck if it has due cards.
+              // For simplicity in this iteration: Go to current deck or explore
+              if (currentDeck) {
+                router.push({ pathname: '/deck/learn', params: { slug: currentDeck.slug, title: currentDeck.title, count: String(currentDeck.count) } });
+              } else {
+                router.push('/(tabs)/explore');
+              }
+            }}
+          >
+            <View style={styles.resumeContent}>
+              <Text style={styles.resumeTitle}>Review Session</Text>
+              <Text style={styles.resumeSub}>{totalDue} cards due today</Text>
+            </View>
+            <View style={styles.resumeAction}>
+              <View style={[styles.resumePlayIcon, { position: 'relative' }]}>
+                <MaterialIcons name="layers" size={24} color={TEXT} />
+              </View>
+            </View>
+          </Pressable>
+        </View>
+      ) : currentDeck && (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Jump Back In</Text>
           <Pressable

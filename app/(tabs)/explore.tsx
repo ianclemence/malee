@@ -1,5 +1,5 @@
 import { DEFAULT_DECKS } from "@/data/decks";
-import { getFavorites, getMyDecks, setFavorite } from "@/lib/storage";
+import { CustomDeck, getCustomDecks, getFavorites, getMyDecks, setFavorite } from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Image } from "expo-image";
 import { useFocusEffect, useRouter } from "expo-router";
@@ -16,14 +16,17 @@ export default function DecksScreen() {
   const router = useRouter();
   const [favorites, setFavorites] = useState<{ [key: string]: boolean }>({});
   const [myDecks, setMyDecksState] = useState<{ [key: string]: boolean }>({});
+  const [customDecks, setCustomDecks] = useState<CustomDeck[]>([]);
   const [view, setView] = useState<"all" | "my" | "favorites">("all");
   const [query, setQuery] = useState("");
 
   const loadData = async () => {
     const fav = await getFavorites();
     const mine = await getMyDecks();
+    const custom = await getCustomDecks();
     setFavorites(fav);
     setMyDecksState(mine);
+    setCustomDecks(custom);
   };
 
   useEffect(() => {
@@ -36,12 +39,16 @@ export default function DecksScreen() {
     }, [])
   );
 
-  const decks = useMemo(() => DEFAULT_DECKS.map(d => ({ ...d, count: d.words.length })), []);
+  const allDecks = useMemo(() => {
+    const defaults = DEFAULT_DECKS.map(d => ({ ...d, count: d.words.length, isCustom: false }));
+    const customs = customDecks.map(d => ({ ...d, count: d.words.length, isCustom: true }));
+    return [...defaults, ...customs];
+  }, [customDecks]);
 
-  const visibleDecks = decks
+  const visibleDecks = allDecks
     .filter((d) => {
       if (view === "favorites") return !!favorites[d.slug];
-      if (view === "my") return !!myDecks[d.slug];
+      if (view === "my") return !!myDecks[d.slug] || d.isCustom; // Custom decks are always "mine"
       return true;
     })
     .filter((d) =>
@@ -81,27 +88,25 @@ export default function DecksScreen() {
       </View>
 
       <View style={styles.tabsContainer}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabsScroll}>
-          {(["all", "my", "favorites"] as const).map((v) => (
-            <Pressable
-              key={v}
+        {(["all", "my", "favorites"] as const).map((v) => (
+          <Pressable
+            key={v}
+            style={[
+              styles.tabBtn,
+              view === v && styles.tabBtnActive,
+            ]}
+            onPress={() => setView(v)}
+          >
+            <Text
               style={[
-                styles.tabBtn,
-                view === v && styles.tabBtnActive,
+                styles.tabText,
+                view === v && styles.tabTextActive,
               ]}
-              onPress={() => setView(v)}
             >
-              <Text
-                style={[
-                  styles.tabText,
-                  view === v && styles.tabTextActive,
-                ]}
-              >
-                {v === "all" ? "All Decks" : v === "my" ? "My Decks" : "Favorites"}
-              </Text>
-            </Pressable>
-          ))}
-        </ScrollView>
+              {v === "all" ? "All" : v === "my" ? "My Decks" : "Favorites"}
+            </Text>
+          </Pressable>
+        ))}
       </View>
 
       <View style={styles.grid}>
@@ -206,16 +211,17 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   tabsContainer: {
+    flexDirection: "row",
     marginBottom: 24,
-  },
-  tabsScroll: {
-    gap: 12,
+    gap: 8,
   },
   tabBtn: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 24,
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 16,
     backgroundColor: "#F5F5F5",
+    alignItems: "center",
+    justifyContent: "center",
     borderWidth: 2,
     borderColor: "transparent",
   },
