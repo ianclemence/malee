@@ -277,10 +277,10 @@ export default function LearnScreen() {
     <ScrollView style={{ backgroundColor: PAGE_BG }} contentContainerStyle={styles.page}>
       <View style={styles.headerRow}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.goalLabel}>Today's goal</Text>
+          <Text style={styles.goalLabel}>Deck Progress</Text>
           <View style={styles.goalCountRow}>
             <MaterialIcons name="style" size={20} color={TEXT} />
-            <Text style={styles.goalCount}>{todayCount} / 50</Text>
+            <Text style={styles.goalCount}>{currentIndex} / {cards.length}</Text>
           </View>
         </View>
         <Pressable style={styles.pauseBtn} onPress={() => {
@@ -299,7 +299,7 @@ export default function LearnScreen() {
       </View>
 
       <View style={styles.progressTrack}>
-        <View style={[styles.progressFill, { width: `${Math.min(100, Math.round((todayCount / 50) * 100))}%` }]} />
+        <View style={[styles.progressFill, { width: `${Math.min(100, Math.round((currentIndex / cards.length) * 100))}%` }]} />
       </View>
 
       <View style={styles.cardArea}>

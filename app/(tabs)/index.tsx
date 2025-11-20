@@ -188,8 +188,9 @@ const styles = StyleSheet.create({
   hero: {
     backgroundColor: TEXT,
     borderRadius: 24,
-    padding: 24,
+    padding: 32,
     marginBottom: 32,
+    minHeight: 220,
     position: 'relative',
     overflow: 'hidden',
   },

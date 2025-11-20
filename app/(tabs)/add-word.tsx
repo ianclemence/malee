@@ -64,7 +64,7 @@ export default function AddWordScreen() {
                 <Pressable
                   key={s}
                   style={styles.suggestionChip}
-                  onPress={() => setTranslation(s)}
+                  onPress={() => setWord(s)}
                 >
                   <Text style={styles.suggestionText}>{s}</Text>
                 </Pressable>

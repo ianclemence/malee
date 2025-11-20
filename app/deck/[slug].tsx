@@ -120,7 +120,7 @@ export default function DeckScreen() {
         {deck && (
           <View style={styles.wordsList}>
             {deck.words.map((w, i) => {
-              const isLearned = deckStats[i] && deckStats[i].level > 0;
+              const isLearned = deckStats[i] && deckStats[i].repetition > 0;
               return (
                 <View key={`${deck.slug}-${i}`} style={styles.wordCard}>
                   <View style={styles.wordContent}>
