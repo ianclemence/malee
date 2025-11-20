@@ -330,8 +330,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: "800",
     color: TEXT,
     fontFamily: 'PlayfairDisplay_600SemiBold',
   },
