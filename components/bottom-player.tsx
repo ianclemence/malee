@@ -1,31 +1,19 @@
-import { ProgressRing } from "@/components/progress-ring";
+import { Palette } from "@/constants/theme";
 import { useBottomSheet } from "@/hooks/bottom-sheet-store";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useRouter } from "expo-router";
-import React, { useEffect } from "react";
+import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { PanGestureHandler } from "react-native-gesture-handler";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from "react-native-reanimated";
 
-const ACCENT = "#F1FF00";
-const TEXT = "#000000";
+const ACCENT = Palette.primary; // Yellow
+const TEXT_COLOR = "#FFFFFF";
+const BG_COLOR = "#212121"; // Dark Grey
 
 export default function BottomPlayer({ inline = false }: { inline?: boolean }) {
   const { state, hide } = useBottomSheet();
   const router = useRouter();
-  const translateY = useSharedValue(100);
 
-  useEffect(() => {
-    translateY.value = withSpring(state.visible ? 0 : 100);
-  }, [state.visible]);
-
-  const sheetStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }],
-  }));
+  if (!state.visible || !state.deck) return null;
 
   function onResume() {
     if (state.deck) {
@@ -56,112 +44,90 @@ export default function BottomPlayer({ inline = false }: { inline?: boolean }) {
 
   const prog = typeof state.progress === 'number' ? state.progress : 0;
 
-  // Only show ring if progress > 0
-  const showRing = prog > 0;
-
-  if (!state.visible || !state.deck) return null;
-
   return (
-    <PanGestureHandler
-      onGestureEvent={(e) => {
-        const { translationY } = (e.nativeEvent as any);
-        translateY.value = translationY;
-      }}
-      onEnded={(e) => {
-        const { translationY } = (e.nativeEvent as any);
-        if (translationY > 60) hide();
-        else translateY.value = withSpring(0);
-      }}
-    >
-      <Animated.View style={[inline ? styles.inline : styles.container, sheetStyle]}>
-        <Pressable
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            gap: 8,
-            flex: 1,
-          }}
-          onPress={onOpenProgress}
-        >
-          <MaterialIcons name="list-alt" size={20} color={TEXT} />
-          <Text style={styles.title}>{state.deck.title}</Text>
-        </Pressable>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-            <MaterialIcons name="style" size={18} color={TEXT} />
-            <Text style={styles.count}>{state.deck.count}</Text>
-          </View>
-          <Pressable style={styles.play} onPress={onResume}>
-            {showRing && (
-              <View style={styles.ringContainer}>
-                <ProgressRing radius={22} stroke={3} progress={prog} color={ACCENT} />
-              </View>
-            )}
-            <MaterialIcons name="play-arrow" size={20} color={ACCENT} />
-          </Pressable>
-          <Pressable onPress={hide}>
-            <MaterialIcons name="close" size={20} color={TEXT} />
-          </Pressable>
+    <View style={styles.container}>
+      {/* Progress Bar Background */}
+      <View style={styles.progressBarBackground}>
+        <View style={[styles.progressBarFill, { width: `${prog * 100}%` }]} />
+      </View>
+
+      <Pressable
+        style={styles.contentContainer}
+        onPress={onOpenProgress}
+      >
+        <View style={styles.textContainer}>
+          <Text style={styles.title} numberOfLines={1}>{state.deck.title}</Text>
+          <Text style={styles.subtitle}>{state.deck.count} words</Text>
         </View>
-      </Animated.View>
-    </PanGestureHandler>
+      </Pressable>
+
+      <View style={styles.controls}>
+        <Pressable onPress={onResume} hitSlop={10}>
+          <MaterialIcons name="play-arrow" size={32} color={ACCENT} />
+        </Pressable>
+        <Pressable onPress={hide} hitSlop={10}>
+          <MaterialIcons name="close" size={24} color={TEXT_COLOR} style={{ opacity: 0.7 }} />
+        </Pressable>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     position: "absolute",
-    left: 16,
-    right: 16,
-    bottom: 24,
-    zIndex: 1000,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    left: 0,
+    right: 0,
+    bottom: 72, // Attached to the top of the 72px tab bar
+    backgroundColor: BG_COLOR,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    height: 60, // Slightly taller for better touch area
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    paddingHorizontal: 16,
     shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    borderWidth: 1,
-    borderColor: "#F0F0F0",
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: -2 }, // Shadow upwards
+    elevation: 5,
+    // zIndex removed to let it sit behind the floating Plus button if needed
+    overflow: 'hidden',
   },
-  inline: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderWidth: 1,
-    borderColor: "#F0F0F0",
+  contentContainer: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  textContainer: {
+    gap: 2,
   },
   title: {
-    color: TEXT,
+    color: TEXT_COLOR,
     fontWeight: "700",
-    fontSize: 16,
+    fontSize: 14,
   },
-  count: {
-    color: TEXT,
-    fontWeight: "700",
-    opacity: 0.6,
+  subtitle: {
+    color: TEXT_COLOR,
+    fontSize: 12,
+    opacity: 0.7,
   },
-  play: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#000000',
+  controls: {
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    position: 'relative',
+    gap: 16,
+    paddingLeft: 16,
   },
-  ringContainer: {
+  progressBarBackground: {
     position: 'absolute',
-    alignItems: 'center',
-    justifyContent: 'center',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 2,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: ACCENT,
   },
 });
