@@ -52,21 +52,30 @@ export default function AddWordScreen() {
 
     // Create new deck if needed
     if (isCreatingDeck) {
-      if (!newDeckName.trim()) {
+      const name = newDeckName.trim();
+      if (!name) {
         Alert.alert("Missing Info", "Please enter a name for your new deck.");
         return;
       }
-      const slug = "custom-" + Date.now();
-      const newDeck: CustomDeck = {
-        slug,
-        title: newDeckName,
-        icon: "style", // Default icon
-        bg: "#EFEFEF",
-        createdAt: Date.now(),
-        words: [],
-      };
-      await saveCustomDeck(newDeck);
-      targetSlug = slug;
+
+      // Check if deck with same name exists
+      const existingDeck = decks.find(d => d.title.toLowerCase() === name.toLowerCase());
+
+      if (existingDeck) {
+        targetSlug = existingDeck.slug;
+      } else {
+        const slug = "custom-" + Date.now();
+        const newDeck: CustomDeck = {
+          slug,
+          title: name,
+          icon: "style", // Default icon
+          bg: "#EFEFEF",
+          createdAt: Date.now(),
+          words: [],
+        };
+        await saveCustomDeck(newDeck);
+        targetSlug = slug;
+      }
     }
 
     if (!targetSlug) return;
