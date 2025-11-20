@@ -1,6 +1,8 @@
 import { ProgressRing } from "@/components/progress-ring";
 import { getDeckBySlug } from "@/data/decks";
 import {
+  DeckProgress,
+  getDeckProgress,
   getDeckProgressStats,
   getFavorites,
   getMyDecks,
@@ -26,6 +28,7 @@ export default function DeckScreen() {
   const router = useRouter();
   const [favorites, setFavorites] = useState<{ [key: string]: boolean }>({});
   const [myDecks, setMyDecksState] = useState<{ [key: string]: boolean }>({});
+  const [deckStats, setDeckStats] = useState<DeckProgress>({});
 
   const deck = useMemo(() => getDeckBySlug(String(slug)), [slug]);
   const wordCount = deck ? deck.words.length : Number(count ?? "0");
@@ -39,7 +42,9 @@ export default function DeckScreen() {
     setFavorites(fav);
     setMyDecksState(mine);
     const stats = await getDeckProgressStats(String(slug), wordCount);
+    const dStats = await getDeckProgress(String(slug));
     setProgress(stats.progress);
+    setDeckStats(dStats);
   };
 
   useEffect(() => {
@@ -80,7 +85,7 @@ export default function DeckScreen() {
 
         <View style={styles.actionsRow}>
           <Pressable
-            style={[styles.actionBtn, isFav && styles.actionBtnActive]}
+            style={[styles.actionBtn, isFav && styles.favBtnActive]}
             onPress={async () => {
               const next = !isFav;
               setFavorites((p) => ({ ...p, [String(slug)]: next }));
@@ -90,21 +95,21 @@ export default function DeckScreen() {
             <MaterialIcons
               name={isFav ? "favorite" : "favorite-border"}
               size={20}
-              color={isFav ? "#FF4444" : TEXT}
+              color={isFav ? "#FFFFFF" : TEXT}
             />
-            <Text style={styles.actionBtnText}>{isFav ? "Favorited" : "Favorite"}</Text>
+            <Text style={[styles.actionBtnText, isFav && { color: "#FFFFFF" }]}>{isFav ? "Favorited" : "Favorite"}</Text>
           </Pressable>
 
           <Pressable
-            style={[styles.actionBtn, isMine && styles.actionBtnActive]}
+            style={[styles.actionBtn, isMine && styles.saveBtnActive]}
             onPress={async () => {
               const next = !isMine;
               setMyDecksState((p) => ({ ...p, [String(slug)]: next }));
               await setMyDeck(String(slug), next);
             }}
           >
-            <MaterialIcons name={isMine ? "check" : "add"} size={20} color={TEXT} />
-            <Text style={styles.actionBtnText}>{isMine ? "Saved" : "Save Deck"}</Text>
+            <MaterialIcons name={isMine ? "check" : "add"} size={20} color={isMine ? ACCENT : TEXT} />
+            <Text style={[styles.actionBtnText, isMine && { color: ACCENT }]}>{isMine ? "Saved" : "Save Deck"}</Text>
           </Pressable>
         </View>
 
@@ -114,17 +119,23 @@ export default function DeckScreen() {
         </View>
         {deck && (
           <View style={styles.wordsList}>
-            {deck.words.map((w, i) => (
-              <View key={`${deck.slug}-${i}`} style={styles.wordCard}>
-                <View style={styles.wordContent}>
-                  <Text style={styles.wordEn}>{w.en}</Text>
-                  <Text style={styles.wordTh}>{w.th}</Text>
+            {deck.words.map((w, i) => {
+              const isLearned = deckStats[i] && deckStats[i].level > 0;
+              return (
+                <View key={`${deck.slug}-${i}`} style={styles.wordCard}>
+                  <View style={styles.wordContent}>
+                    <Text style={styles.wordEn}>{w.en}</Text>
+                    <Text style={styles.wordTh}>{w.th}</Text>
+                  </View>
+                  <Pressable
+                    style={[styles.wordAudioBtn, isLearned && styles.wordAudioBtnActive]}
+                    disabled={!isLearned}
+                  >
+                    <MaterialIcons name="volume-up" size={20} color={isLearned ? ACCENT : TEXT} style={!isLearned && { opacity: 0.5 }} />
+                  </Pressable>
                 </View>
-                <Pressable style={styles.wordAudioBtn}>
-                  <MaterialIcons name="volume-up" size={20} color={TEXT} style={{ opacity: 0.5 }} />
-                </Pressable>
-              </View>
-            ))}
+              );
+            })}
           </View>
         )}
       </ScrollView>
@@ -248,10 +259,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "transparent",
   },
-  actionBtnActive: {
-    backgroundColor: "#FFFFFF",
-    borderColor: "#E0E0E0",
-    borderWidth: 2,
+  favBtnActive: {
+    backgroundColor: "#FF4444",
+    borderColor: "#FF4444",
+  },
+  saveBtnActive: {
+    backgroundColor: "#000000",
+    borderColor: "#000000",
   },
   actionBtnText: {
     fontSize: 16,
@@ -314,6 +328,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#F5F5F5",
     alignItems: "center",
     justifyContent: "center",
+  },
+  wordAudioBtnActive: {
+    backgroundColor: "#000000",
   },
   floatingLearnBar: {
     position: "absolute",
