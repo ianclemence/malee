@@ -1,58 +1,56 @@
+import { getDeckBySlug } from "@/data/decks";
+import { DetailedStats, getDetailedDeckStats } from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Image } from "expo-image";
-import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { useCallback } from "react";
-import { useEffect, useMemo, useState } from "react";
-import { getDeckBySlug } from "@/data/decks";
-import { getDeckProgressStats } from "@/lib/storage";
 
 const ACCENT = "#F1FF00";
-const ACCENT_DIM = "rgba(241,255,0,0.4)";
 const TEXT = "#000000";
-const PAGE_BG = "#EFEFEF";
+const PAGE_BG = "#EDE6D6"; // Match Learn screen background
 
 export default function DeckProgressScreen() {
-  const { title, count, slug, progress } = useLocalSearchParams<{
+  const { title, count, slug } = useLocalSearchParams<{
     title?: string;
     count?: string;
     slug?: string;
-    progress?: string;
   }>();
   const router = useRouter();
   const deck = useMemo(() => getDeckBySlug(String(slug)), [slug]);
   const total = deck ? deck.words.length : Number(count ?? "0");
-  const [known, setKnown] = useState(0);
-  const [prog, setProg] = useState(0);
+
+  const [stats, setStats] = useState<DetailedStats>({
+    new: total,
+    learning: 0,
+    review: 0,
+    mastered: 0,
+    total: total,
+    progress: 0,
+  });
+
+  const loadStats = async () => {
+    const s = await getDetailedDeckStats(String(slug), total);
+    setStats(s);
+  };
+
   useEffect(() => {
-    (async () => {
-      const stats = await getDeckProgressStats(String(slug), total);
-      setKnown(stats.known);
-      setProg(stats.progress);
-    })();
+    loadStats();
   }, [slug, total]);
 
   useFocusEffect(
     useCallback(() => {
-      let mounted = true;
-      (async () => {
-        const stats = await getDeckProgressStats(String(slug), total);
-        if (mounted) {
-          setKnown(stats.known);
-          setProg(stats.progress);
-        }
-      })();
-      return () => {
-        mounted = false;
-      };
+      loadStats();
     }, [slug, total])
   );
-  const ringProg = 0.6;
+
+  // Ring Progress Calculation
+  const ringProg = Math.max(0, Math.min(1, stats.progress));
   const ringColors = {
-    borderTopColor: ACCENT,
-    borderRightColor: ringProg >= 0.3 ? ACCENT : 'transparent',
-    borderBottomColor: 'transparent',
-    borderLeftColor: 'transparent',
+    borderTopColor: ringProg > 0 ? ACCENT : 'transparent',
+    borderRightColor: ringProg >= 0.25 ? ACCENT : 'transparent',
+    borderBottomColor: ringProg >= 0.5 ? ACCENT : 'transparent',
+    borderLeftColor: ringProg >= 0.75 ? ACCENT : 'transparent',
   } as const;
 
   return (
@@ -70,24 +68,34 @@ export default function DeckProgressScreen() {
             style={styles.illustration}
           />
           <View style={styles.bubble}>
-            <Text style={styles.bubbleText}>Well, well, well</Text>
+            <Text style={styles.bubbleText}>Keep it up!</Text>
           </View>
         </View>
 
         <Text style={styles.titleText}>{deck?.title ?? title ?? "Deck"}</Text>
 
+        {/* Simple Stats Row */}
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{String(known)}</Text>
-            <Text style={styles.statLabel}>Known words</Text>
+            <Text style={styles.statValue}>{stats.mastered}</Text>
+            <Text style={styles.statLabel}>Mastered</Text>
           </View>
+          <View style={styles.separator} />
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{String(total)}</Text>
-            <Text style={styles.statLabel}>Words in deck</Text>
+            <Text style={styles.statValue}>{stats.review}</Text>
+            <Text style={styles.statLabel}>Review</Text>
+          </View>
+          <View style={styles.separator} />
+          <View style={styles.statItem}>
+            <Text style={styles.statValue}>{stats.learning}</Text>
+            <Text style={styles.statLabel}>Learning</Text>
           </View>
         </View>
 
-        
+        <View style={styles.totalRow}>
+          <Text style={styles.totalText}>{stats.new} New Cards Remaining</Text>
+        </View>
+
       </ScrollView>
 
       <Pressable
@@ -104,11 +112,11 @@ export default function DeckProgressScreen() {
         }
       >
         <View style={styles.btnSide}>
-          <View style={[styles.playProgress, ringColors]}>
+          <View style={[styles.playProgressRing, ringColors]}>
             <MaterialIcons name="play-arrow" size={20} color={ACCENT} />
           </View>
         </View>
-        <Text style={styles.learnText}>Learn</Text>
+        <Text style={styles.learnText}>Continue Learning</Text>
         <View style={styles.btnSide} />
       </Pressable>
     </View>
@@ -142,11 +150,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginBottom: 12,
     position: "relative",
-    minHeight: 340,
+    minHeight: 280,
   },
   illustration: {
-    width: 280,
-    height: 280,
+    width: 200,
+    height: 200,
   },
   bubble: {
     position: "absolute",
@@ -164,53 +172,56 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   titleText: {
-    fontSize: 36,
+    fontSize: 32,
     fontWeight: "800",
     color: TEXT,
-    marginBottom: 12,
-    marginTop: 24,
+    marginBottom: 24,
     textAlign: "center",
-  },
-  actionsRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 12,
-    marginBottom: 12,
   },
   statsRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 48,
-    marginTop: 16,
-    marginBottom: 12,
+    gap: 24,
+    marginBottom: 24,
+    backgroundColor: "#FFFFFF",
+    padding: 20,
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
   },
   statItem: {
     alignItems: "center",
     justifyContent: "center",
+    flex: 1,
   },
   statValue: {
-    fontSize: 30,
+    fontSize: 24,
     fontWeight: "700",
     color: TEXT,
   },
   statLabel: {
     color: TEXT,
-    opacity: 0.7,
-    fontSize: 18,
+    opacity: 0.6,
+    fontSize: 14,
+    marginTop: 4,
   },
   separator: {
-    height: 1,
-    backgroundColor: TEXT,
-    opacity: 0.2,
-    marginBottom: 12,
+    width: 1,
+    height: 40,
+    backgroundColor: "#E0E0E0",
   },
-  sectionTitle: {
-    fontSize: 30,
-    fontWeight: "800",
+  totalRow: {
+    alignItems: "center",
+    marginBottom: 24,
+  },
+  totalText: {
+    fontSize: 16,
     color: TEXT,
-    marginBottom: 12,
+    opacity: 0.6,
+    fontWeight: "600",
   },
   floatingLearnBar: {
     position: "absolute",
@@ -233,7 +244,7 @@ const styles = StyleSheet.create({
   learnText: {
     color: ACCENT,
     fontWeight: "700",
-    fontSize: 22,
+    fontSize: 18,
     textAlign: "center",
     flex: 1,
   },
@@ -242,13 +253,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  playProgress: {
+  playProgressRing: {
     width: 32,
     height: 32,
     borderRadius: 16,
     borderWidth: 3,
+    borderColor: 'transparent', // Base border
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#000000",
+    // The colored borders will be applied via inline styles
   },
 });

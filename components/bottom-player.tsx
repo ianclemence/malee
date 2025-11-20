@@ -53,8 +53,12 @@ export default function BottomPlayer({ inline = false }: { inline?: boolean }) {
     }
   }
 
-  const prog = typeof state.progress === 'number' ? state.progress : 0.6;
+  const prog = typeof state.progress === 'number' ? state.progress : 0;
   const ringProg = Math.max(0, Math.min(1, prog));
+
+  // Only show ring if progress > 0
+  const showRing = ringProg > 0;
+
   const ringColors = {
     borderTopColor: ringProg > 0 ? ACCENT : 'transparent',
     borderRightColor: ringProg >= 0.25 ? ACCENT : 'transparent',
@@ -93,7 +97,7 @@ export default function BottomPlayer({ inline = false }: { inline?: boolean }) {
             <Text style={styles.count}>{state.deck.count}</Text>
           </View>
           <Pressable style={styles.play} onPress={onResume}>
-            <View style={[styles.playProgressRing, ringColors]} />
+            {showRing && <View style={[styles.playProgressRing, ringColors]} />}
             <MaterialIcons name="play-arrow" size={20} color={ACCENT} />
           </Pressable>
           <Pressable onPress={hide}>
@@ -120,6 +124,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: -2 },
   },
   inline: {
     backgroundColor: "#F5F5F5",
@@ -144,20 +152,19 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     backgroundColor: '#000000',
-    borderWidth: 2,
-    borderColor: TEXT,
     alignItems: "center",
     justifyContent: "center",
     position: 'relative',
   },
   playProgressRing: {
     position: 'absolute',
-    left: 1,
-    right: 1,
-    top: 1,
-    bottom: 1,
+    left: -2,
+    right: -2,
+    top: -2,
+    bottom: -2,
     borderWidth: 3,
     borderColor: 'transparent',
-    borderRadius: 16,
+    borderRadius: 22,
+    transform: [{ rotate: '-45deg' }], // Start from top-leftish or adjust as needed
   },
 });

@@ -16,6 +16,15 @@ export type CurrentDeck = {
   progress: number;
 };
 
+export type DetailedStats = {
+  new: number;
+  learning: number;
+  review: number;
+  mastered: number;
+  total: number;
+  progress: number;
+};
+
 export async function getFavorites(): Promise<BoolMap> {
   const v = await AsyncStorage.getItem(FAVORITES_KEY);
   return v ? JSON.parse(v) : {};
@@ -63,6 +72,51 @@ export async function getDeckProgressStats(
   const known = Object.values(p).filter((s) => s.repetition > 0).length;
   const progress = totalWords > 0 ? known / totalWords : 0;
   return { interacted, known, progress };
+}
+
+export async function getDetailedDeckStats(
+  slug: string,
+  totalWords: number
+): Promise<DetailedStats> {
+  const p = await getDeckProgress(slug);
+  const now = Date.now();
+
+  let newCards = 0;
+  let learning = 0;
+  let review = 0;
+  let mastered = 0;
+
+  // We iterate up to totalWords because p might be sparse or incomplete if totalWords changed
+  for (let i = 0; i < totalWords; i++) {
+    const stats = p[i];
+    if (!stats) {
+      newCards++;
+    } else {
+      // Logic for categorization:
+      // Mastered: Interval > 21 days
+      // Review: Due date is past (or close)
+      // Learning: Interval <= 21 days
+
+      if (stats.interval > 21) {
+        mastered++;
+      } else if (stats.dueDate <= now) {
+        review++;
+      } else {
+        learning++;
+      }
+    }
+  }
+
+  const progress = totalWords > 0 ? (mastered + learning) / totalWords : 0;
+
+  return {
+    new: newCards,
+    learning,
+    review,
+    mastered,
+    total: totalWords,
+    progress,
+  };
 }
 
 export async function getTodayInteractions(): Promise<number> {

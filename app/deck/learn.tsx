@@ -1,6 +1,6 @@
 import { getDeckBySlug } from "@/data/decks";
 import { useBottomSheet } from "@/hooks/bottom-sheet-store";
-import { calculateNextReview, INITIAL_STATS, mapRatingToGrade } from "@/lib/srs";
+import { calculateNextReview, INITIAL_STATS, mapRatingToGrade, SRSStats } from "@/lib/srs";
 import {
   DeckProgress,
   getDeckProgress,
@@ -45,6 +45,7 @@ export default function LearnScreen() {
   const [currentIndex, setCurrentIndex] = useState(0); // Index within the queue
   const [loading, setLoading] = useState(true);
   const [deckStats, setDeckStats] = useState<DeckProgress>({});
+  const [history, setHistory] = useState<Array<{ index: number; stats: SRSStats }>>([]);
 
   const [flipped, setFlipped] = useState(false);
   const flip = useSharedValue(0);
@@ -193,15 +194,18 @@ export default function LearnScreen() {
     }
   }
 
-  async function onAssess(rating: 'unknown' | 'difficult' | 'known') {
+  async function onAssess(rating: 'difficult' | 'known') {
     const grade = mapRatingToGrade(rating);
     const currentStats = deckStats[activeCardIndex] || INITIAL_STATS;
-    const newStats = calculateNextReview(currentStats, grade);
 
+    // Save history for Undo
+    setHistory(prev => [...prev, { index: activeCardIndex, stats: currentStats }]);
+
+    const newStats = calculateNextReview(currentStats, grade);
     await saveWordStats(String(slug), activeCardIndex, newStats);
 
-    // Update local stats map so if we see this card again (e.g. in same session if we implemented learning steps) it's updated
-    // For now, we just move to next card.
+    // Update local stats immediately
+    setDeckStats(prev => ({ ...prev, [activeCardIndex]: newStats }));
 
     const today = await incTodayInteractions(1);
     const stats = await getDeckProgressStats(String(slug), cards.length);
@@ -210,6 +214,32 @@ export default function LearnScreen() {
     await setCurrentDeck({ slug: String(slug), title: deck?.title || String(title || 'Deck'), count: cards.length, progress: stats.progress });
 
     goNext();
+  }
+
+  async function onUndo() {
+    if (history.length === 0) return;
+
+    const last = history[history.length - 1];
+    const newHistory = history.slice(0, -1);
+    setHistory(newHistory);
+
+    // Restore stats
+    await saveWordStats(String(slug), last.index, last.stats);
+    setDeckStats(prev => ({ ...prev, [last.index]: last.stats }));
+
+    // Go back
+    if (currentIndex > 0) {
+      setCurrentIndex(prev => prev - 1);
+      flip.value = 0; // Reset flip
+      setFlipped(false);
+    }
+
+    // Decrement today count to fix duplication
+    const today = await incTodayInteractions(-1);
+    setTodayCount(today);
+
+    const stats = await getDeckProgressStats(String(slug), cards.length);
+    setProgress(stats.progress);
   }
 
   if (loading) {
@@ -274,19 +304,29 @@ export default function LearnScreen() {
 
         {/* Active Card */}
         <Animated.View style={[styles.card, topCardStyle]}>
-          <Pressable style={{ flex: 1 }} onPress={handleFlip}>
+          <View style={{ flex: 1 }}>
             {/* Front Face */}
             <Animated.View style={[styles.cardFace, styles.cardFaceFront, frontFaceStyle]}>
               <Text style={styles.cardText}>{activeCard.front}</Text>
 
-              <View style={styles.controlsRow}>
-                <Pressable style={styles.iconBtn} onPress={() => speak(activeCard.front)}>
+              {/* Controls Row: Stop Propagation by handling press */}
+              <View style={[styles.controlsRow, !started && { opacity: 0.5 }]}>
+                <Pressable
+                  style={styles.iconBtn}
+                  disabled={!started}
+                  onPress={() => speak(activeCard.front)}
+                >
                   <MaterialIcons name="volume-up" size={28} color={TEXT} />
                 </Pressable>
 
                 <Pressable
                   style={[styles.iconBtn, recordingStatus === 'recording' && styles.recordingBtn]}
-                  onPress={recordingStatus === 'recording' ? stopRecording : (recordingStatus === 'recorded' || recordingStatus === 'playing' ? playRecording : startRecording)}
+                  disabled={!started}
+                  onPress={() => {
+                    if (recordingStatus === 'recording') stopRecording();
+                    else if (recordingStatus === 'recorded' || recordingStatus === 'playing') playRecording();
+                    else startRecording();
+                  }}
                 >
                   <MaterialIcons
                     name={recordingStatus === 'recording' ? "stop" : (recordingStatus === 'playing' ? "volume-up" : "mic")}
@@ -301,31 +341,23 @@ export default function LearnScreen() {
             <Animated.View style={[styles.cardFace, styles.cardFaceBack, backFaceStyle]}>
               <Text style={styles.cardText}>{activeCard.back}</Text>
             </Animated.View>
-          </Pressable>
+          </View>
         </Animated.View>
 
-        {/* Static Hint Text */}
-        <View style={styles.staticHintContainer}>
+        {/* Static Hint Text - NOW CLICKABLE */}
+        <Pressable style={styles.staticHintContainer} onPress={handleFlip}>
           <Text style={styles.tapHint}>Tap to flip</Text>
-        </View>
+        </Pressable>
       </View>
 
       <View style={styles.assessRow}>
         <Pressable
-          style={[styles.assessBtn, !started && { opacity: 0.5 }]}
-          disabled={!started}
-          onPress={() => onAssess('unknown')}
+          style={[styles.assessBtn, (!started || history.length === 0) && { opacity: 0.5 }]}
+          disabled={!started || history.length === 0}
+          onPress={onUndo}
         >
-          <MaterialIcons name="replay" size={22} color={TEXT} />
-          <Text style={styles.assessText}>Again</Text>
-        </Pressable>
-        <Pressable
-          style={[styles.assessBtn, !started && { opacity: 0.5 }]}
-          disabled={!started}
-          onPress={() => onAssess('difficult')}
-        >
-          <MaterialIcons name="sentiment-neutral" size={22} color={TEXT} />
-          <Text style={styles.assessText}>Hard</Text>
+          <MaterialIcons name="undo" size={22} color={TEXT} />
+          <Text style={styles.assessText}>Undo</Text>
         </Pressable>
         <Pressable
           style={[styles.assessBtn, !started && { opacity: 0.5 }]}
@@ -334,6 +366,14 @@ export default function LearnScreen() {
         >
           <MaterialIcons name="sentiment-satisfied" size={22} color={TEXT} />
           <Text style={styles.assessText}>Good</Text>
+        </Pressable>
+        <Pressable
+          style={[styles.assessBtn, !started && { opacity: 0.5 }]}
+          disabled={!started}
+          onPress={() => onAssess('difficult')}
+        >
+          <MaterialIcons name="sentiment-neutral" size={22} color={TEXT} />
+          <Text style={styles.assessText}>Hard</Text>
         </Pressable>
       </View>
     </ScrollView>
@@ -454,6 +494,7 @@ const styles = StyleSheet.create({
     bottom: 40, // Adjust based on card height
     alignSelf: "center",
     zIndex: 20,
+    padding: 20, // Increase touch area
   },
   tapHint: {
     color: TEXT,
