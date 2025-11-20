@@ -9,7 +9,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 const ACCENT = "#F1FF00";
 const TEXT = "#000000";
-const PAGE_BG = "#EDE6D6"; // Match Learn screen background
+const PAGE_BG = "#FFFFFF";
 
 export default function DeckProgressScreen() {
   const { title, count, slug } = useLocalSearchParams<{
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     backgroundColor: PAGE_BG,
   },
   container: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 24,
     paddingBottom: 120,
     marginTop: 48,
   },
@@ -140,10 +140,12 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   iconButton: {
-    width: 36,
-    height: 36,
+    width: 40,
+    height: 40,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "#F5F5F5",
+    borderRadius: 20,
   },
   illustrationHolder: {
     alignItems: "center",
@@ -177,6 +179,7 @@ const styles = StyleSheet.create({
     color: TEXT,
     marginBottom: 24,
     textAlign: "center",
+    letterSpacing: -1,
   },
   statsRow: {
     flexDirection: "row",
@@ -191,6 +194,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
+    borderWidth: 1,
+    borderColor: "#F0F0F0",
   },
   statItem: {
     alignItems: "center",
@@ -231,20 +236,20 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    height: 56,
+    height: 64,
     backgroundColor: "#000000",
-    borderRadius: 16,
+    borderRadius: 20,
     gap: 8,
     shadowColor: "#000",
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
   },
   learnText: {
     color: ACCENT,
     fontWeight: "700",
-    fontSize: 18,
+    fontSize: 20,
     textAlign: "center",
     flex: 1,
   },
@@ -254,8 +259,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   playWrapper: {
-    width: 32,
-    height: 32,
+    width: 36,
+    height: 36,
     alignItems: "center",
     justifyContent: "center",
     position: 'relative',
@@ -266,3 +271,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+

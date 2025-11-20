@@ -1,16 +1,15 @@
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { useRouter, useFocusEffect } from "expo-router";
-import { useEffect, useMemo, useState, useCallback } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View, TextInput } from "react-native";
 import { DEFAULT_DECKS } from "@/data/decks";
-import { getFavorites, setFavorite, getMyDecks } from "@/lib/storage";
+import { getFavorites, getMyDecks, setFavorite } from "@/lib/storage";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
 const ACCENT = "#F1FF00";
 const TEXT = "#000000";
 const BG = "#FFFFFF";
-const BLUE_BG = "#C9D9FF";
-const GREEN_BG = "#E8F4C8";
-const BEIGE_BG = "#EDE6D6";
+const PURPLE_BG = "#D9D4F6";
+const CARD_BG = "#EDE6D6";
 
 export default function DecksScreen() {
   const router = useRouter();
@@ -19,29 +18,20 @@ export default function DecksScreen() {
   const [view, setView] = useState<"all" | "my" | "favorites">("all");
   const [query, setQuery] = useState("");
 
+  const loadData = async () => {
+    const fav = await getFavorites();
+    const mine = await getMyDecks();
+    setFavorites(fav);
+    setMyDecksState(mine);
+  };
+
   useEffect(() => {
-    (async () => {
-      const fav = await getFavorites();
-      const mine = await getMyDecks();
-      setFavorites(fav);
-      setMyDecksState(mine);
-    })();
+    loadData();
   }, []);
 
   useFocusEffect(
     useCallback(() => {
-      let mounted = true;
-      (async () => {
-        const fav = await getFavorites();
-        const mine = await getMyDecks();
-        if (mounted) {
-          setFavorites(fav);
-          setMyDecksState(mine);
-        }
-      })();
-      return () => {
-        mounted = false;
-      };
+      loadData();
     }, [])
   );
 
@@ -61,21 +51,22 @@ export default function DecksScreen() {
     <ScrollView
       style={{ backgroundColor: BG }}
       contentContainerStyle={styles.container}
+      showsVerticalScrollIndicator={false}
     >
       <View style={styles.header}>
-        <Text style={styles.logo}>MALEE</Text>
+        <Text style={styles.logo}>Explore</Text>
         <Pressable onPress={() => router.push("/settings")}>
           <MaterialIcons name="settings" size={24} color={TEXT} />
         </Pressable>
       </View>
 
       <View style={styles.searchBar}>
-        <MaterialIcons name="search" size={20} color={TEXT} style={styles.searchIcon} />
+        <MaterialIcons name="search" size={24} color={TEXT} style={styles.searchIcon} />
         <TextInput
           value={query}
           onChangeText={setQuery}
-          placeholder="Search decks"
-          placeholderTextColor="#00000066"
+          placeholder="Search decks..."
+          placeholderTextColor="rgba(0,0,0,0.4)"
           style={styles.searchInput}
         />
         {query ? (
@@ -85,63 +76,35 @@ export default function DecksScreen() {
         ) : null}
       </View>
 
-      <View style={styles.featureedTabsContainer}>
-        <View style={styles.segmentRow}>
-          <Pressable
-            style={[
-              styles.segmentBtn,
-              view === "all" && styles.segmentBtnActive,
-            ]}
-            onPress={() => setView("all")}
-          >
-            <Text
+      <View style={styles.tabsContainer}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabsScroll}>
+          {(["all", "my", "favorites"] as const).map((v) => (
+            <Pressable
+              key={v}
               style={[
-                styles.segmentText,
-                view === "all" && styles.segmentTextActive,
+                styles.tabBtn,
+                view === v && styles.tabBtnActive,
               ]}
+              onPress={() => setView(v)}
             >
-              All
-            </Text>
-          </Pressable>
-          <Pressable
-            style={[
-              styles.segmentBtn,
-              view === "my" && styles.segmentBtnActive,
-            ]}
-            onPress={() => setView("my")}
-          >
-            <Text
-              style={[
-                styles.segmentText,
-                view === "my" && styles.segmentTextActive,
-              ]}
-            >
-              My Decks
-            </Text>
-          </Pressable>
-          <Pressable
-            style={[
-              styles.segmentBtn,
-              view === "favorites" && styles.segmentBtnActive,
-            ]}
-            onPress={() => setView("favorites")}
-          >
-            <Text
-              style={[
-                styles.segmentText,
-                view === "favorites" && styles.segmentTextActive,
-              ]}
-            >
-              Favorites
-            </Text>
-          </Pressable>
-        </View>
+              <Text
+                style={[
+                  styles.tabText,
+                  view === v && styles.tabTextActive,
+                ]}
+              >
+                {v === "all" ? "All Decks" : v === "my" ? "My Decks" : "Favorites"}
+              </Text>
+            </Pressable>
+          ))}
+        </ScrollView>
       </View>
+
       <View style={styles.grid}>
-        {visibleDecks.map((d) => (
+        {visibleDecks.map((d, i) => (
           <Pressable
             key={d.slug}
-            style={[styles.card, { backgroundColor: d.bg }]}
+            style={[styles.card, { backgroundColor: i % 2 === 0 ? PURPLE_BG : "#F5F5F5" }]}
             onPress={() =>
               router.push({
                 pathname: "/deck/[slug]",
@@ -153,40 +116,44 @@ export default function DecksScreen() {
               })
             }
           >
-            <View style={styles.cardContent}>
+            <View style={styles.cardIcon}>
               <MaterialIcons
                 name={d.icon as any}
-                size={48}
+                size={32}
                 color={TEXT}
-                style={{ alignSelf: "flex-start" }}
               />
             </View>
-            <View style={styles.cardFooter}>
-              <View style={styles.cardFooterLeft}>
-                <Text style={styles.deckLabel}>{d.title}</Text>
-                <View style={styles.cardCountRow}>
-                  <MaterialIcons name="style" size={18} color={TEXT} />
-                  <Text style={styles.cardCountText}>{d.count}</Text>
-                </View>
+
+            <View style={styles.cardContent}>
+              <Text style={styles.cardTitle} numberOfLines={2}>{d.title}</Text>
+              <View style={styles.cardMeta}>
+                <Text style={styles.cardCount}>{d.count} words</Text>
+                <Pressable
+                  hitSlop={10}
+                  onPress={async (e) => {
+                    e.stopPropagation();
+                    const next = !favorites[d.slug];
+                    setFavorites((p) => ({ ...p, [d.slug]: next }));
+                    await setFavorite(d.slug, next);
+                  }}
+                >
+                  <MaterialIcons
+                    name={favorites[d.slug] ? "favorite" : "favorite-border"}
+                    size={20}
+                    color={favorites[d.slug] ? "#FF4444" : TEXT}
+                  />
+                </Pressable>
               </View>
-              <Pressable
-                style={styles.cardLikeBtn}
-                onPress={async () => {
-                  const next = !favorites[d.slug];
-                  setFavorites((p) => ({ ...p, [d.slug]: next }));
-                  await setFavorite(d.slug, next);
-                }}
-              >
-                <MaterialIcons
-                  name={favorites[d.slug] ? "favorite" : "favorite-border"}
-                  size={18}
-                  color={ACCENT}
-                />
-              </Pressable>
             </View>
           </Pressable>
         ))}
       </View>
+
+      {visibleDecks.length === 0 && (
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyText}>No decks found</Text>
+        </View>
+      )}
     </ScrollView>
   );
 }
@@ -194,189 +161,126 @@ export default function DecksScreen() {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
-    paddingBottom: 32,
+    paddingBottom: 100,
     marginTop: 48,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingTop: 8,
-    marginBottom: 12,
+    marginBottom: 24,
   },
   logo: {
-    fontSize: 22,
-    fontWeight: "800",
+    fontSize: 32,
+    fontWeight: "900",
     color: TEXT,
-  },
-  featuredLarge: {
-    backgroundColor: BLUE_BG,
-    borderRadius: 16,
-    overflow: "hidden",
-    marginBottom: 12,
-    position: "relative",
-    padding: 16,
-    minHeight: 280,
-  },
-  featureedTabsContainer: {
-    marginBottom: 12,
-  },
-  segmentRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 8,
-  },
-  segmentBtn: {
-    flex: 1,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: BG,
-    borderWidth: 2,
-    borderColor: TEXT,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  segmentBtnActive: {
-    backgroundColor: ACCENT,
-  },
-  segmentText: {
-    color: TEXT,
-    fontWeight: "700",
-  },
-  segmentTextActive: {
-    color: TEXT,
+    letterSpacing: -1,
   },
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: BG,
-    borderWidth: 2,
-    borderColor: TEXT,
-    paddingHorizontal: 12,
-    marginBottom: 12,
+    height: 56,
+    borderRadius: 16,
+    backgroundColor: "#F5F5F5",
+    paddingHorizontal: 16,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: "transparent", // cleaner look
   },
   searchIcon: {
-    marginRight: 4,
+    marginRight: 12,
+    opacity: 0.5,
   },
   searchInput: {
     flex: 1,
     color: TEXT,
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "600",
   },
   searchClearBtn: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
+    padding: 4,
+    opacity: 0.5,
   },
-  featureRow: {
-    position: "absolute",
-    left: 16,
-    right: 72,
-    bottom: 16,
-    alignItems: "flex-start",
+  tabsContainer: {
+    marginBottom: 24,
   },
-  largeImage: {
-    width: "100%",
-    height: 200,
+  tabsScroll: {
+    gap: 12,
   },
-  largeTitle: {
-    color: TEXT,
-    fontWeight: "700",
-    fontSize: 18,
-  },
-  largeCount: {
-    color: TEXT,
-    fontWeight: "700",
-  },
-  favoriteBtn: {
-    position: "absolute",
-    right: 16,
-    bottom: 16,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: TEXT,
+  tabBtn: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 24,
+    backgroundColor: "#F5F5F5",
     borderWidth: 2,
-    borderColor: TEXT,
-    alignItems: "center",
-    justifyContent: "center",
+    borderColor: "transparent",
   },
-  countRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    marginTop: 6,
+  tabBtnActive: {
+    backgroundColor: TEXT,
+    borderColor: TEXT,
+  },
+  tabText: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: TEXT,
+    opacity: 0.6,
+  },
+  tabTextActive: {
+    color: ACCENT,
+    opacity: 1,
   },
   grid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
+    gap: 12,
   },
   card: {
-    width: "48%",
-    height: 160,
-    borderRadius: 16,
-    alignItems: "stretch",
-    justifyContent: "space-between",
-    padding: 12,
-    marginBottom: 12,
-    position: "relative",
-  },
-  cardContent: {
+    width: "48%", // approx
+    minWidth: 160,
     flex: 1,
-    justifyContent: "flex-start",
-  },
-  deckLabel: {
-    color: TEXT,
-    fontWeight: "700",
-    textAlign: "left",
-    fontSize: 16,
-  },
-  cardFooter: {
-    position: "absolute",
-    left: 12,
-    right: 12,
-    bottom: 12,
-    alignItems: "flex-start",
-  },
-  cardFooter: {
-    position: "absolute",
-    left: 12,
-    right: 12,
-    bottom: 12,
-    flexDirection: "row",
-    alignItems: "flex-end",
+    aspectRatio: 0.85,
+    borderRadius: 24,
+    padding: 16,
     justifyContent: "space-between",
+    marginBottom: 4,
   },
-  cardFooterLeft: {
-    alignItems: "flex-start",
-  },
-  cardCountRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    marginTop: 6,
-  },
-  cardCountText: {
-    color: TEXT,
-    fontWeight: "700",
-    fontSize: 14,
-  },
-  cardLikeBtn: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: TEXT,
-    borderWidth: 2,
-    borderColor: TEXT,
+  cardIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "rgba(255,255,255,0.6)",
     alignItems: "center",
     justifyContent: "center",
+  },
+  cardContent: {
+    gap: 8,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: "800",
+    color: TEXT,
+    lineHeight: 22,
+  },
+  cardMeta: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  cardCount: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: TEXT,
+    opacity: 0.6,
+  },
+  emptyState: {
+    padding: 40,
+    alignItems: "center",
+  },
+  emptyText: {
+    fontSize: 18,
+    color: TEXT,
+    opacity: 0.5,
+    fontWeight: "600",
   },
 });

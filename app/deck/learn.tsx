@@ -25,7 +25,7 @@ import Animated, {
 
 const ACCENT = "#F1FF00";
 const TEXT = "#000000";
-const PAGE_BG = "#EDE6D6";
+const PAGE_BG = "#FFFFFF";
 
 type CardData = { front: string; back: string };
 

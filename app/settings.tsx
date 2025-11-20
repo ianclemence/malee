@@ -8,7 +8,6 @@ import {
   Switch,
   Text,
   View,
-  Dimensions,
 } from "react-native";
 
 const ACCENT = "#F1FF00";
@@ -21,76 +20,88 @@ export default function SettingsScreen() {
 
   return (
     <View style={styles.page}>
-      <View style={styles.accentBg} />
       <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.headerCard}>
-          <Pressable onPress={() => router.back()} style={styles.closeBtn}>
+        <View style={styles.headerRow}>
+          <Text style={styles.headerTitle}>Settings</Text>
+          <Pressable onPress={() => router.back()} style={styles.iconButton}>
             <MaterialIcons name="close" size={24} color={TEXT} />
           </Pressable>
-
-          <View style={styles.avatarRow}>
-            <View style={styles.avatarWrap}>
-              <View style={styles.avatarHolder}>
-                <Image
-                  source={require("@/assets/images/react-logo.png")}
-                  style={styles.avatar}
-                />
-              </View>
-              <View style={styles.cameraBadge}>
-                <MaterialIcons name="photo-camera" size={16} color={TEXT} />
-              </View>
-            </View>
-          </View>
-
-          <Text style={styles.name}>John Doe</Text>
-          <Text style={styles.level}>English level: ADVANCED</Text>
-
-          <View style={styles.metricsRow}>
-            <View style={styles.metricItem}>
-              <Text style={styles.metricValue}>32</Text>
-              <Text style={styles.metricLabel}>Vocabulary size</Text>
-            </View>
-            <View style={styles.metricItem}>
-              <Text style={styles.metricValue}>4 h 27 min</Text>
-              <Text style={styles.metricLabel}>Study time</Text>
-            </View>
-          </View>
-
-          <Text style={styles.subscription}>
-            Subscription expires at 1 January 2026
-          </Text>
         </View>
 
-        <View style={styles.listSection}>
-          <View style={styles.listItem}>
-            <Text style={styles.listLabel}>Reminders</Text>
-            <Switch
-              value={true}
-              trackColor={{ false: TEXT, true: TEXT }}
-              thumbColor={BG}
-              style={styles.switch}
+        <View style={styles.profileSection}>
+          <View style={styles.avatarContainer}>
+            <Image
+              source={require("@/assets/images/react-logo.png")}
+              style={styles.avatar}
             />
+            <View style={styles.editBadge}>
+              <MaterialIcons name="edit" size={14} color={TEXT} />
+            </View>
           </View>
-          <View style={styles.separator} />
-          <Pressable style={styles.listItem}>
-            <Text style={styles.listLabel}>Personal data</Text>
-            <MaterialIcons name="chevron-right" size={22} color={TEXT} />
-          </Pressable>
-          <View style={styles.separator} />
-          <Pressable style={styles.listItem}>
-            <Text style={styles.listLabel}>Privacy policy</Text>
-            <MaterialIcons name="chevron-right" size={22} color={TEXT} />
-          </Pressable>
-          <View style={styles.separator} />
-          <Pressable style={styles.listItem}>
-            <Text style={styles.listLabel}>User agreement</Text>
-            <MaterialIcons name="chevron-right" size={22} color={TEXT} />
-          </Pressable>
+          <Text style={styles.name}>John Doe</Text>
+          <Text style={styles.level}>English Level: Advanced</Text>
+        </View>
+
+        <View style={styles.statsRow}>
+          <View style={styles.statCard}>
+            <Text style={styles.statValue}>32</Text>
+            <Text style={styles.statLabel}>Words</Text>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statValue}>4h</Text>
+            <Text style={styles.statLabel}>Time</Text>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statValue}>12</Text>
+            <Text style={styles.statLabel}>Streak</Text>
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionHeader}>Preferences</Text>
+          <View style={styles.card}>
+            <View style={styles.row}>
+              <View style={styles.rowIcon}>
+                <MaterialIcons name="notifications" size={20} color={TEXT} />
+              </View>
+              <Text style={styles.rowLabel}>Daily Reminders</Text>
+              <Switch
+                value={true}
+                trackColor={{ false: "#E0E0E0", true: ACCENT }}
+                thumbColor={TEXT}
+              />
+            </View>
+            <View style={styles.divider} />
+            <Pressable style={styles.row}>
+              <View style={styles.rowIcon}>
+                <MaterialIcons name="volume-up" size={20} color={TEXT} />
+              </View>
+              <Text style={styles.rowLabel}>Sound Effects</Text>
+              <MaterialIcons name="chevron-right" size={24} color={TEXT} style={{ opacity: 0.3 }} />
+            </Pressable>
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionHeader}>Account</Text>
+          <View style={styles.card}>
+            <Pressable style={styles.row}>
+              <Text style={styles.rowLabel}>Personal Data</Text>
+              <MaterialIcons name="chevron-right" size={24} color={TEXT} style={{ opacity: 0.3 }} />
+            </Pressable>
+            <View style={styles.divider} />
+            <Pressable style={styles.row}>
+              <Text style={styles.rowLabel}>Subscription</Text>
+              <Text style={styles.rowValue}>Pro</Text>
+            </Pressable>
+          </View>
         </View>
 
         <Pressable style={styles.logoutBtn}>
-          <Text style={styles.logoutText}>Log out</Text>
+          <Text style={styles.logoutText}>Log Out</Text>
         </Pressable>
+
+        <Text style={styles.versionText}>Version 1.0.0</Text>
       </ScrollView>
     </View>
   );
@@ -102,58 +113,52 @@ const styles = StyleSheet.create({
     backgroundColor: BG,
   },
   container: {
-    paddingBottom: 24,
+    paddingHorizontal: 24,
+    paddingBottom: 40,
     marginTop: 48,
   },
-  headerCard: {
-    backgroundColor: "transparent",
-    borderRadius: 0,
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    marginBottom: 16,
-    position: "relative",
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 32,
   },
-  accentBg: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    top: 0,
-    height: Math.round(Dimensions.get("window").height * 0.4),
-    backgroundColor: ACCENT,
+  headerTitle: {
+    fontSize: 32,
+    fontWeight: "900",
+    color: TEXT,
+    letterSpacing: -1,
   },
-  closeBtn: {
-    position: "absolute",
-    right: 8,
-    top: 8,
-    width: 36,
-    height: 36,
+  iconButton: {
+    width: 40,
+    height: 40,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "#F5F5F5",
+    borderRadius: 20,
   },
-  avatarRow: {
-    alignItems: "flex-start",
+  profileSection: {
+    alignItems: "center",
+    marginBottom: 32,
   },
-  avatarHolder: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    borderWidth: 2,
+  avatarContainer: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    borderWidth: 3,
     borderColor: TEXT,
-    overflow: "hidden",
-  },
-  avatarWrap: {
-    width: 96,
-    height: 96,
+    marginBottom: 16,
     position: "relative",
   },
   avatar: {
     width: "100%",
     height: "100%",
+    borderRadius: 47,
   },
-  cameraBadge: {
+  editBadge: {
     position: "absolute",
-    right: -1,
-    bottom: 1,
+    right: 0,
+    bottom: 0,
     width: 32,
     height: 32,
     borderRadius: 16,
@@ -162,75 +167,113 @@ const styles = StyleSheet.create({
     borderColor: TEXT,
     alignItems: "center",
     justifyContent: "center",
-    zIndex: 10,
   },
   name: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: "800",
     color: TEXT,
-    marginTop: 12,
+    marginBottom: 4,
   },
   level: {
-    marginTop: 4,
+    fontSize: 16,
     color: TEXT,
-    opacity: 0.9,
-    fontSize: 18,
+    opacity: 0.6,
+    fontWeight: "600",
   },
-  metricsRow: {
+  statsRow: {
+    flexDirection: "row",
+    gap: 12,
+    marginBottom: 40,
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: "#F5F5F5",
+    borderRadius: 16,
+    padding: 16,
+    alignItems: "center",
+  },
+  statValue: {
+    fontSize: 24,
+    fontWeight: "800",
+    color: TEXT,
+    marginBottom: 4,
+  },
+  statLabel: {
+    fontSize: 14,
+    color: TEXT,
+    opacity: 0.6,
+    fontWeight: "600",
+  },
+  section: {
+    marginBottom: 32,
+  },
+  sectionHeader: {
+    fontSize: 20,
+    fontWeight: "800",
+    color: TEXT,
+    marginBottom: 16,
+  },
+  card: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: "#F0F0F0",
+    overflow: "hidden",
+  },
+  row: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 16,
+    padding: 16,
+    gap: 12,
   },
-  metricItem: {
-    alignItems: "flex-start",
+  rowIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "#F5F5F5",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  metricValue: {
-    fontSize: 30,
+  rowLabel: {
+    flex: 1,
+    fontSize: 16,
     fontWeight: "700",
     color: TEXT,
   },
-  metricLabel: {
-    color: TEXT,
-    opacity: 0.8,
-    fontSize: 18,
-  },
-  subscription: {
-    marginTop: 16,
-    color: TEXT,
-    fontSize: 18,
-  },
-  listSection: {
-    marginTop: 24,
-  },
-  listItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-  },
-  listLabel: {
-    color: TEXT,
+  rowValue: {
+    fontSize: 16,
     fontWeight: "700",
-    fontSize: 18,
+    color: ACCENT,
+    backgroundColor: "#000000",
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+    overflow: "hidden",
   },
-  separator: {
+  divider: {
     height: 1,
-    backgroundColor: TEXT,
-    opacity: 0.1,
-    marginHorizontal: 16,
-  },
-  switch: {
-    transform: [{ scale: 1.3 }],
+    backgroundColor: "#F0F0F0",
+    marginLeft: 60,
   },
   logoutBtn: {
-    paddingHorizontal: 16,
-    paddingVertical: 20,
+    height: 56,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: "#FF4444",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 24,
   },
   logoutText: {
-    color: ALERT,
+    color: "#FF4444",
     fontWeight: "700",
     fontSize: 18,
+  },
+  versionText: {
+    textAlign: "center",
+    color: TEXT,
+    opacity: 0.3,
+    fontSize: 14,
+    fontWeight: "600",
   },
 });

@@ -28,47 +28,53 @@ export default function AddWordScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.headerRow}>
-          <Text style={styles.headerTitle}>Add new word</Text>
+          <Text style={styles.headerTitle}>Add Word</Text>
           <Pressable onPress={() => router.back()} style={styles.iconButton}>
             <MaterialIcons name="close" size={24} color={TEXT} />
           </Pressable>
         </View>
 
-        <TextInput
-          value={word}
-          onChangeText={setWord}
-          placeholder="Enter word"
-          placeholderTextColor={TEXT}
-          style={styles.inputWord}
-        />
+        <View style={styles.form}>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Word</Text>
+            <TextInput
+              value={word}
+              onChangeText={setWord}
+              placeholder="e.g. Dapper"
+              placeholderTextColor="rgba(0,0,0,0.3)"
+              style={styles.input}
+            />
+          </View>
 
-        <TextInput
-          value={translation}
-          onChangeText={setTranslation}
-          placeholder="Translation"
-          placeholderTextColor={TEXT}
-          style={styles.inputTranslation}
-        />
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Translation</Text>
+            <TextInput
+              value={translation}
+              onChangeText={setTranslation}
+              placeholder="e.g. หรูหรา"
+              placeholderTextColor="rgba(0,0,0,0.3)"
+              style={styles.input}
+            />
+          </View>
 
-        <Text style={styles.helpText}>
-          Press space to choose a suggested option or select alternative
-          translations
-        </Text>
-
-        <View style={styles.suggestionsRow}>
-          {suggestions.map((s) => (
-            <Pressable
-              key={s}
-              style={styles.suggestionChip}
-              onPress={() => setTranslation(s)}
-            >
-              <Text style={styles.suggestionText}>{s}</Text>
-            </Pressable>
-          ))}
+          <View style={styles.suggestionsContainer}>
+            <Text style={styles.helperText}>Suggestions</Text>
+            <View style={styles.suggestionsRow}>
+              {suggestions.map((s) => (
+                <Pressable
+                  key={s}
+                  style={styles.suggestionChip}
+                  onPress={() => setTranslation(s)}
+                >
+                  <Text style={styles.suggestionText}>{s}</Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
         </View>
 
         <Pressable style={styles.addButton}>
-          <Text style={styles.addButtonText}>Add</Text>
+          <Text style={styles.addButtonText}>Add to Deck</Text>
         </Pressable>
       </ScrollView>
     </View>
@@ -81,85 +87,95 @@ const styles = StyleSheet.create({
     backgroundColor: BG,
   },
   container: {
-    paddingHorizontal: 16,
-    paddingBottom: 24,
+    paddingHorizontal: 24,
+    paddingBottom: 40,
     marginTop: 48,
   },
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 12,
-    position: "relative",
+    justifyContent: "space-between",
+    marginBottom: 32,
   },
   headerTitle: {
-    fontSize: 30,
-    fontWeight: "800",
+    fontSize: 32,
+    fontWeight: "900",
     color: TEXT,
-    textAlign: "center",
+    letterSpacing: -1,
   },
   iconButton: {
-    position: "absolute",
-    right: 0,
-    width: 36,
-    height: 36,
+    width: 40,
+    height: 40,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "#F5F5F5",
+    borderRadius: 20,
   },
-  inputWord: {
-    borderBottomWidth: 2,
-    borderColor: TEXT,
-    paddingVertical: 8,
+  form: {
+    gap: 24,
+    marginBottom: 40,
+  },
+  inputGroup: {
+    gap: 8,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: TEXT,
+    opacity: 0.6,
+  },
+  input: {
     fontSize: 24,
+    fontWeight: "600",
     color: TEXT,
-    marginBottom: 12,
-  },
-  inputTranslation: {
     borderBottomWidth: 2,
-    borderColor: TEXT,
+    borderColor: "#E0E0E0",
     paddingVertical: 8,
-    fontSize: 20,
-    color: TEXT,
-    opacity: 0.7,
-    marginBottom: 12,
   },
-  helpText: {
+  suggestionsContainer: {
+    marginTop: 8,
+  },
+  helperText: {
+    fontSize: 14,
+    fontWeight: "600",
     color: TEXT,
-    opacity: 0.7,
+    opacity: 0.4,
     marginBottom: 12,
-    fontSize: 18,
   },
   suggestionsRow: {
     flexDirection: "row",
-    alignItems: "center",
     flexWrap: "wrap",
     gap: 8,
-    marginBottom: 16,
   },
   suggestionChip: {
-    backgroundColor: "#EDE6D6",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 16,
-    borderWidth: 2,
-    borderColor: TEXT,
+    backgroundColor: "#F5F5F5",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "transparent",
   },
   suggestionText: {
     color: TEXT,
-    fontWeight: "700",
+    fontWeight: "600",
+    fontSize: 14,
   },
   addButton: {
-    height: 56,
-    backgroundColor: "#000000",
-    borderRadius: 16,
+    height: 64,
+    backgroundColor: TEXT,
+    borderRadius: 20,
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 2,
-    borderColor: TEXT,
+    gap: 8,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
   },
   addButtonText: {
     color: ACCENT,
     fontWeight: "700",
-    fontSize: 22,
+    fontSize: 20,
   },
 });

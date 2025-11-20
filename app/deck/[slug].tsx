@@ -1,20 +1,21 @@
+import { ProgressRing } from "@/components/progress-ring";
 import { getDeckBySlug } from "@/data/decks";
 import {
+  getDeckProgressStats,
   getFavorites,
   getMyDecks,
   setFavorite,
   setMyDeck,
-  getDeckProgressStats,
 } from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { Image } from "expo-image";
-import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 const ACCENT = "#F1FF00";
 const TEXT = "#000000";
-const PAGE_BG = "#D9D4F6";
+const BG = "#FFFFFF";
+const PURPLE_BG = "#D9D4F6";
 
 export default function DeckScreen() {
   const { title, count, slug } = useLocalSearchParams<{
@@ -32,57 +33,56 @@ export default function DeckScreen() {
   const isMine = !!myDecks[String(slug)];
   const [progress, setProgress] = useState(0);
 
+  const loadData = async () => {
+    const fav = await getFavorites();
+    const mine = await getMyDecks();
+    setFavorites(fav);
+    setMyDecksState(mine);
+    const stats = await getDeckProgressStats(String(slug), wordCount);
+    setProgress(stats.progress);
+  };
+
   useEffect(() => {
-    (async () => {
-      const fav = await getFavorites();
-      const mine = await getMyDecks();
-      setFavorites(fav);
-      setMyDecksState(mine);
-      const stats = await getDeckProgressStats(String(slug), wordCount);
-      setProgress(stats.progress);
-    })();
+    loadData();
   }, []);
 
   useFocusEffect(
     useCallback(() => {
-      let mounted = true;
-      (async () => {
-        const fav = await getFavorites();
-        const mine = await getMyDecks();
-        const stats = await getDeckProgressStats(String(slug), wordCount);
-        if (mounted) {
-          setFavorites(fav);
-          setMyDecksState(mine);
-          setProgress(stats.progress);
-        }
-      })();
-      return () => {
-        mounted = false;
-      };
+      loadData();
     }, [slug, wordCount])
   );
 
+  // Ring Progress Calculation
+  const ringProg = Math.max(0, Math.min(1, progress));
+  const showRing = ringProg > 0;
+
   return (
     <View style={styles.page}>
-      <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         <View style={styles.headerRow}>
           <Pressable onPress={() => router.back()} style={styles.iconButton}>
-            <MaterialIcons name="close" size={24} color={TEXT} />
+            <MaterialIcons name="arrow-back" size={24} color={TEXT} />
+          </Pressable>
+          <Pressable onPress={() => router.push("/settings")} style={styles.iconButton}>
+            <MaterialIcons name="more-horiz" size={24} color={TEXT} />
           </Pressable>
         </View>
 
-        <View style={styles.illustrationHolder}>
-          <Image
-            source={require("@/assets/images/react-logo.png")}
-            style={styles.illustration}
-          />
+        <View style={styles.heroSection}>
+          <View style={styles.heroIcon}>
+            <MaterialIcons name={deck?.icon as any ?? "style"} size={64} color={TEXT} />
+          </View>
+          <Text style={styles.titleText}>{deck?.title ?? title ?? "Deck"}</Text>
+          <View style={styles.metaRow}>
+            <Text style={styles.metaText}>{wordCount} words</Text>
+            <View style={styles.metaDot} />
+            <Text style={styles.metaText}>{Math.round(progress * 100)}% learned</Text>
+          </View>
         </View>
-
-        <Text style={styles.titleText}>{deck?.title ?? title ?? "Deck"}</Text>
 
         <View style={styles.actionsRow}>
           <Pressable
-            style={[styles.outlineButton, isFav && styles.filledButton]}
+            style={[styles.actionBtn, isFav && styles.actionBtnActive]}
             onPress={async () => {
               const next = !isFav;
               setFavorites((p) => ({ ...p, [String(slug)]: next }));
@@ -91,51 +91,37 @@ export default function DeckScreen() {
           >
             <MaterialIcons
               name={isFav ? "favorite" : "favorite-border"}
-              size={18}
-              color={TEXT}
+              size={20}
+              color={isFav ? "#FF4444" : TEXT}
             />
-            <Text style={styles.outlineButtonText}>
-              {isFav ? "Favorited" : "Add to favorites"}
-            </Text>
+            <Text style={styles.actionBtnText}>{isFav ? "Favorited" : "Favorite"}</Text>
           </Pressable>
+
           <Pressable
-            style={[styles.outlineButton, isMine && styles.filledButton]}
+            style={[styles.actionBtn, isMine && styles.actionBtnActive]}
             onPress={async () => {
               const next = !isMine;
               setMyDecksState((p) => ({ ...p, [String(slug)]: next }));
               await setMyDeck(String(slug), next);
             }}
           >
-            <MaterialIcons name="collections-bookmark" size={18} color={TEXT} />
-            <Text style={styles.outlineButtonText}>
-              {isMine ? "Added to my decks" : "Add to my decks"}
-            </Text>
+            <MaterialIcons name={isMine ? "check" : "add"} size={20} color={TEXT} />
+            <Text style={styles.actionBtnText}>{isMine ? "Saved" : "Save Deck"}</Text>
           </Pressable>
         </View>
 
-        <View style={styles.statsRow}>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>{String(Math.round(progress * 100))}%</Text>
-            <Text style={styles.statLabel}>Deck learned</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>{String(wordCount)}</Text>
-            <Text style={styles.statLabel}>Words in deck</Text>
-          </View>
-        </View>
-
-        <View style={styles.separator} />
-
-        <Text style={styles.sectionTitle}>Words ({String(wordCount)})</Text>
+        <Text style={styles.sectionTitle}>Words</Text>
         {deck && (
           <View style={styles.wordsList}>
             {deck.words.map((w, i) => (
               <View key={`${deck.slug}-${i}`} style={styles.wordCard}>
-                <View style={{ flex: 1 }}>
+                <View style={styles.wordContent}>
                   <Text style={styles.wordEn}>{w.en}</Text>
                   <Text style={styles.wordTh}>{w.th}</Text>
                 </View>
-                <MaterialIcons name="volume-up" size={20} color={TEXT} />
+                <Pressable style={styles.wordAudioBtn}>
+                  <MaterialIcons name="volume-up" size={20} color={TEXT} style={{ opacity: 0.5 }} />
+                </Pressable>
               </View>
             ))}
           </View>
@@ -145,10 +131,13 @@ export default function DeckScreen() {
       <Pressable
         style={[
           styles.floatingLearnBar,
-          !isMine && { opacity: 0.6 },
+          !isMine && { opacity: 0.9 }, // Less opacity change, just style change
         ]}
-        disabled={!isMine}
-        onPress={() =>
+        onPress={() => {
+          if (!isMine) {
+            // Auto-add to my decks if starting learn? Or just let them learn.
+            // For now, just push.
+          }
           router.push({
             pathname: "/deck/learn",
             params: {
@@ -156,16 +145,21 @@ export default function DeckScreen() {
               title: deck?.title ?? String(title) ?? "Deck",
               count: String(wordCount),
             },
-          })
-        }
+          });
+        }}
       >
         <View style={styles.btnSide}>
-          <View style={styles.playProgress}>
+          <View style={styles.playWrapper}>
+            {showRing && (
+              <View style={styles.ringContainer}>
+                <ProgressRing radius={18} stroke={3} progress={progress} color={ACCENT} />
+              </View>
+            )}
             <MaterialIcons name="play-arrow" size={20} color={ACCENT} />
           </View>
         </View>
         <Text style={styles.learnText}>
-          Learn
+          {isMine ? "Start Learning" : "Try this Deck"}
         </Text>
         <View style={styles.btnSide} />
       </Pressable>
@@ -176,10 +170,10 @@ export default function DeckScreen() {
 const styles = StyleSheet.create({
   page: {
     flex: 1,
-    backgroundColor: PAGE_BG,
+    backgroundColor: BG,
   },
   container: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 24,
     paddingBottom: 120,
     marginTop: 48,
   },
@@ -187,102 +181,102 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 12,
+    marginBottom: 24,
   },
   iconButton: {
-    width: 36,
-    height: 36,
+    width: 40,
+    height: 40,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "#F5F5F5",
+    borderRadius: 20,
   },
-  illustrationHolder: {
+  heroSection: {
+    alignItems: "center",
+    marginBottom: 32,
+  },
+  heroIcon: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: PURPLE_BG,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 12,
-  },
-  illustration: {
-    width: 280,
-    height: 280,
+    marginBottom: 24,
   },
   titleText: {
-    fontSize: 30,
-    fontWeight: "800",
+    fontSize: 32,
+    fontWeight: "900",
     color: TEXT,
-    marginBottom: 12,
+    textAlign: "center",
+    marginBottom: 8,
+    letterSpacing: -1,
+  },
+  metaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  metaText: {
+    fontSize: 16,
+    color: TEXT,
+    opacity: 0.6,
+    fontWeight: "600",
+  },
+  metaDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: TEXT,
+    opacity: 0.3,
   },
   actionsRow: {
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
     gap: 12,
-    marginBottom: 15,
+    marginBottom: 40,
   },
-  outlineButton: {
-    flexDirection: "row",
-    gap: 8,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 2,
-    borderColor: TEXT,
-    borderRadius: 12,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
+  actionBtn: {
     flex: 1,
-    backgroundColor: PAGE_BG,
-  },
-  filledButton: {
-    backgroundColor: ACCENT,
-  },
-  outlineButtonText: {
-    color: TEXT,
-    fontWeight: "600",
-  },
-  statsRow: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 8,
-    marginBottom: 12,
-  },
-  statItem: {
-    alignItems: "flex-start",
     justifyContent: "center",
+    gap: 8,
+    height: 48,
+    borderRadius: 16,
+    backgroundColor: "#F5F5F5",
+    borderWidth: 1,
+    borderColor: "transparent",
   },
-  statValue: {
-    fontSize: 30,
+  actionBtnActive: {
+    backgroundColor: "#FFFFFF",
+    borderColor: "#E0E0E0",
+    borderWidth: 2,
+  },
+  actionBtnText: {
+    fontSize: 16,
     fontWeight: "700",
     color: TEXT,
   },
-  statLabel: {
-    color: TEXT,
-    opacity: 0.7,
-    fontSize: 18,
-  },
-  separator: {
-    height: 1,
-    backgroundColor: TEXT,
-    opacity: 0.2,
-    marginBottom: 12,
-  },
   sectionTitle: {
-    fontSize: 30,
+    fontSize: 20,
     fontWeight: "800",
     color: TEXT,
-    marginBottom: 12,
+    marginBottom: 16,
   },
   wordsList: {
-    gap: 8,
+    gap: 12,
   },
   wordCard: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     backgroundColor: "#FFFFFF",
-    borderWidth: 2,
-    borderColor: TEXT,
-    borderRadius: 12,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
+    borderBottomWidth: 1,
+    borderColor: "#F0F0F0",
+    paddingVertical: 16,
+  },
+  wordContent: {
+    gap: 4,
   },
   wordEn: {
     color: TEXT,
@@ -291,9 +285,16 @@ const styles = StyleSheet.create({
   },
   wordTh: {
     color: TEXT,
-    opacity: 0.8,
+    opacity: 0.6,
     fontSize: 16,
-    marginTop: 4,
+  },
+  wordAudioBtn: {
+    width: 40,
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#F9F9F9",
+    borderRadius: 20,
   },
   floatingLearnBar: {
     position: "absolute",
@@ -303,20 +304,20 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    height: 56,
+    height: 64,
     backgroundColor: "#000000",
-    borderRadius: 16,
+    borderRadius: 20,
     gap: 8,
     shadowColor: "#000",
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
   },
   learnText: {
     color: ACCENT,
     fontWeight: "700",
-    fontSize: 22,
+    fontSize: 20,
     textAlign: "center",
     flex: 1,
   },
@@ -325,12 +326,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  playProgress: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+  playWrapper: {
+    width: 36,
+    height: 36,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#000000",
+    position: 'relative',
+  },
+  ringContainer: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

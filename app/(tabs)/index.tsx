@@ -1,9 +1,9 @@
+import { ProgressRing } from "@/components/progress-ring";
 import { DEFAULT_DECKS } from "@/data/decks";
-import { getFavorites, setFavorite, getTodayInteractions, getCurrentDeck } from "@/lib/storage";
+import { CurrentDeck, getCurrentDeck, getFavorites, getTodayInteractions, setFavorite } from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { Image } from "expo-image";
-import { useRouter, useFocusEffect } from "expo-router";
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 const ACCENT = "#F1FF00";
@@ -16,30 +16,24 @@ export default function HomeScreen() {
   const [todayCount, setTodayCount] = useState(0);
   const router = useRouter();
   const [favorites, setFavorites] = useState<{ [key: string]: boolean }>({});
+  const [currentDeck, setCurrentDeck] = useState<CurrentDeck | null>(null);
+
+  const loadData = async () => {
+    const fav = await getFavorites();
+    const t = await getTodayInteractions();
+    const c = await getCurrentDeck();
+    setFavorites(fav);
+    setTodayCount(t);
+    setCurrentDeck(c);
+  };
 
   useEffect(() => {
-    (async () => {
-      const fav = await getFavorites();
-      setFavorites(fav);
-      const t = await getTodayInteractions();
-      setTodayCount(t);
-    })();
+    loadData();
   }, []);
 
   useFocusEffect(
     useCallback(() => {
-      let mounted = true;
-      (async () => {
-        const fav = await getFavorites();
-        const t = await getTodayInteractions();
-        if (mounted) {
-          setFavorites(fav);
-          setTodayCount(t);
-        }
-      })();
-      return () => {
-        mounted = false;
-      };
+      loadData();
     }, [])
   );
 
@@ -49,10 +43,14 @@ export default function HomeScreen() {
     return shuffled.slice(0, 4);
   }, []);
 
+  const dailyProgress = Math.min(1, todayCount / 50);
+  const greeting = todayCount === 0 ? "Good Morning!" : (todayCount >= 50 ? "Goal Reached!" : "Keep it up!");
+
   return (
     <ScrollView
       style={{ backgroundColor: BG }}
       contentContainerStyle={styles.container}
+      showsVerticalScrollIndicator={false}
     >
       <View style={styles.header}>
         <Text style={styles.logo}>MALEE</Text>
@@ -61,98 +59,105 @@ export default function HomeScreen() {
         </Pressable>
       </View>
 
+      {/* Hero / Daily Goal Section */}
       <View style={styles.hero}>
-        <View style={styles.bubble}>
-          <Text style={styles.bubbleText}>Wow, 1 day in a row</Text>
-        </View>
-        <Image
-          source={require("@/assets/images/react-logo.png")}
-          style={styles.heroImage}
-        />
-      </View>
+        <View style={styles.heroContent}>
+          <View>
+            <Text style={styles.heroGreeting}>{greeting}</Text>
+            <Text style={styles.heroSubtext}>
+              {todayCount >= 50 ? "You're on fire!" : "Let's hit your daily goal."}
+            </Text>
+            <Pressable
+              style={styles.heroButton}
+              onPress={() => {
+                if (currentDeck) {
+                  router.push({ pathname: '/deck/learn', params: { slug: currentDeck.slug, title: currentDeck.title, count: String(currentDeck.count) } });
+                } else {
+                  router.push('/(tabs)/explore');
+                }
+              }}
+            >
+              <Text style={styles.heroButtonText}>{todayCount === 0 ? "Start Learning" : "Continue"}</Text>
+              <MaterialIcons name="arrow-forward" size={18} color={TEXT} />
+            </Pressable>
+          </View>
 
-      <View style={styles.goalRow}>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.goalLabel}>Today's goal</Text>
-          <View style={styles.goalCountRow}>
-            <MaterialIcons name="style" size={20} color={TEXT} />
-            <Text style={styles.goalCount}>{todayCount} / 50</Text>
+          <View style={styles.ringWrapper}>
+            <ProgressRing radius={50} stroke={8} progress={dailyProgress} color={ACCENT} trackColor="rgba(0,0,0,0.1)" />
+            <View style={styles.ringInner}>
+              <Text style={styles.ringCount}>{todayCount}</Text>
+              <Text style={styles.ringLabel}>/ 50 XP</Text>
+            </View>
           </View>
         </View>
-        <Pressable style={styles.goButton} onPress={async () => {
-          const current = await getCurrentDeck();
-          if (current) {
-            router.push({ pathname: '/deck/progress', params: { slug: current.slug, title: current.title, count: String(current.count), progress: String(current.progress) } });
-          } else {
-            router.push('/deck/progress');
-          }
-        }}>
-          <MaterialIcons name="play-arrow" size={18} color={TEXT} />
-          <Text style={styles.goButtonText}>Let's go!</Text>
-        </Pressable>
+
+        {/* Decorative Icon */}
+        <MaterialIcons name="bolt" size={120} color="rgba(0,0,0,0.03)" style={styles.heroBgIcon} />
       </View>
 
-      <View style={styles.progressTrack}>
-        <View
-          style={[
-            styles.progressFill,
-            { width: `${Math.min(100, Math.round((todayCount / 50) * 100))}%` },
-          ]}
-        />
-      </View>
-
-      <Text style={styles.featuredTitle}>Picked by Malee</Text>
-      <View style={styles.featuredGrid}>
-        {picked.map((d, i) => (
+      {/* Jump Back In */}
+      {currentDeck && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Jump Back In</Text>
           <Pressable
-            key={d.slug}
-            style={
-              i % 2 === 0 ? styles.featuredCardPurple : styles.featuredCardGray
-            }
-            onPress={() =>
-              router.push({
-                pathname: "/deck/[slug]",
-                params: {
-                  slug: d.slug,
-                  title: d.title,
-                  count: String(d.count),
-                },
-              })
-            }
+            style={styles.resumeCard}
+            onPress={() => router.push({ pathname: '/deck/learn', params: { slug: currentDeck.slug, title: currentDeck.title, count: String(currentDeck.count) } })}
           >
-            <View style={styles.cardContent}>
-              <MaterialIcons
-                name={d.icon as any}
-                size={48}
-                color={TEXT}
-                style={{ alignSelf: "flex-start" }}
-              />
+            <View style={styles.resumeContent}>
+              <Text style={styles.resumeTitle}>{currentDeck.title}</Text>
+              <Text style={styles.resumeSub}>{currentDeck.count} cards</Text>
             </View>
-            <View style={styles.cardFooter}>
-              <View style={styles.cardFooterLeft}>
-                <Text style={styles.deckLabel}>{d.title}</Text>
-                <View style={styles.cardCountRow}>
-                  <MaterialIcons name="style" size={18} color={TEXT} />
-                  <Text style={styles.cardCountText}>{d.count}</Text>
-                </View>
+            <View style={styles.resumeAction}>
+              <ProgressRing radius={24} stroke={4} progress={currentDeck.progress} color={ACCENT} trackColor="#E0E0E0" />
+              <View style={styles.resumePlayIcon}>
+                <MaterialIcons name="play-arrow" size={24} color={TEXT} />
               </View>
-              <Pressable
-                style={styles.cardLikeBtn}
-                onPress={async () => {
-                  const next = !favorites[d.slug];
-                  setFavorites((p) => ({ ...p, [d.slug]: next }));
-                  await setFavorite(d.slug, next);
-                }}
-              >
-                <MaterialIcons
-                  name={favorites[d.slug] ? "favorite" : "favorite-border"}
-                  size={18}
-                  color={ACCENT}
-                />
-              </Pressable>
             </View>
           </Pressable>
-        ))}
+        </View>
+      )}
+
+      {/* Picked by Malee - Horizontal Scroll */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Picked by Malee</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalScroll}>
+          {picked.map((d, i) => (
+            <Pressable
+              key={d.slug}
+              style={[styles.horizontalCard, { backgroundColor: i % 2 === 0 ? PURPLE_BG : "#EFEFEF" }]}
+              onPress={() =>
+                router.push({
+                  pathname: "/deck/[slug]",
+                  params: {
+                    slug: d.slug,
+                    title: d.title,
+                    count: String(d.count),
+                  },
+                })
+              }
+            >
+              <View style={styles.cardIcon}>
+                <MaterialIcons name={d.icon as any} size={32} color={TEXT} />
+              </View>
+              <View style={styles.cardBottom}>
+                <Text style={styles.cardTitle} numberOfLines={2}>{d.title}</Text>
+                <View style={styles.cardMeta}>
+                  <Text style={styles.cardCount}>{d.count} words</Text>
+                  <Pressable
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      const next = !favorites[d.slug];
+                      setFavorites((p) => ({ ...p, [d.slug]: next }));
+                      setFavorite(d.slug, next);
+                    }}
+                  >
+                    <MaterialIcons name={favorites[d.slug] ? "favorite" : "favorite-border"} size={20} color={favorites[d.slug] ? "#FF4444" : TEXT} />
+                  </Pressable>
+                </View>
+              </View>
+            </Pressable>
+          ))}
+        </ScrollView>
       </View>
     </ScrollView>
   );
@@ -161,177 +166,167 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
-    paddingBottom: 32,
+    paddingBottom: 100,
     marginTop: 48,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingTop: 8,
-    marginBottom: 12,
+    marginBottom: 24,
   },
   logo: {
-    fontSize: 22,
-    fontWeight: "800",
+    fontSize: 24,
+    fontWeight: "900",
     color: TEXT,
+    letterSpacing: -1,
   },
   hero: {
-    backgroundColor: CARD_BG,
-    borderRadius: 16,
-    padding: 16,
-    minHeight: 280,
-    overflow: "hidden",
-    marginBottom: 16,
-  },
-  bubble: {
-    backgroundColor: ACCENT,
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    alignSelf: "flex-start",
-    borderWidth: 2,
-    borderColor: TEXT,
-    shadowColor: TEXT,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 0,
-  },
-  bubbleText: {
-    color: TEXT,
-    fontWeight: "700",
-  },
-  heroImage: {
-    width: 200,
-    height: 200,
-    position: "absolute",
-    right: 16,
-    bottom: 16,
-  },
-  goalRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 8,
-  },
-  goalLabel: {
-    fontSize: 18,
-    color: TEXT,
-    opacity: 0.8,
-  },
-  goalCountRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    marginTop: 4,
-  },
-  goalCount: {
-    fontSize: 18,
-    color: TEXT,
-    fontWeight: "700",
-  },
-  goButton: {
-    backgroundColor: ACCENT,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    borderWidth: 2,
-    borderColor: TEXT,
-  },
-  goButtonText: {
-    color: TEXT,
-    fontWeight: "700",
-  },
-  progressTrack: {
-    height: 12,
     backgroundColor: TEXT,
-    borderRadius: 8,
-    overflow: "hidden",
-    marginBottom: 16,
-    borderWidth: 2,
-    borderColor: TEXT,
+    borderRadius: 24,
+    padding: 24,
+    marginBottom: 32,
+    position: 'relative',
+    overflow: 'hidden',
   },
-  progressFill: {
-    height: "100%",
-    backgroundColor: ACCENT,
+  heroContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    zIndex: 1,
   },
-  featuredTitle: {
-    fontSize: 30,
-    fontWeight: "800",
-    color: TEXT,
+  heroGreeting: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: "#FFFFFF",
+    marginBottom: 4,
   },
-  featuredGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    marginTop: 12,
-  },
-  featuredCardPurple: {
-    width: "48%",
-    height: 160,
-    borderRadius: 16,
-    backgroundColor: PURPLE_BG,
-    alignItems: "stretch",
-    justifyContent: "flex-start",
-    padding: 12,
-    marginBottom: 12,
-    position: "relative",
-  },
-  featuredCardGray: {
-    width: "48%",
-    height: 160,
-    borderRadius: 16,
-    backgroundColor: "#EFEFEF",
-    alignItems: "stretch",
-    justifyContent: "flex-start",
-    padding: 12,
-    marginBottom: 12,
-    position: "relative",
-  },
-  cardContent: {
-    flex: 1,
-    justifyContent: "flex-start",
-  },
-  deckLabel: {
-    color: TEXT,
-    fontWeight: "700",
-    textAlign: "left",
-    fontSize: 16,
-  },
-  cardFooter: {
-    position: "absolute",
-    left: 12,
-    right: 12,
-    bottom: 12,
-    flexDirection: "row",
-    alignItems: "flex-end",
-    justifyContent: "space-between",
-  },
-  cardFooterLeft: {
-    alignItems: "flex-start",
-  },
-  cardCountRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    marginTop: 6,
-  },
-  cardCountText: {
-    color: TEXT,
-    fontWeight: "700",
+  heroSubtext: {
     fontSize: 14,
+    color: "#FFFFFF",
+    opacity: 0.7,
+    marginBottom: 16,
   },
-  cardLikeBtn: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: TEXT,
-    borderWidth: 2,
-    borderColor: TEXT,
-    alignItems: "center",
-    justifyContent: "center",
+  heroButton: {
+    backgroundColor: ACCENT,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  heroButtonText: {
+    fontWeight: '700',
+    color: TEXT,
+  },
+  ringWrapper: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  ringInner: {
+    position: 'absolute',
+    alignItems: 'center',
+  },
+  ringCount: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: "#FFFFFF",
+  },
+  ringLabel: {
+    fontSize: 10,
+    color: "#FFFFFF",
+    opacity: 0.6,
+  },
+  heroBgIcon: {
+    position: 'absolute',
+    right: -20,
+    bottom: -20,
+    zIndex: 0,
+    transform: [{ rotate: '-15deg' }],
+  },
+  section: {
+    marginBottom: 32,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: TEXT,
+    marginBottom: 16,
+  },
+  resumeCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 20,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+  },
+  resumeContent: {
+    flex: 1,
+  },
+  resumeTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: TEXT,
+    marginBottom: 4,
+  },
+  resumeSub: {
+    fontSize: 14,
+    color: TEXT,
+    opacity: 0.5,
+  },
+  resumeAction: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  resumePlayIcon: {
+    position: 'absolute',
+  },
+  horizontalScroll: {
+    paddingRight: 16,
+    gap: 16,
+  },
+  horizontalCard: {
+    width: 160,
+    height: 180,
+    borderRadius: 20,
+    padding: 16,
+    justifyContent: 'space-between',
+  },
+  cardIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "rgba(255,255,255,0.5)",
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cardBottom: {
+    gap: 8,
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: TEXT,
+  },
+  cardMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  cardCount: {
+    fontSize: 12,
+    color: TEXT,
+    opacity: 0.6,
   },
 });
