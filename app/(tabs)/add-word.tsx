@@ -120,7 +120,7 @@ export default function AddWordScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.headerRow}>
-          <Text style={styles.headerTitle}>Add Word</Text>
+          <Text style={styles.headerTitle}>Add New Word</Text>
         </View>
 
         <View style={styles.form}>
