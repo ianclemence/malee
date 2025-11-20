@@ -281,6 +281,7 @@ export default function LearnScreen() {
   }
 
   function handleFlip() {
+    if (!started) return;
     Haptics.selectionAsync();
     const next = flipped ? 0 : 1;
     setFlipped(!flipped);
@@ -567,7 +568,7 @@ export default function LearnScreen() {
         </Animated.View>
 
         {/* Static Hint Text - NOW CLICKABLE */}
-        <Pressable style={styles.staticHintContainer} onPress={handleFlip}>
+        <Pressable style={styles.staticHintContainer} onPress={handleFlip} disabled={!started}>
           <ThemedText style={styles.tapHint}>Tap to flip</ThemedText>
         </Pressable>
       </View>
