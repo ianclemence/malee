@@ -81,7 +81,6 @@ export default function SettingsScreen() {
     <View style={styles.page}>
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.headerRow}>
-          <View style={styles.iconButton} />
           <Pressable onPress={() => router.back()} style={styles.iconButton}>
             <MaterialIcons name="close" size={24} color={TEXT} />
           </Pressable>

@@ -1,19 +1,32 @@
 import * as Device from 'expo-device';
-import * as Notifications from 'expo-notifications';
-import { Platform } from 'react-native';
+import Constants from 'expo-constants';
+import { Platform, Alert } from 'react-native';
 
-Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: false,
-        shouldShowBanner: true,
-        shouldShowList: true,
-    }),
-});
+async function loadNotifications() {
+    if (Constants.appOwnership === 'expo') {
+        return null;
+    }
+    const mod = await import('expo-notifications');
+    return mod;
+}
 
 export async function registerForPushNotificationsAsync() {
     let token;
+
+    const Notifications = await loadNotifications();
+    if (!Notifications) {
+        return token;
+    }
+
+    await Notifications.setNotificationHandler({
+        handleNotification: async () => ({
+            shouldShowAlert: true,
+            shouldPlaySound: true,
+            shouldSetBadge: false,
+            shouldShowBanner: true,
+            shouldShowList: true,
+        }),
+    });
 
     if (Platform.OS === 'android') {
         await Notifications.setNotificationChannelAsync('default', {
@@ -40,6 +53,12 @@ export async function registerForPushNotificationsAsync() {
 }
 
 export async function scheduleDailyReminder(hour: number = 9, minute: number = 0) {
+    const Notifications = await loadNotifications();
+    if (!Notifications) {
+        Alert.alert('Notifications unavailable', 'Use a development build to enable notifications.');
+        return;
+    }
+
     await Notifications.cancelAllScheduledNotificationsAsync();
 
     await Notifications.scheduleNotificationAsync({
@@ -57,5 +76,10 @@ export async function scheduleDailyReminder(hour: number = 9, minute: number = 0
 }
 
 export async function cancelAllNotifications() {
+    const Notifications = await loadNotifications();
+    if (!Notifications) {
+        Alert.alert('Notifications unavailable', 'Use a development build to enable notifications.');
+        return;
+    }
     await Notifications.cancelAllScheduledNotificationsAsync();
 }
