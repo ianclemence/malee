@@ -1,30 +1,73 @@
-import { ThemedText } from '@/components/themed-text';
-import { FontSizes, Palette, Radii, Shadows, Strokes } from '@/constants/theme';
+import { ThemedText } from "@/components/themed-text";
+import { HeaderBar } from "@/components/ui/header-bar";
+import { FontSizes, Palette, Radii, Shadows, Strokes } from "@/constants/theme";
 import { DEFAULT_DECKS } from "@/data/decks";
-import { cancelAllNotifications, scheduleDailyReminder } from "@/lib/notifications";
-import { AppSettings, getCustomDecks, getHeatmapData, getSettings, getStreak, getTotalLearned, saveSettings } from "@/lib/storage";
+import {
+  cancelAllNotifications,
+  scheduleDailyReminder,
+} from "@/lib/notifications";
+import {
+  AppSettings,
+  getCustomDecks,
+  getHeatmapData,
+  getSettings,
+  getStreak,
+  getTotalLearned,
+  saveSettings,
+} from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
-import { HeaderBar } from '@/components/ui/header-bar';
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  View,
+} from "react-native";
 
 const ACCENT = Palette.primary;
 const TEXT = Palette.black;
 const BG = Palette.cream;
 
 const BADGES = [
-  { id: 'streak_3', icon: 'local-fire-department', title: '3 Day Streak', condition: (s: any) => s.streak >= 3 },
-  { id: 'words_10', icon: 'school', title: '10 Words', condition: (s: any) => s.words >= 10 },
-  { id: 'words_50', icon: 'verified', title: '50 Words', condition: (s: any) => s.words >= 50 },
-  { id: 'early_bird', icon: 'wb-sunny', title: 'Early Bird', condition: () => true }, // Mocked for now
+  {
+    id: "streak_3",
+    icon: "local-fire-department",
+    title: "3 Day Streak",
+    condition: (s: any) => s.streak >= 3,
+  },
+  {
+    id: "words_10",
+    icon: "school",
+    title: "10 Words",
+    condition: (s: any) => s.words >= 10,
+  },
+  {
+    id: "words_50",
+    icon: "verified",
+    title: "50 Words",
+    condition: (s: any) => s.words >= 50,
+  },
+  {
+    id: "early_bird",
+    icon: "wb-sunny",
+    title: "Early Bird",
+    condition: () => true,
+  }, // Mocked for now
 ];
 
 export default function SettingsScreen() {
   const router = useRouter();
   const [stats, setStats] = useState({ words: 0, time: "4h", streak: 0 });
-  const [settings, setSettings] = useState<AppSettings>({ dailyReminders: true, soundEffects: true, dailyGoal: 50, textSize: 1 });
+  const [settings, setSettings] = useState<AppSettings>({
+    dailyReminders: true,
+    soundEffects: true,
+    dailyGoal: 50,
+    textSize: 1,
+  });
   const [heatmap, setHeatmap] = useState<{ [date: string]: number }>({});
 
   useEffect(() => {
@@ -37,7 +80,10 @@ export default function SettingsScreen() {
 
     const streak = await getStreak();
     const customDecks = await getCustomDecks();
-    const allSlugs = [...DEFAULT_DECKS.map((d) => d.slug), ...customDecks.map((d) => d.slug)];
+    const allSlugs = [
+      ...DEFAULT_DECKS.map((d) => d.slug),
+      ...customDecks.map((d) => d.slug),
+    ];
     const learned = await getTotalLearned(allSlugs);
     const hm = await getHeatmapData();
 
@@ -51,7 +97,7 @@ export default function SettingsScreen() {
     setSettings(next);
     await saveSettings(next);
 
-    if (key === 'dailyReminders') {
+    if (key === "dailyReminders") {
       if (nextValue) {
         await scheduleDailyReminder();
       } else {
@@ -88,7 +134,9 @@ export default function SettingsScreen() {
               <MaterialIcons name="edit" size={14} color={TEXT} />
             </View>
           </View>
-          <ThemedText type="title" style={styles.name}>John Doe</ThemedText>
+          <ThemedText type="title" style={styles.name}>
+            John Doe
+          </ThemedText>
           <ThemedText style={styles.level}>English Level: Advanced</ThemedText>
         </View>
 
@@ -109,7 +157,9 @@ export default function SettingsScreen() {
 
         {/* Heatmap */}
         <View style={styles.section}>
-          <ThemedText type="subtitle" style={styles.sectionTitle}>Activity</ThemedText>
+          <ThemedText type="subtitle" style={styles.sectionTitle}>
+            Activity
+          </ThemedText>
           <View style={styles.heatmapContainer}>
             {heatmapDays.map((date) => {
               const count = heatmap[date] || 0;
@@ -120,8 +170,18 @@ export default function SettingsScreen() {
                   style={[
                     styles.heatmapSquare,
                     isActive
-                      ? { backgroundColor: ACCENT, borderWidth: Strokes.thin, borderColor: Palette.black }
-                      : { backgroundColor: Palette.white, borderWidth: Strokes.thin, borderColor: Palette.black, opacity: 0.5, ...Shadows.brutalist }
+                      ? {
+                          backgroundColor: ACCENT,
+                          borderWidth: Strokes.thin,
+                          borderColor: Palette.black,
+                        }
+                      : {
+                          backgroundColor: Palette.white,
+                          borderWidth: Strokes.thin,
+                          borderColor: Palette.black,
+                          opacity: 0.5,
+                          ...Shadows.brutalist,
+                        },
                   ]}
                 />
               );
@@ -131,14 +191,32 @@ export default function SettingsScreen() {
 
         {/* Badges */}
         <View style={styles.section}>
-          <ThemedText type="subtitle" style={styles.sectionTitle}>Badges</ThemedText>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.badgesRow}>
+          <ThemedText type="subtitle" style={styles.sectionTitle}>
+            Badges
+          </ThemedText>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.badgesRow}
+          >
             {BADGES.map((badge) => {
               const unlocked = badge.condition(stats);
               return (
-                <View key={badge.id} style={[styles.badgeCard, !unlocked && styles.badgeLocked]}>
-                  <View style={[styles.badgeIcon, unlocked && { backgroundColor: ACCENT }]}>
-                    <MaterialIcons name={badge.icon as any} size={24} color={TEXT} />
+                <View
+                  key={badge.id}
+                  style={[styles.badgeCard, !unlocked && styles.badgeLocked]}
+                >
+                  <View
+                    style={[
+                      styles.badgeIcon,
+                      unlocked && { backgroundColor: ACCENT },
+                    ]}
+                  >
+                    <MaterialIcons
+                      name={badge.icon as any}
+                      size={24}
+                      color={TEXT}
+                    />
                   </View>
                   <Text style={styles.badgeTitle}>{badge.title}</Text>
                 </View>
@@ -148,7 +226,9 @@ export default function SettingsScreen() {
         </View>
 
         <View style={styles.section}>
-          <ThemedText type="subtitle" style={styles.sectionTitle}>Study Settings</ThemedText>
+          <ThemedText type="subtitle" style={styles.sectionTitle}>
+            Study Settings
+          </ThemedText>
           <View style={styles.card}>
             {/* Daily Goal */}
             <View style={styles.row}>
@@ -157,52 +237,30 @@ export default function SettingsScreen() {
               </View>
               <ThemedText style={styles.rowLabel}>Daily Goal</ThemedText>
               <View style={styles.toggles}>
-                {[10, 20, 50].map(val => (
+                {[10, 20, 50].map((val) => (
                   <Pressable
                     key={val}
-                    style={[styles.toggleBtn, settings.dailyGoal === val && styles.toggleBtnActive]}
-                    onPress={() => updateSetting('dailyGoal', val)}
+                    style={[
+                      styles.toggleBtn,
+                      settings.dailyGoal === val && styles.toggleBtnActive,
+                    ]}
+                    onPress={() => updateSetting("dailyGoal", val)}
                   >
-                    <ThemedText style={[styles.toggleText, settings.dailyGoal === val && styles.toggleTextActive]}>{val}</ThemedText>
+                    <ThemedText
+                      style={[
+                        styles.toggleText,
+                        settings.dailyGoal === val && styles.toggleTextActive,
+                      ]}
+                    >
+                      {val}
+                    </ThemedText>
                   </Pressable>
                 ))}
               </View>
             </View>
             <View style={styles.divider} />
 
-            {/* Text Size */}
-            <View style={styles.row}>
-              <View style={styles.rowIcon}>
-                <MaterialIcons name="format-size" size={20} color={TEXT} />
-              </View>
-              <Text style={styles.rowLabel}>Text Size</Text>
-              <View style={styles.toggles}>
-                <Pressable
-                  style={[styles.toggleBtn, settings.textSize === 0.8 && styles.toggleBtnActive]}
-                  onPress={() => updateSetting('textSize', 0.8)}
-                >
-                  <Text style={[styles.toggleText, { fontSize: 12 }, settings.textSize === 0.8 && styles.toggleTextActive]}>A</Text>
-                </Pressable>
-                <Pressable
-                  style={[styles.toggleBtn, settings.textSize === 1 && styles.toggleBtnActive]}
-                  onPress={() => updateSetting('textSize', 1)}
-                >
-                  <Text style={[styles.toggleText, { fontSize: 16 }, settings.textSize === 1 && styles.toggleTextActive]}>A</Text>
-                </Pressable>
-                <Pressable
-                  style={[styles.toggleBtn, settings.textSize === 1.2 && styles.toggleBtnActive]}
-                  onPress={() => updateSetting('textSize', 1.2)}
-                >
-                  <Text style={[styles.toggleText, { fontSize: 20 }, settings.textSize === 1.2 && styles.toggleTextActive]}>A</Text>
-                </Pressable>
-              </View>
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <ThemedText type="subtitle" style={styles.sectionTitle}>Preferences</ThemedText>
-          <View style={styles.card}>
+            {/* Daily Reminders */}
             <View style={styles.row}>
               <View style={styles.rowIcon}>
                 <MaterialIcons name="notifications" size={20} color={TEXT} />
@@ -216,7 +274,12 @@ export default function SettingsScreen() {
               />
             </View>
             <View style={styles.divider} />
-            <Pressable style={styles.row} onPress={() => toggleSetting("soundEffects")}>
+
+            {/* Sound Effects */}
+            <Pressable
+              style={styles.row}
+              onPress={() => toggleSetting("soundEffects")}
+            >
               <View style={styles.rowIcon}>
                 <MaterialIcons name="volume-up" size={20} color={TEXT} />
               </View>
@@ -232,11 +295,17 @@ export default function SettingsScreen() {
         </View>
 
         <View style={styles.section}>
-          <ThemedText type="subtitle" style={styles.sectionTitle}>Subscription</ThemedText>
+          <ThemedText type="subtitle" style={styles.sectionTitle}>
+            Subscription
+          </ThemedText>
           <View style={styles.card}>
             <Pressable style={styles.row}>
               <View style={styles.rowIcon}>
-                <MaterialIcons name="workspace-premium" size={20} color={TEXT} />
+                <MaterialIcons
+                  name="workspace-premium"
+                  size={20}
+                  color={TEXT}
+                />
               </View>
               <ThemedText style={styles.rowLabel}>Current Plan</ThemedText>
               <ThemedText style={styles.rowValue}>Pro</ThemedText>
@@ -264,7 +333,7 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
     marginTop: 48,
   },
-  
+
   profileSection: {
     alignItems: "center",
     marginBottom: 32,
@@ -302,13 +371,13 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.phrase,
     color: TEXT,
     marginBottom: 4,
-    fontFamily: 'PlayfairDisplay_500Medium',
+    fontFamily: "PlayfairDisplay_500Medium",
   },
   level: {
     fontSize: FontSizes.body,
     color: TEXT,
     opacity: 0.6,
-    fontFamily: 'Inter_500Medium',
+    fontFamily: "Inter_500Medium",
   },
   statsRow: {
     flexDirection: "row",
@@ -329,13 +398,13 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.phrase,
     color: TEXT,
     marginBottom: 4,
-    fontFamily: 'PlayfairDisplay_500Medium',
+    fontFamily: "PlayfairDisplay_500Medium",
   },
   statLabel: {
     fontSize: FontSizes.small,
     color: TEXT,
     opacity: 0.6,
-    fontFamily: 'Inter_500Medium',
+    fontFamily: "Inter_500Medium",
   },
   section: {
     marginBottom: 32,
@@ -343,7 +412,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: TEXT,
     marginBottom: 16,
-    fontFamily: 'PlayfairDisplay_600SemiBold',
+    fontFamily: "PlayfairDisplay_600SemiBold",
   },
   card: {
     backgroundColor: Palette.white,
@@ -374,7 +443,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: FontSizes.body,
     color: TEXT,
-    fontFamily: 'Inter_700Bold',
+    fontFamily: "Inter_700Bold",
   },
   rowValue: {
     fontSize: FontSizes.body,
@@ -391,7 +460,7 @@ const styles = StyleSheet.create({
   divider: {
     height: Strokes.thin,
     backgroundColor: Palette.black,
-    alignSelf: 'stretch',
+    alignSelf: "stretch",
     marginLeft: 0,
   },
   logoutBtn: {
@@ -406,8 +475,8 @@ const styles = StyleSheet.create({
     ...Shadows.brutalist,
   },
   logoutText: {
-    color: '#FFFFFF',
-    fontFamily: 'Inter_700Bold',
+    color: "#FFFFFF",
+    fontFamily: "Inter_700Bold",
     fontSize: FontSizes.button,
   },
   versionText: {
@@ -415,7 +484,7 @@ const styles = StyleSheet.create({
     color: TEXT,
     opacity: 0.3,
     fontSize: FontSizes.small,
-    fontFamily: 'Inter_500Medium',
+    fontFamily: "Inter_500Medium",
   },
   heatmapContainer: {
     flexDirection: "row",
@@ -462,10 +531,10 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.small,
     color: TEXT,
     textAlign: "center",
-    fontFamily: 'Inter_700Bold',
+    fontFamily: "Inter_700Bold",
   },
   toggles: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 8,
   },
   toggleBtn: {
@@ -473,8 +542,8 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: Radii.button,
     backgroundColor: Palette.white,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     minWidth: 40,
     borderWidth: Strokes.thin,
     borderColor: Palette.black,
@@ -486,7 +555,7 @@ const styles = StyleSheet.create({
   toggleText: {
     fontSize: FontSizes.body,
     color: TEXT,
-    fontFamily: 'Inter_700Bold',
+    fontFamily: "Inter_700Bold",
   },
   toggleTextActive: {
     color: ACCENT,
