@@ -119,7 +119,7 @@ export default function SettingsScreen() {
 
         {/* Heatmap */}
         <View style={styles.section}>
-          <ThemedText type="subtitle" style={styles.sectionHeader}>Activity</ThemedText>
+          <ThemedText type="subtitle" style={styles.sectionTitle}>Activity</ThemedText>
           <View style={styles.heatmapContainer}>
             {heatmapDays.map((date) => {
               const count = heatmap[date] || 0;
@@ -141,7 +141,7 @@ export default function SettingsScreen() {
 
         {/* Badges */}
         <View style={styles.section}>
-          <ThemedText type="subtitle" style={styles.sectionHeader}>Badges</ThemedText>
+          <ThemedText type="subtitle" style={styles.sectionTitle}>Badges</ThemedText>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.badgesRow}>
             {BADGES.map((badge) => {
               const unlocked = badge.condition(stats);
@@ -158,7 +158,7 @@ export default function SettingsScreen() {
         </View>
 
         <View style={styles.section}>
-          <ThemedText type="subtitle" style={styles.sectionHeader}>Study Settings</ThemedText>
+          <ThemedText type="subtitle" style={styles.sectionTitle}>Study Settings</ThemedText>
           <View style={styles.card}>
             {/* Daily Goal */}
             <View style={styles.row}>
@@ -211,7 +211,7 @@ export default function SettingsScreen() {
         </View>
 
         <View style={styles.section}>
-          <ThemedText type="subtitle" style={styles.sectionHeader}>Preferences</ThemedText>
+          <ThemedText type="subtitle" style={styles.sectionTitle}>Preferences</ThemedText>
           <View style={styles.card}>
             <View style={styles.row}>
               <View style={styles.rowIcon}>
@@ -242,7 +242,7 @@ export default function SettingsScreen() {
         </View>
 
         <View style={styles.section}>
-          <ThemedText type="subtitle" style={styles.sectionHeader}>Subscription</ThemedText>
+          <ThemedText type="subtitle" style={styles.sectionTitle}>Subscription</ThemedText>
           <View style={styles.card}>
             <Pressable style={styles.row}>
               <View style={styles.rowIcon}>
@@ -372,9 +372,10 @@ const styles = StyleSheet.create({
   section: {
     marginBottom: 32,
   },
-  sectionHeader: {
+  sectionTitle: {
     color: TEXT,
     marginBottom: 16,
+    fontFamily: 'PlayfairDisplay_600SemiBold',
   },
   card: {
     backgroundColor: Palette.white,
