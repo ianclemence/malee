@@ -74,7 +74,9 @@ export default function DecksScreen() {
       </View>
 
       <View style={styles.searchBar}>
-        <MaterialIcons name="search" size={24} color={TEXT} style={styles.searchIcon} />
+        <View style={styles.searchIconBox}>
+          <MaterialIcons name="search" size={20} color={TEXT} />
+        </View>
         <TextInput
           value={query}
           onChangeText={setQuery}
@@ -82,11 +84,7 @@ export default function DecksScreen() {
           placeholderTextColor="rgba(0,0,0,0.4)"
           style={styles.searchInput}
         />
-        {query ? (
-          <Pressable onPress={() => setQuery("")} style={styles.searchClearBtn}>
-            <MaterialIcons name="close" size={18} color={TEXT} />
-          </Pressable>
-        ) : null}
+        {/* Clear button removed as requested */}
       </View>
 
       <View style={styles.tabsContainer}>
@@ -188,27 +186,33 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     height: 56,
-    borderRadius: 16,
-    backgroundColor: "#F5F5F5",
+    borderRadius: Radii.button,
+    backgroundColor: Palette.white,
     paddingHorizontal: 16,
     marginBottom: 24,
-    borderWidth: 1,
-    borderColor: "transparent", // cleaner look
+    borderWidth: Strokes.regular,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
+    gap: 12,
   },
-  searchIcon: {
-    marginRight: 12,
-    opacity: 0.5,
+  searchIconBox: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: Palette.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: Strokes.thin,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
   },
   searchInput: {
     flex: 1,
     color: TEXT,
-    fontSize: 18,
-    fontWeight: "600",
+    fontSize: 16,
+    fontFamily: 'Inter_400Regular',
   },
-  searchClearBtn: {
-    padding: 4,
-    opacity: 0.5,
-  },
+  
   tabsContainer: {
     flexDirection: "row",
     marginBottom: 24,
