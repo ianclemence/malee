@@ -2,6 +2,7 @@ import { ProgressRing } from "@/components/progress-ring";
 import { DEFAULT_DECKS } from "@/data/decks";
 import { CurrentDeck, getCurrentDeck, getFavorites, getTodayInteractions, setFavorite } from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { Image } from "expo-image";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -55,7 +56,10 @@ export default function HomeScreen() {
       <View style={styles.header}>
         <Text style={styles.logo}>MALEE</Text>
         <Pressable onPress={() => router.push("/settings")}>
-          <MaterialIcons name="settings" size={24} color={TEXT} />
+          <Image
+            source={require("@/assets/images/react-logo.png")}
+            style={{ width: 40, height: 40, borderRadius: 20, borderWidth: 1, borderColor: "#E0E0E0" }}
+          />
         </Pressable>
       </View>
 

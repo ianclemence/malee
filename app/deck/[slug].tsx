@@ -63,9 +63,7 @@ export default function DeckScreen() {
           <Pressable onPress={() => router.back()} style={styles.iconButton}>
             <MaterialIcons name="arrow-back" size={24} color={TEXT} />
           </Pressable>
-          <Pressable onPress={() => router.push("/settings")} style={styles.iconButton}>
-            <MaterialIcons name="more-horiz" size={24} color={TEXT} />
-          </Pressable>
+
         </View>
 
         <View style={styles.heroSection}>
@@ -110,7 +108,10 @@ export default function DeckScreen() {
           </Pressable>
         </View>
 
-        <Text style={styles.sectionTitle}>Words</Text>
+        <View style={styles.wordsHeader}>
+          <Text style={styles.sectionTitle}>Words</Text>
+          <Text style={styles.wordCountBadge}>{deck?.words.length} words</Text>
+        </View>
         {deck && (
           <View style={styles.wordsList}>
             {deck.words.map((w, i) => (
@@ -257,44 +258,62 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: TEXT,
   },
+  wordsHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 16,
+  },
   sectionTitle: {
     fontSize: 20,
     fontWeight: "800",
     color: TEXT,
-    marginBottom: 16,
+  },
+  wordCountBadge: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: TEXT,
+    opacity: 0.5,
+    backgroundColor: "#F5F5F5",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    overflow: "hidden",
   },
   wordsList: {
     gap: 12,
   },
   wordCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,
-    borderColor: "#F0F0F0",
-    paddingVertical: 16,
+    borderBottomColor: "#F5F5F5",
   },
   wordContent: {
-    gap: 4,
+    flex: 1,
   },
   wordEn: {
-    color: TEXT,
-    fontWeight: "700",
     fontSize: 18,
+    fontWeight: "700",
+    color: TEXT,
+    marginBottom: 4,
   },
   wordTh: {
+    fontSize: 16,
     color: TEXT,
     opacity: 0.6,
-    fontSize: 16,
   },
   wordAudioBtn: {
     width: 40,
     height: 40,
+    borderRadius: 20,
+    backgroundColor: "#F5F5F5",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#F9F9F9",
-    borderRadius: 20,
   },
   floatingLearnBar: {
     position: "absolute",

@@ -11,7 +11,7 @@ import {
   setCurrentDeck,
 } from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { Audio } from 'expo-av';
+import { useAudioPlayer, useAudioRecorder } from 'expo-audio';
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import * as Speech from 'expo-speech';
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -55,9 +55,16 @@ export default function LearnScreen() {
   const [started, setStarted] = useState(false);
 
   // Audio Recording State
-  const [recording, setRecording] = useState<Audio.Recording | null>(null);
-  const [sound, setSound] = useState<Audio.Sound | null>(null);
-  const [recordingStatus, setRecordingStatus] = useState<'idle' | 'recording' | 'recorded' | 'playing'>('idle');
+  const recorder = useAudioRecorder({
+    sampleRate: 44100,
+    bitRate: 128000,
+    channels: 1,
+    format: 'm4a',
+  });
+  const [recordedUri, setRecordedUri] = useState<string | null>(null);
+  const player = useAudioPlayer(recordedUri);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const activeCardIndex = queue[currentIndex];
   const activeCard = cards[activeCardIndex];
@@ -139,37 +146,39 @@ export default function LearnScreen() {
 
   async function startRecording() {
     try {
-      const perm = await Audio.requestPermissionsAsync();
-      if (perm.status === "granted") {
-        await Audio.setAudioModeAsync({ allowsRecordingIOS: true, playsInSilentModeIOS: true });
-        const { recording } = await Audio.Recording.createAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
-        setRecording(recording);
-        setRecordingStatus('recording');
+      if (recorder.isRecording) {
+        await recorder.stop();
+        setIsRecording(false);
+      } else {
+        await recorder.record();
+        setIsRecording(true);
       }
     } catch (err) {
-      console.error('Failed to start recording', err);
+      console.error('Failed to toggle recording', err);
     }
   }
 
   async function stopRecording() {
-    setRecording(undefined as any);
-    await recording?.stopAndUnloadAsync();
-    const uri = recording?.getURI();
-    setRecordingStatus('recorded');
-
-    const { sound } = await Audio.Sound.createAsync({ uri: uri! });
-    setSound(sound);
+    if (recorder.isRecording) {
+      await recorder.stop();
+      setIsRecording(false);
+      // Wait a bit for file to be ready
+      setTimeout(() => {
+        setRecordedUri(recorder.uri);
+      }, 100);
+    }
   }
 
   async function playRecording() {
-    if (sound) {
-      setRecordingStatus('playing');
-      await sound.replayAsync();
-      sound.setOnPlaybackStatusUpdate((status) => {
-        if (status.isLoaded && status.didJustFinish) {
-          setRecordingStatus('recorded');
-        }
-      });
+    if (player && !player.playing) {
+      setIsPlaying(true);
+      player.play();
+      // Reset playing state after duration (approximate or listen to event if available)
+      // For now, just toggle visually
+      setTimeout(() => setIsPlaying(false), (player.duration || 1) * 1000);
+    } else if (player) {
+      player.pause();
+      setIsPlaying(false);
     }
   }
 
@@ -182,8 +191,9 @@ export default function LearnScreen() {
   function goNext() {
     flip.value = 0;
     setFlipped(false);
-    setRecordingStatus('idle');
-    setSound(null);
+    setRecordedUri(null);
+    setIsRecording(false);
+    setIsPlaying(false);
     scaleNext.value = withTiming(0.96);
 
     if (currentIndex < queue.length - 1) {
@@ -283,8 +293,8 @@ export default function LearnScreen() {
             router.back();
           }
         }}>
-          <MaterialIcons name={started ? "pause" : "play-arrow"} size={18} color={TEXT} />
           <Text style={styles.pauseText}>{started ? "Pause" : "Start"}</Text>
+          <MaterialIcons name={started ? "pause" : "play-arrow"} size={20} color={ACCENT} />
         </Pressable>
       </View>
 
@@ -320,18 +330,18 @@ export default function LearnScreen() {
                 </Pressable>
 
                 <Pressable
-                  style={[styles.iconBtn, recordingStatus === 'recording' && styles.recordingBtn]}
+                  style={[styles.iconBtn, isRecording && styles.recordingBtn]}
                   disabled={!started}
                   onPress={() => {
-                    if (recordingStatus === 'recording') stopRecording();
-                    else if (recordingStatus === 'recorded' || recordingStatus === 'playing') playRecording();
+                    if (isRecording) stopRecording();
+                    else if (recordedUri) playRecording();
                     else startRecording();
                   }}
                 >
                   <MaterialIcons
-                    name={recordingStatus === 'recording' ? "stop" : (recordingStatus === 'playing' ? "volume-up" : "mic")}
+                    name={isRecording ? "stop" : (recordedUri ? (isPlaying ? "volume-up" : "play-arrow") : "mic")}
                     size={28}
-                    color={recordingStatus === 'recording' ? "#FFFFFF" : TEXT}
+                    color={isRecording ? "#FFFFFF" : TEXT}
                   />
                 </Pressable>
               </View>
@@ -393,12 +403,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingTop: 8,
-    marginBottom: 8,
+    marginBottom: 16,
   },
   goalLabel: {
-    fontSize: 18,
+    fontSize: 14,
     color: TEXT,
-    opacity: 0.8,
+    opacity: 0.6,
+    fontWeight: "600",
   },
   goalCountRow: {
     flexDirection: "row",
@@ -407,54 +418,59 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   goalCount: {
-    fontSize: 18,
+    fontSize: 24,
     color: TEXT,
-    fontWeight: "700",
+    fontWeight: "800",
   },
   pauseBtn: {
-    backgroundColor: ACCENT,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    backgroundColor: "#000000",
+    borderRadius: 16,
+    paddingHorizontal: 24,
+    paddingVertical: 14,
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
-    borderWidth: 2,
-    borderColor: TEXT,
+    gap: 8,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
   },
   pauseText: {
-    color: TEXT,
+    color: ACCENT,
     fontWeight: "700",
+    fontSize: 16,
   },
   progressTrack: {
     height: 12,
-    backgroundColor: TEXT,
-    borderRadius: 8,
+    backgroundColor: "rgba(0,0,0,0.05)",
+    borderRadius: 6,
     overflow: "hidden",
-    marginBottom: 16,
-    borderWidth: 2,
-    borderColor: TEXT,
+    marginBottom: 32,
   },
   progressFill: {
     height: "100%",
     backgroundColor: ACCENT,
+    borderRadius: 6,
   },
   cardArea: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     position: 'relative',
+    minHeight: 400,
   },
   card: {
-    width: "90%",
-    height: "60%",
+    width: "100%",
+    height: "100%",
     backgroundColor: "#FFFFFF",
-    borderRadius: 20,
+    borderRadius: 24,
     shadowColor: "#000",
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 10 },
     position: "absolute",
+    borderWidth: 1,
+    borderColor: "#F0F0F0",
   },
   nextCard: {
     // Initial state handled by animated style
@@ -483,22 +499,23 @@ const styles = StyleSheet.create({
     transform: [{ rotateY: "180deg" }],
   },
   cardText: {
-    fontSize: 28,
+    fontSize: 32,
     textAlign: "center",
     color: TEXT,
-    fontWeight: "700",
-    marginBottom: 24,
+    fontWeight: "800",
+    marginBottom: 32,
   },
   staticHintContainer: {
     position: "absolute",
-    bottom: 40, // Adjust based on card height
+    bottom: 32,
     alignSelf: "center",
     zIndex: 20,
-    padding: 20, // Increase touch area
+    padding: 20,
   },
   tapHint: {
     color: TEXT,
-    opacity: 0.5,
+    opacity: 0.4,
+    fontWeight: "600",
   },
   controlsRow: {
     flexDirection: "row",
@@ -506,41 +523,43 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   iconBtn: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: "#F0F0F0",
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: "#F5F5F5",
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "#DDD",
   },
   recordingBtn: {
     backgroundColor: "#FF4444",
-    borderColor: "#FF0000",
   },
   assessRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     gap: 12,
-    marginTop: 12,
+    marginTop: 24,
   },
   assessBtn: {
     flex: 1,
-    height: 56,
-    borderRadius: 16,
+    height: 64,
+    borderRadius: 20,
     backgroundColor: "#FFFFFF",
     borderWidth: 2,
-    borderColor: TEXT,
+    borderColor: "#F0F0F0",
     alignItems: "center",
     justifyContent: "center",
-    gap: 6,
+    gap: 8,
     flexDirection: "row",
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
   },
   assessText: {
     color: TEXT,
-    fontWeight: "600",
+    fontWeight: "700",
+    fontSize: 16,
   },
   doneText: {
     fontSize: 24,
@@ -555,16 +574,15 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   backBtn: {
-    marginTop: 24,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
+    marginTop: 32,
+    paddingHorizontal: 32,
+    paddingVertical: 16,
     backgroundColor: ACCENT,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: TEXT,
+    borderRadius: 16,
   },
   backBtnText: {
     fontWeight: "700",
     color: TEXT,
+    fontSize: 18,
   },
 });
