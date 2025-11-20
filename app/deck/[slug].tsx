@@ -1,4 +1,7 @@
 import { ThemedText } from '@/components/themed-text';
+import { FloatingActionBar } from '@/components/ui/floating-action-bar';
+import { HeaderBar } from '@/components/ui/header-bar';
+import { WordCard } from '@/components/ui/word-card';
 import { FontSizes, Palette, Radii, Shadows, Strokes } from '@/constants/theme';
 import { getDeckBySlug } from "@/data/decks";
 import {
@@ -16,9 +19,6 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { HeaderBar } from '@/components/ui/header-bar';
-import { FloatingActionBar } from '@/components/ui/floating-action-bar';
-import { WordCard } from '@/components/ui/word-card';
 
 const ACCENT = Palette.primary;
 const TEXT = Palette.black;
@@ -167,7 +167,7 @@ export default function DeckScreen() {
                   en={w.en}
                   th={w.th}
                   learned={isLearned}
-                  onPlay={() => {}}
+                  onPlay={() => { }}
                 />
               );
             })}
@@ -222,6 +222,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     letterSpacing: -1,
     fontFamily: 'PlayfairDisplay_700Bold',
+    lineHeight: 40,
+    width: '100%',
   },
   metaRow: {
     flexDirection: "row",
@@ -303,6 +305,6 @@ const styles = StyleSheet.create({
   wordsList: {
     gap: 12,
   },
-  
-  
+
+
 });
