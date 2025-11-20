@@ -6,6 +6,7 @@ import React from 'react';
 import { Pressable, View } from 'react-native';
 
 import { HapticTab } from '@/components/haptic-tab';
+import { Palette, Strokes } from '@/constants/theme';
 
 export default function TabLayout() {
   const router = useRouter();
@@ -14,11 +15,11 @@ export default function TabLayout() {
     <View style={{ flex: 1 }}>
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: '#FFFFFF',
-          tabBarInactiveTintColor: '#808080',
+          tabBarActiveTintColor: Palette.primary,
+          tabBarInactiveTintColor: '#FFFFFF',
           headerShown: false,
           tabBarButton: HapticTab,
-          tabBarStyle: { backgroundColor: '#000000', borderTopWidth: 0, elevation: 0, justifyContent: 'space-between' },
+          tabBarStyle: { backgroundColor: '#000000', borderTopWidth: 0, elevation: 0, justifyContent: 'space-between', height: 72 },
           tabBarBackground: () => <View style={{ backgroundColor: '#000000' }} />,
         }}
         tabBar={(props) => (
@@ -40,9 +41,8 @@ export default function TabLayout() {
           options={{
             title: '',
             tabBarLabel: () => null,
-            tabBarButton: (props) => (
+            tabBarButton: () => (
               <Pressable
-                {...props}
                 onPress={() => router.push('/add-word')}
                 style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
               >
@@ -51,8 +51,8 @@ export default function TabLayout() {
                     width: 56,
                     height: 56,
                     borderRadius: 28,
-                    backgroundColor: '#F1FF00',
-                    borderWidth: 2,
+                    backgroundColor: Palette.primary,
+                    borderWidth: Strokes.regular,
                     borderColor: '#000000',
                     alignItems: 'center',
                     justifyContent: 'center',

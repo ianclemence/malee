@@ -5,12 +5,13 @@ import { Image } from "expo-image";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Palette, Radii, Strokes, Shadows } from '@/constants/theme';
 
-const ACCENT = "#F1FF00";
-const TEXT = "#000000";
-const BG = "#FFFFFF";
-const PURPLE_BG = "#D9D4F6";
-const CARD_BG = "#EDE6D6";
+const ACCENT = Palette.primary;
+const TEXT = Palette.black;
+const BG = Palette.cream;
+const PURPLE_BG = Palette.lavender;
+const CARD_BG = Palette.pastelBeige;
 
 export default function DecksScreen() {
   const router = useRouter();
@@ -113,7 +114,7 @@ export default function DecksScreen() {
         {visibleDecks.map((d, i) => (
           <Pressable
             key={d.slug}
-            style={[styles.card, { backgroundColor: i % 2 === 0 ? PURPLE_BG : "#F5F5F5" }]}
+            style={[styles.card, { backgroundColor: i % 2 === 0 ? PURPLE_BG : Palette.pastelGreen }]}
             onPress={() =>
               router.push({
                 pathname: "/deck/[slug]",
@@ -246,14 +247,17 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   card: {
-    width: "48%", // approx
+    width: "48%",
     minWidth: 160,
     flex: 1,
     aspectRatio: 0.85,
-    borderRadius: 24,
+    borderRadius: Radii.card,
     padding: 16,
     justifyContent: "space-between",
     marginBottom: 4,
+    borderWidth: Strokes.thin,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
   },
   cardIcon: {
     width: 48,
@@ -268,9 +272,9 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 18,
-    fontWeight: "800",
     color: TEXT,
     lineHeight: 22,
+    fontFamily: 'Inter_700Bold',
   },
   cardMeta: {
     flexDirection: "row",

@@ -22,6 +22,9 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import * as Speech from 'expo-speech';
 import { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ThemedText } from '@/components/themed-text';
+import { ProgressBar } from '@/components/ui/progress-bar';
+import { Palette, Radii, Strokes, Shadows, FontSizes } from '@/constants/theme';
 import Animated, {
   interpolate,
   useAnimatedStyle,
@@ -29,9 +32,9 @@ import Animated, {
   withTiming
 } from "react-native-reanimated";
 
-const ACCENT = "#F1FF00";
-const TEXT = "#000000";
-const PAGE_BG = "#FFFFFF";
+const ACCENT = Palette.primary;
+const TEXT = Palette.black;
+const PAGE_BG = Palette.cream;
 
 type CardData = { front: string; back: string; example?: string };
 
@@ -360,7 +363,7 @@ export default function LearnScreen() {
           <Text style={styles.goalLabel}>{deck?.title || title || "Deck"}</Text>
           <View style={styles.goalCountRow}>
             <MaterialIcons name="style" size={20} color={TEXT} />
-            <Text style={styles.goalCount}>{learnedWordsCount} / {cards.length}</Text>
+            <ThemedText type="title" style={styles.goalCount}>{learnedWordsCount} / {cards.length}</ThemedText>
           </View>
         </View>
         <Pressable style={styles.pauseBtn} onPress={() => {
@@ -378,17 +381,15 @@ export default function LearnScreen() {
         </Pressable>
       </View>
 
-      <View style={styles.progressTrack}>
-        <View style={[styles.progressFill, { width: `${Math.min(100, Math.round((learnedWordsCount / cards.length) * 100))}%` }]} />
-      </View>
+      <ProgressBar progress={cards.length ? learnedWordsCount / cards.length : 0} style={{ marginBottom: 32 }} />
 
       <View style={styles.cardArea}>
         {/* Next Card (Visual Only) */}
         {currentIndex + 1 < queue.length && (
           <Animated.View style={[styles.card, nextCardStyle]}>
-            <View style={styles.cardFace}>
-              <Text style={[styles.cardText, { fontSize: 32 * textSizeMultiplier }]}>{cards[queue[currentIndex + 1]].front}</Text>
-            </View>
+          <View style={styles.cardFace}>
+              <ThemedText type="phrase" style={[styles.cardText, { fontSize: FontSizes.phrase * textSizeMultiplier }]}>{cards[queue[currentIndex + 1]].front}</ThemedText>
+          </View>
           </Animated.View>
         )}
 
@@ -397,7 +398,7 @@ export default function LearnScreen() {
           <View style={{ flex: 1 }}>
             {/* Front Face */}
             <Animated.View style={[styles.cardFace, styles.cardFaceFront, frontFaceStyle]}>
-              <Text style={[styles.cardText, { fontSize: 32 * textSizeMultiplier }]}>{activeCard.front}</Text>
+              <ThemedText type="phrase" style={[styles.cardText, { fontSize: FontSizes.phrase * textSizeMultiplier }]}>{activeCard.front}</ThemedText>
 
               {/* Controls Row: Stop Propagation by handling press */}
               <View style={[styles.controlsRow, !started && { opacity: 0.5 }]}>
@@ -429,11 +430,11 @@ export default function LearnScreen() {
 
             {/* Back Face */}
             <Animated.View style={[styles.cardFace, styles.cardFaceBack, backFaceStyle]}>
-              <Text style={[styles.cardText, { fontSize: 32 * textSizeMultiplier }]}>{activeCard.back}</Text>
+              <ThemedText type="phrase" style={[styles.cardText, { fontSize: FontSizes.phrase * textSizeMultiplier }]}>{activeCard.back}</ThemedText>
               {activeCard.example && (
                 <View style={styles.exampleContainer}>
-                  <Text style={styles.exampleLabel}>Example:</Text>
-                  <Text style={[styles.exampleText, { fontSize: 18 * textSizeMultiplier }]}>"{activeCard.example}"</Text>
+                  <ThemedText type="defaultSemiBold" style={styles.exampleLabel}>Example:</ThemedText>
+                  <ThemedText style={[styles.exampleText, { fontSize: 18 * textSizeMultiplier }]}>"{activeCard.example}"</ThemedText>
                 </View>
               )}
             </Animated.View>
@@ -442,34 +443,31 @@ export default function LearnScreen() {
 
         {/* Static Hint Text - NOW CLICKABLE */}
         <Pressable style={styles.staticHintContainer} onPress={handleFlip}>
-          <Text style={styles.tapHint}>Tap to flip</Text>
+          <ThemedText style={styles.tapHint}>Tap to flip</ThemedText>
         </Pressable>
       </View>
 
       <View style={styles.assessRow}>
         <Pressable
-          style={[styles.assessBtn, (!started || history.length === 0) && { opacity: 0.5 }]}
+          style={({ pressed }) => [styles.assessBtnCircle, (!started || history.length === 0) && { opacity: 0.5 }, pressed && { backgroundColor: Palette.pastelBlue }]}
           disabled={!started || history.length === 0}
           onPress={onUndo}
         >
-          <MaterialIcons name="undo" size={22} color={TEXT} />
-          <Text style={styles.assessText}>Undo</Text>
+          <MaterialIcons name="undo" size={28} color={TEXT} />
         </Pressable>
         <Pressable
-          style={[styles.assessBtn, styles.assessBtnGood, !started && { opacity: 0.5 }]}
+          style={({ pressed }) => [styles.assessBtnCircle, !started && { opacity: 0.5 }, pressed && { backgroundColor: Palette.pastelGreen }]}
           disabled={!started}
           onPress={() => onAssess('known')}
         >
-          <MaterialIcons name="sentiment-satisfied" size={22} color="#1E8E3E" />
-          <Text style={[styles.assessText, styles.assessTextGood]}>Good</Text>
+          <MaterialIcons name="thumb-up" size={28} color={Palette.success} />
         </Pressable>
         <Pressable
-          style={[styles.assessBtn, styles.assessBtnHard, !started && { opacity: 0.5 }]}
+          style={({ pressed }) => [styles.assessBtnCircle, !started && { opacity: 0.5 }, pressed && { backgroundColor: Palette.pastelBeige }]}
           disabled={!started}
           onPress={() => onAssess('difficult')}
         >
-          <MaterialIcons name="sentiment-neutral" size={22} color="#D93025" />
-          <Text style={[styles.assessText, styles.assessTextHard]}>Hard</Text>
+          <MaterialIcons name="thumb-down" size={28} color={Palette.error} />
         </Pressable>
       </View>
     </ScrollView>
@@ -504,39 +502,22 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   goalCount: {
-    fontSize: 24,
     color: TEXT,
-    fontWeight: "800",
   },
   pauseBtn: {
     backgroundColor: "#000000",
-    borderRadius: 16,
+    borderRadius: Radii.button,
     paddingHorizontal: 24,
     paddingVertical: 14,
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
+    ...Shadows.brutalist,
   },
   pauseText: {
     color: ACCENT,
-    fontWeight: "700",
-    fontSize: 16,
-  },
-  progressTrack: {
-    height: 12,
-    backgroundColor: "rgba(0,0,0,0.05)",
-    borderRadius: 6,
-    overflow: "hidden",
-    marginBottom: 32,
-  },
-  progressFill: {
-    height: "100%",
-    backgroundColor: ACCENT,
-    borderRadius: 6,
+    fontFamily: 'Inter_700Bold',
+    fontSize: FontSizes.body,
   },
   cardArea: {
     flex: 1,
@@ -548,15 +529,12 @@ const styles = StyleSheet.create({
   card: {
     width: "100%",
     height: "100%",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 24,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 10 },
+    backgroundColor: Palette.white,
+    borderRadius: Radii.card,
+    ...Shadows.brutalist,
     position: "absolute",
-    borderWidth: 1,
-    borderColor: "#F0F0F0",
+    borderWidth: Strokes.regular,
+    borderColor: Palette.black,
   },
   nextCard: {
     // Initial state handled by animated style
@@ -585,10 +563,8 @@ const styles = StyleSheet.create({
     transform: [{ rotateY: "180deg" }],
   },
   cardText: {
-    fontSize: 32,
     textAlign: "center",
     color: TEXT,
-    fontWeight: "800",
     marginBottom: 32,
   },
   staticHintContainer: {
@@ -612,12 +588,15 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: Palette.white,
+    borderWidth: Strokes.thin,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
     alignItems: "center",
     justifyContent: "center",
   },
   recordingBtn: {
-    backgroundColor: "#FF4444",
+    backgroundColor: Palette.error,
   },
   assessRow: {
     flexDirection: "row",
@@ -626,49 +605,24 @@ const styles = StyleSheet.create({
     gap: 12,
     marginTop: 24,
   },
-  assessBtn: {
-    flex: 1,
+  assessBtnCircle: {
+    width: 64,
     height: 64,
-    borderRadius: 20,
-    backgroundColor: "#FFFFFF",
-    borderWidth: 2,
-    borderColor: "#F0F0F0",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    flexDirection: "row",
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-  },
-  assessText: {
-    color: TEXT,
-    fontWeight: "700",
-    fontSize: 16,
-  },
-  assessBtnGood: {
-    backgroundColor: "#E6F4EA",
-    borderColor: "#34A853",
-  },
-  assessTextGood: {
-    color: "#1E8E3E",
-  },
-  assessBtnHard: {
-    backgroundColor: "#FCE8E6",
-    borderColor: "#EA4335",
-  },
-  assessTextHard: {
-    color: "#D93025",
+    borderRadius: 32,
+    backgroundColor: Palette.white,
+    borderWidth: Strokes.regular,
+    borderColor: Palette.black,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...Shadows.brutalist,
   },
   doneText: {
-    fontSize: 24,
-    fontWeight: "800",
+    fontSize: FontSizes.phrase,
     color: TEXT,
     marginTop: 16,
   },
   doneSubText: {
-    fontSize: 16,
+    fontSize: FontSizes.body,
     color: TEXT,
     opacity: 0.6,
     marginTop: 8,
@@ -678,23 +632,28 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     paddingVertical: 16,
     backgroundColor: ACCENT,
-    borderRadius: 16,
+    borderRadius: Radii.button,
+    borderWidth: Strokes.regular,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
   },
   backBtnText: {
-    fontWeight: "700",
+    fontFamily: 'Inter_700Bold',
     color: TEXT,
-    fontSize: 18,
+    fontSize: FontSizes.button,
   },
   exampleContainer: {
     marginTop: 24,
     padding: 16,
-    backgroundColor: "#F9F9F9",
+    backgroundColor: Palette.white,
     borderRadius: 12,
+    borderWidth: Strokes.thin,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
     width: "100%",
   },
   exampleLabel: {
     fontSize: 12,
-    fontWeight: "700",
     color: TEXT,
     opacity: 0.5,
     marginBottom: 4,

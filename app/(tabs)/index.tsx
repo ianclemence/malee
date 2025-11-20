@@ -6,11 +6,14 @@ import { Image } from "expo-image";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Palette, Radii, Strokes, Shadows, FontSizes } from '@/constants/theme';
+import { ThemedText } from '@/components/themed-text';
+import { Button } from '@/components/ui/button';
 
-const ACCENT = "#F1FF00";
-const BG = "#FFFFFF";
-const TEXT = "#000000";
-const PURPLE_BG = "#D9D4F6";
+const ACCENT = Palette.primary;
+const BG = Palette.cream;
+const TEXT = Palette.black;
+const PURPLE_BG = Palette.lavender;
 
 export default function HomeScreen() {
   const [todayCount, setTodayCount] = useState(0);
@@ -65,7 +68,7 @@ export default function HomeScreen() {
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.header}>
-        <Text style={styles.logo}>Malee</Text>
+        <ThemedText type="title" style={styles.logo}>Malee</ThemedText>
         <Pressable onPress={() => router.push("/settings")}>
           <Image
             source={require("@/assets/images/react-logo.png")}
@@ -78,12 +81,11 @@ export default function HomeScreen() {
       <View style={styles.hero}>
         <View style={styles.heroContent}>
           <View>
-            <Text style={styles.heroGreeting}>{greeting}</Text>
-            <Text style={styles.heroSubtext}>
+            <ThemedText type="title" style={styles.heroGreeting}>{greeting}</ThemedText>
+            <ThemedText style={styles.heroSubtext}>
               {todayCount >= dailyGoal ? "You're on fire!" : "Let's hit your daily goal."}
-            </Text>
-            <Pressable
-              style={styles.heroButton}
+            </ThemedText>
+            <Button
               onPress={() => {
                 if (currentDeck) {
                   router.push({ pathname: '/deck/learn', params: { slug: currentDeck.slug, title: currentDeck.title, count: String(currentDeck.count) } });
@@ -91,14 +93,12 @@ export default function HomeScreen() {
                   router.push('/(tabs)/explore');
                 }
               }}
-            >
-              <Text style={styles.heroButtonText}>{todayCount === 0 ? "Start Learning" : "Continue"}</Text>
-              <MaterialIcons name="arrow-forward" size={18} color={TEXT} />
-            </Pressable>
+              title={todayCount === 0 ? "Start Learning" : "Continue"}
+            />
           </View>
 
           <View style={styles.ringWrapper}>
-            <ProgressRing radius={50} stroke={8} progress={dailyProgress} color={ACCENT} trackColor="rgba(0,0,0,0.1)" />
+            <ProgressRing radius={50} stroke={8} progress={dailyProgress} color={ACCENT} trackColor={Palette.black} />
             <View style={styles.ringInner}>
               <Text style={styles.ringCount}>{todayCount}</Text>
               <Text style={styles.ringLabel}>/ {dailyGoal} XP</Text>
@@ -113,7 +113,7 @@ export default function HomeScreen() {
       {/* Daily Review or Jump Back In */}
       {totalDue > 0 ? (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Daily Review</Text>
+          <ThemedText type="subtitle" style={styles.sectionTitle}>Daily Review</ThemedText>
           <Pressable
             style={styles.resumeCard}
             onPress={() => {
@@ -125,8 +125,8 @@ export default function HomeScreen() {
             }}
           >
             <View style={styles.resumeContent}>
-              <Text style={styles.resumeTitle}>Review Session</Text>
-              <Text style={styles.resumeSub}>{totalDue} cards due today</Text>
+              <ThemedText style={styles.resumeTitle}>Review Session</ThemedText>
+              <ThemedText style={styles.resumeSub}>{totalDue} cards due today</ThemedText>
             </View>
             <View style={styles.resumeAction}>
               <View style={[styles.resumePlayIcon, { position: 'relative' }]}>
@@ -137,14 +137,14 @@ export default function HomeScreen() {
         </View>
       ) : currentDeck && (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Jump Back In</Text>
+          <ThemedText type="subtitle" style={styles.sectionTitle}>Jump Back In</ThemedText>
           <Pressable
             style={styles.resumeCard}
             onPress={() => router.push({ pathname: '/deck/learn', params: { slug: currentDeck.slug, title: currentDeck.title, count: String(currentDeck.count) } })}
           >
             <View style={styles.resumeContent}>
-              <Text style={styles.resumeTitle}>{currentDeck.title}</Text>
-              <Text style={styles.resumeSub}>{currentDeck.count} cards</Text>
+              <ThemedText style={styles.resumeTitle}>{currentDeck.title}</ThemedText>
+              <ThemedText style={styles.resumeSub}>{currentDeck.count} cards</ThemedText>
             </View>
             <View style={styles.resumeAction}>
               <ProgressRing radius={24} stroke={4} progress={currentDeck.progress} color={ACCENT} trackColor="#E0E0E0" />
@@ -158,7 +158,7 @@ export default function HomeScreen() {
 
       {/* Picked by Malee - Horizontal Scroll */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Picked by Malee</Text>
+        <ThemedText type="subtitle" style={styles.sectionTitle}>Picked by Malee</ThemedText>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalScroll}>
           {picked.map((d, i) => (
             <Pressable
@@ -179,9 +179,9 @@ export default function HomeScreen() {
                 <MaterialIcons name={d.icon as any} size={32} color={TEXT} />
               </View>
               <View style={styles.cardBottom}>
-                <Text style={styles.cardTitle} numberOfLines={2}>{d.title}</Text>
+                <ThemedText style={styles.cardTitle} numberOfLines={2}>{d.title}</ThemedText>
                 <View style={styles.cardMeta}>
-                  <Text style={styles.cardCount}>{d.count} words</Text>
+                  <ThemedText style={styles.cardCount}>{d.count} words</ThemedText>
                   <Pressable
                     onPress={(e) => {
                       e.stopPropagation();
@@ -215,14 +215,11 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   logo: {
-    fontSize: 32,
-    fontWeight: "900",
     color: TEXT,
-    letterSpacing: -1,
   },
   hero: {
     backgroundColor: TEXT,
-    borderRadius: 24,
+    borderRadius: Radii.card,
     padding: 32,
     marginBottom: 32,
     position: 'relative',
@@ -235,31 +232,15 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   heroGreeting: {
-    fontSize: 24,
-    fontWeight: '800',
     color: "#FFFFFF",
-    marginBottom: 4,
   },
   heroSubtext: {
-    fontSize: 14,
+    fontSize: FontSizes.small,
     color: "#FFFFFF",
-    opacity: 0.7,
+    opacity: 0.8,
     marginBottom: 16,
   },
-  heroButton: {
-    backgroundColor: ACCENT,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 12,
-    alignSelf: 'flex-start',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  heroButtonText: {
-    fontWeight: '700',
-    color: TEXT,
-  },
+  
   ringWrapper: {
     position: 'relative',
     alignItems: 'center',
@@ -290,38 +271,33 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: '800',
     color: TEXT,
     marginBottom: 16,
   },
   resumeCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 20,
+    backgroundColor: Palette.white,
+    borderRadius: Radii.card,
     padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderWidth: 1,
-    borderColor: "#E0E0E0",
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
+    borderWidth: Strokes.regular,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
   },
   resumeContent: {
     flex: 1,
   },
   resumeTitle: {
     fontSize: 18,
-    fontWeight: '700',
     color: TEXT,
+    fontFamily: 'Inter_700Bold',
     marginBottom: 4,
   },
   resumeSub: {
     fontSize: 14,
     color: TEXT,
-    opacity: 0.5,
+    opacity: 0.6,
   },
   resumeAction: {
     position: 'relative',
@@ -338,15 +314,21 @@ const styles = StyleSheet.create({
   horizontalCard: {
     width: 160,
     height: 180,
-    borderRadius: 20,
+    borderRadius: Radii.card,
     padding: 16,
     justifyContent: 'space-between',
+    borderWidth: Strokes.thin,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
   },
   cardIcon: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "rgba(255,255,255,0.5)",
+    backgroundColor: Palette.white,
+    borderWidth: Strokes.thin,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -355,8 +337,8 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 16,
-    fontWeight: '700',
     color: TEXT,
+    fontFamily: 'Inter_700Bold',
   },
   cardMeta: {
     flexDirection: 'row',

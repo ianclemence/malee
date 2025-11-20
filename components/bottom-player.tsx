@@ -63,11 +63,13 @@ export default function BottomPlayer({ inline = false }: { inline?: boolean }) {
 
   return (
     <PanGestureHandler
-      onGestureEvent={({ nativeEvent }) =>
-        (translateY.value = nativeEvent.translationY)
-      }
-      onEnded={({ nativeEvent }) => {
-        if (nativeEvent.translationY > 60) hide();
+      onGestureEvent={(e) => {
+        const { translationY } = (e.nativeEvent as any);
+        translateY.value = translationY;
+      }}
+      onEnded={(e) => {
+        const { translationY } = (e.nativeEvent as any);
+        if (translationY > 60) hide();
         else translateY.value = withSpring(0);
       }}
     >

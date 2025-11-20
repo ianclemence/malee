@@ -13,10 +13,12 @@ import {
   Text,
   View,
 } from "react-native";
+import { Palette, Radii, Strokes, Shadows, FontSizes } from '@/constants/theme';
+import { ThemedText } from '@/components/themed-text';
 
-const ACCENT = "#F1FF00";
-const TEXT = "#000000";
-const BG = "#FFFFFF";
+const ACCENT = Palette.primary;
+const TEXT = Palette.black;
+const BG = Palette.cream;
 
 const BADGES = [
   { id: 'streak_3', icon: 'local-fire-department', title: '3 Day Streak', condition: (s: any) => s.streak >= 3 },
@@ -96,14 +98,14 @@ export default function SettingsScreen() {
               <MaterialIcons name="edit" size={14} color={TEXT} />
             </View>
           </View>
-          <Text style={styles.name}>John Doe</Text>
-          <Text style={styles.level}>English Level: Advanced</Text>
+          <ThemedText type="title" style={styles.name}>John Doe</ThemedText>
+          <ThemedText style={styles.level}>English Level: Advanced</ThemedText>
         </View>
 
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
-            <Text style={styles.statValue}>{stats.words}</Text>
-            <Text style={styles.statLabel}>Words</Text>
+            <ThemedText style={styles.statValue}>{stats.words}</ThemedText>
+            <ThemedText style={styles.statLabel}>Words</ThemedText>
           </View>
           <View style={styles.statCard}>
             <Text style={styles.statValue}>{stats.time}</Text>
@@ -117,7 +119,7 @@ export default function SettingsScreen() {
 
         {/* Heatmap */}
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>Activity</Text>
+          <ThemedText type="subtitle" style={styles.sectionHeader}>Activity</ThemedText>
           <View style={styles.heatmapContainer}>
             {heatmapDays.map((date) => {
               const count = heatmap[date] || 0;
@@ -137,7 +139,7 @@ export default function SettingsScreen() {
 
         {/* Badges */}
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>Badges</Text>
+          <ThemedText type="subtitle" style={styles.sectionHeader}>Badges</ThemedText>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.badgesRow}>
             {BADGES.map((badge) => {
               const unlocked = badge.condition(stats);
@@ -154,14 +156,14 @@ export default function SettingsScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>Study Settings</Text>
+          <ThemedText type="subtitle" style={styles.sectionHeader}>Study Settings</ThemedText>
           <View style={styles.card}>
             {/* Daily Goal */}
             <View style={styles.row}>
               <View style={styles.rowIcon}>
                 <MaterialIcons name="flag" size={20} color={TEXT} />
               </View>
-              <Text style={styles.rowLabel}>Daily Goal</Text>
+              <ThemedText style={styles.rowLabel}>Daily Goal</ThemedText>
               <View style={styles.toggles}>
                 {[10, 20, 50].map(val => (
                   <Pressable
@@ -169,7 +171,7 @@ export default function SettingsScreen() {
                     style={[styles.toggleBtn, settings.dailyGoal === val && styles.toggleBtnActive]}
                     onPress={() => updateSetting('dailyGoal', val)}
                   >
-                    <Text style={[styles.toggleText, settings.dailyGoal === val && styles.toggleTextActive]}>{val}</Text>
+                    <ThemedText style={[styles.toggleText, settings.dailyGoal === val && styles.toggleTextActive]}>{val}</ThemedText>
                   </Pressable>
                 ))}
               </View>
@@ -207,13 +209,13 @@ export default function SettingsScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>Preferences</Text>
+          <ThemedText type="subtitle" style={styles.sectionHeader}>Preferences</ThemedText>
           <View style={styles.card}>
             <View style={styles.row}>
               <View style={styles.rowIcon}>
                 <MaterialIcons name="notifications" size={20} color={TEXT} />
               </View>
-              <Text style={styles.rowLabel}>Daily Reminders</Text>
+              <ThemedText style={styles.rowLabel}>Daily Reminders</ThemedText>
               <Switch
                 value={settings.dailyReminders}
                 onValueChange={() => toggleSetting("dailyReminders")}
@@ -226,7 +228,7 @@ export default function SettingsScreen() {
               <View style={styles.rowIcon}>
                 <MaterialIcons name="volume-up" size={20} color={TEXT} />
               </View>
-              <Text style={styles.rowLabel}>Sound Effects</Text>
+              <ThemedText style={styles.rowLabel}>Sound Effects</ThemedText>
               <Switch
                 value={settings.soundEffects}
                 onValueChange={() => toggleSetting("soundEffects")}
@@ -238,23 +240,23 @@ export default function SettingsScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>Subscription</Text>
+          <ThemedText type="subtitle" style={styles.sectionHeader}>Subscription</ThemedText>
           <View style={styles.card}>
             <Pressable style={styles.row}>
               <View style={styles.rowIcon}>
                 <MaterialIcons name="workspace-premium" size={20} color={TEXT} />
               </View>
-              <Text style={styles.rowLabel}>Current Plan</Text>
-              <Text style={styles.rowValue}>Pro</Text>
+              <ThemedText style={styles.rowLabel}>Current Plan</ThemedText>
+              <ThemedText style={styles.rowValue}>Pro</ThemedText>
             </Pressable>
           </View>
         </View>
 
         <Pressable style={styles.logoutBtn}>
-          <Text style={styles.logoutText}>Log Out</Text>
+          <ThemedText style={styles.logoutText}>Log Out</ThemedText>
         </Pressable>
 
-        <Text style={styles.versionText}>Version 1.0.0</Text>
+        <ThemedText style={styles.versionText}>Version 1.0.0</ThemedText>
       </ScrollView>
     </View>
   );
@@ -287,8 +289,11 @@ const styles = StyleSheet.create({
     height: 40,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#F5F5F5",
+    backgroundColor: Palette.white,
     borderRadius: 20,
+    borderWidth: Strokes.thin,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
   },
   profileSection: {
     alignItems: "center",
@@ -298,10 +303,11 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    borderWidth: 3,
-    borderColor: TEXT,
+    borderWidth: Strokes.regular,
+    borderColor: Palette.black,
     marginBottom: 16,
     position: "relative",
+    ...Shadows.brutalist,
   },
   avatar: {
     width: "100%",
@@ -316,22 +322,23 @@ const styles = StyleSheet.create({
     height: 32,
     borderRadius: 16,
     backgroundColor: ACCENT,
-    borderWidth: 2,
-    borderColor: TEXT,
+    borderWidth: Strokes.thin,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
     alignItems: "center",
     justifyContent: "center",
   },
   name: {
-    fontSize: 24,
-    fontWeight: "800",
+    fontSize: FontSizes.phrase,
     color: TEXT,
     marginBottom: 4,
+    fontFamily: 'PlayfairDisplay_500Medium',
   },
   level: {
-    fontSize: 16,
+    fontSize: FontSizes.body,
     color: TEXT,
     opacity: 0.6,
-    fontWeight: "600",
+    fontFamily: 'Inter_500Medium',
   },
   statsRow: {
     flexDirection: "row",
@@ -340,38 +347,40 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
-    borderRadius: 16,
+    backgroundColor: Palette.white,
+    borderRadius: Radii.card,
     padding: 16,
     alignItems: "center",
+    borderWidth: Strokes.thin,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
   },
   statValue: {
-    fontSize: 24,
-    fontWeight: "800",
+    fontSize: FontSizes.phrase,
     color: TEXT,
     marginBottom: 4,
+    fontFamily: 'PlayfairDisplay_500Medium',
   },
   statLabel: {
-    fontSize: 14,
+    fontSize: FontSizes.small,
     color: TEXT,
     opacity: 0.6,
-    fontWeight: "600",
+    fontFamily: 'Inter_500Medium',
   },
   section: {
     marginBottom: 32,
   },
   sectionHeader: {
-    fontSize: 20,
-    fontWeight: "800",
     color: TEXT,
     marginBottom: 16,
   },
   card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: "#F0F0F0",
+    backgroundColor: Palette.white,
+    borderRadius: Radii.card,
+    borderWidth: Strokes.regular,
+    borderColor: Palette.black,
     overflow: "hidden",
+    ...Shadows.brutalist,
   },
   row: {
     flexDirection: "row",
@@ -383,51 +392,57 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: Palette.white,
     alignItems: "center",
     justifyContent: "center",
+    borderWidth: Strokes.thin,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
   },
   rowLabel: {
     flex: 1,
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: FontSizes.body,
     color: TEXT,
+    fontFamily: 'Inter_700Bold',
   },
   rowValue: {
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: FontSizes.body,
     color: ACCENT,
-    backgroundColor: "#000000",
+    backgroundColor: Palette.black,
     paddingHorizontal: 12,
     paddingVertical: 4,
-    borderRadius: 12,
+    borderRadius: Radii.button,
     overflow: "hidden",
+    borderWidth: Strokes.thin,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
   },
   divider: {
-    height: 1,
-    backgroundColor: "#F0F0F0",
+    height: Strokes.thin,
+    backgroundColor: Palette.black,
     marginLeft: 60,
   },
   logoutBtn: {
     height: 56,
-    borderRadius: 16,
-    borderWidth: 2,
-    borderColor: "#FF4444",
+    borderRadius: Radii.button,
+    borderWidth: Strokes.regular,
+    borderColor: Palette.error,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 24,
+    ...Shadows.brutalist,
   },
   logoutText: {
-    color: "#FF4444",
-    fontWeight: "700",
-    fontSize: 18,
+    color: Palette.error,
+    fontFamily: 'Inter_700Bold',
+    fontSize: FontSizes.button,
   },
   versionText: {
     textAlign: "center",
     color: TEXT,
     opacity: 0.3,
-    fontSize: 14,
-    fontWeight: "600",
+    fontSize: FontSizes.small,
+    fontFamily: 'Inter_500Medium',
   },
   heatmapContainer: {
     flexDirection: "row",
@@ -446,12 +461,15 @@ const styles = StyleSheet.create({
   badgeCard: {
     width: 100,
     height: 120,
-    backgroundColor: "#F5F5F5",
-    borderRadius: 16,
+    backgroundColor: Palette.white,
+    borderRadius: Radii.card,
     alignItems: "center",
     justifyContent: "center",
     padding: 12,
     gap: 12,
+    borderWidth: Strokes.thin,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
   },
   badgeLocked: {
     opacity: 0.5,
@@ -460,15 +478,18 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "#E0E0E0",
+    backgroundColor: Palette.white,
     alignItems: "center",
     justifyContent: "center",
+    borderWidth: Strokes.thin,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
   },
   badgeTitle: {
-    fontSize: 12,
-    fontWeight: "700",
+    fontSize: FontSizes.small,
     color: TEXT,
     textAlign: "center",
+    fontFamily: 'Inter_700Bold',
   },
   toggles: {
     flexDirection: 'row',
@@ -477,19 +498,22 @@ const styles = StyleSheet.create({
   toggleBtn: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 8,
-    backgroundColor: "#F5F5F5",
+    borderRadius: Radii.button,
+    backgroundColor: Palette.white,
     alignItems: 'center',
     justifyContent: 'center',
     minWidth: 40,
+    borderWidth: Strokes.thin,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
   },
   toggleBtnActive: {
     backgroundColor: TEXT,
   },
   toggleText: {
-    fontSize: 14,
-    fontWeight: "700",
+    fontSize: FontSizes.body,
     color: TEXT,
+    fontFamily: 'Inter_700Bold',
   },
   toggleTextActive: {
     color: ACCENT,

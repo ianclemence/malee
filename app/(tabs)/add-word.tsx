@@ -11,10 +11,13 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { Palette, Radii, Strokes, Shadows, FontSizes } from '@/constants/theme';
+import { Button } from '@/components/ui/button';
+import { ThemedText } from '@/components/themed-text';
 
-const ACCENT = "#F1FF00";
-const TEXT = "#000000";
-const BG = "#FFFFFF";
+const ACCENT = Palette.primary;
+const TEXT = Palette.black;
+const BG = Palette.cream;
 
 export default function AddWordScreen() {
   const router = useRouter();
@@ -120,12 +123,12 @@ export default function AddWordScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.headerRow}>
-          <Text style={styles.headerTitle}>Add New Word</Text>
+          <ThemedText type="title" style={styles.headerTitle}>Add New Word</ThemedText>
         </View>
 
         <View style={styles.form}>
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Word</Text>
+            <ThemedText style={styles.label}>Word</ThemedText>
             <TextInput
               value={word}
               onChangeText={setWord}
@@ -136,7 +139,7 @@ export default function AddWordScreen() {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Translation</Text>
+            <ThemedText style={styles.label}>Translation</ThemedText>
             <TextInput
               value={translation}
               onChangeText={setTranslation}
@@ -147,7 +150,7 @@ export default function AddWordScreen() {
           </View>
 
           <View style={styles.suggestionsContainer}>
-            <Text style={styles.helperText}>Add to Deck</Text>
+            <ThemedText style={styles.helperText}>Add to Deck</ThemedText>
             <View style={styles.suggestionsRow}>
               {decks.map((d) => (
                 <Pressable
@@ -161,10 +164,10 @@ export default function AddWordScreen() {
                     setIsCreatingDeck(false);
                   }}
                 >
-                  <Text style={[
+                  <ThemedText style={[
                     styles.suggestionText,
                     selectedDeckSlug === d.slug && !isCreatingDeck && styles.chipTextActive
-                  ]}>{d.title}</Text>
+                  ]}>{d.title}</ThemedText>
                 </Pressable>
               ))}
             </View>
@@ -172,7 +175,7 @@ export default function AddWordScreen() {
             {isCreatingDeck ? (
               <View style={styles.newDeckInput}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                  <Text style={styles.label}>New Deck Name</Text>
+                  <ThemedText style={styles.label}>New Deck Name</ThemedText>
                   <Pressable onPress={() => setIsCreatingDeck(false)}>
                     <Text style={{ color: TEXT, opacity: 0.5, fontSize: 12, fontWeight: '600' }}>Cancel</Text>
                   </Pressable>
@@ -195,15 +198,13 @@ export default function AddWordScreen() {
                 }}
               >
                 <MaterialIcons name="add" size={20} color={TEXT} />
-                <Text style={styles.createDeckText}>Create New Deck</Text>
+                <ThemedText style={styles.createDeckText}>Create New Deck</ThemedText>
               </Pressable>
             )}
           </View>
         </View>
 
-        <Pressable style={styles.addButton} onPress={handleSave}>
-          <Text style={styles.addButtonText}>Add to Deck</Text>
-        </Pressable>
+        <Button title="Add to Deck" onPress={handleSave} />
       </ScrollView>
     </View>
   );
@@ -226,18 +227,18 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   headerTitle: {
-    fontSize: 32,
-    fontWeight: "900",
     color: TEXT,
-    letterSpacing: -1,
   },
   iconButton: {
     width: 40,
     height: 40,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#F5F5F5",
+    backgroundColor: Palette.white,
     borderRadius: 20,
+    borderWidth: Strokes.thin,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
   },
   form: {
     gap: 24,
@@ -247,18 +248,18 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   label: {
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: FontSizes.body,
     color: TEXT,
     opacity: 0.6,
+    fontFamily: 'Inter_700Bold',
   },
   input: {
-    fontSize: 24,
-    fontWeight: "600",
+    fontSize: FontSizes.phrase,
     color: TEXT,
-    borderBottomWidth: 2,
-    borderColor: "#E0E0E0",
+    borderBottomWidth: Strokes.regular,
+    borderColor: Palette.black,
     paddingVertical: 8,
+    fontFamily: 'PlayfairDisplay_500Medium',
   },
   suggestionsContainer: {
     marginTop: 8,
@@ -276,12 +277,13 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   suggestionChip: {
-    backgroundColor: "#F5F5F5",
+    backgroundColor: Palette.white,
     paddingHorizontal: 16,
     paddingVertical: 10,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "transparent",
+    borderRadius: Radii.button,
+    borderWidth: Strokes.thin,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
   },
   createDeckBtn: {
     marginTop: 16,
@@ -289,26 +291,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 16,
-    backgroundColor: "#F5F5F5",
-    borderRadius: 16,
+    backgroundColor: Palette.white,
+    borderRadius: Radii.button,
     gap: 8,
-    borderWidth: 1,
-    borderColor: "#E0E0E0",
-    borderStyle: 'dashed',
+    borderWidth: Strokes.regular,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
   },
   createDeckText: {
     color: TEXT,
-    fontWeight: "700",
-    fontSize: 16,
+    fontFamily: 'Inter_700Bold',
+    fontSize: FontSizes.body,
   },
   suggestionText: {
     color: TEXT,
-    fontWeight: "600",
-    fontSize: 14,
+    fontFamily: 'Inter_500Medium',
+    fontSize: FontSizes.small,
   },
   chipActive: {
-    backgroundColor: "#000000",
-    borderColor: "#000000",
+    backgroundColor: Palette.black,
+    borderColor: Palette.black,
   },
   chipTextActive: {
     color: ACCENT,
@@ -317,22 +319,5 @@ const styles = StyleSheet.create({
     marginTop: 16,
     gap: 8,
   },
-  addButton: {
-    height: 64,
-    backgroundColor: TEXT,
-    borderRadius: 20,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-  },
-  addButtonText: {
-    color: ACCENT,
-    fontWeight: "700",
-    fontSize: 20,
-  },
+  
 });

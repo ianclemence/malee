@@ -15,11 +15,13 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Palette, Radii, Strokes, Shadows, FontSizes } from '@/constants/theme';
+import { ThemedText } from '@/components/themed-text';
 
-const ACCENT = "#F1FF00";
-const TEXT = "#000000";
-const BG = "#FFFFFF";
-const PURPLE_BG = "#D9D4F6";
+const ACCENT = Palette.primary;
+const TEXT = Palette.black;
+const BG = Palette.cream;
+const PURPLE_BG = Palette.lavender;
 
 export default function DeckScreen() {
   const { title, count, slug } = useLocalSearchParams<{
@@ -106,11 +108,11 @@ export default function DeckScreen() {
           <View style={styles.heroIcon}>
             <MaterialIcons name={deck?.icon as any ?? "style"} size={64} color={TEXT} />
           </View>
-          <Text style={styles.titleText}>{deck?.title ?? title ?? "Deck"}</Text>
+          <ThemedText type="title" style={styles.titleText}>{deck?.title ?? title ?? "Deck"}</ThemedText>
           <View style={styles.metaRow}>
-            <Text style={styles.metaText}>{wordCount} words</Text>
+            <ThemedText style={styles.metaText}>{wordCount} words</ThemedText>
             <View style={styles.metaDot} />
-            <Text style={styles.metaText}>{Math.round(progress * 100)}% learned</Text>
+            <ThemedText style={styles.metaText}>{Math.round(progress * 100)}% learned</ThemedText>
           </View>
         </View>
 
@@ -155,8 +157,8 @@ export default function DeckScreen() {
         </View>
 
         <View style={styles.wordsHeader}>
-          <Text style={styles.sectionTitle}>Words</Text>
-          <Text style={styles.wordCountBadge}>{deck?.words.length} words</Text>
+          <ThemedText type="subtitle" style={styles.sectionTitle}>Words</ThemedText>
+          <ThemedText style={styles.wordCountBadge}>{deck?.words.length} words</ThemedText>
         </View>
         {deck && (
           <View style={styles.wordsList}>
@@ -165,8 +167,8 @@ export default function DeckScreen() {
               return (
                 <View key={`${deck.slug}-${i}`} style={styles.wordCard}>
                   <View style={styles.wordContent}>
-                    <Text style={styles.wordEn}>{w.en}</Text>
-                    <Text style={styles.wordTh}>{w.th}</Text>
+                    <ThemedText style={styles.wordEn}>{w.en}</ThemedText>
+                    <ThemedText style={styles.wordTh}>{w.th}</ThemedText>
                   </View>
                   <Pressable
                     style={[styles.wordAudioBtn, isLearned && styles.wordAudioBtnActive]}
@@ -208,9 +210,9 @@ export default function DeckScreen() {
             <MaterialIcons name="play-arrow" size={20} color={ACCENT} />
           </View>
         </View>
-        <Text style={styles.learnText}>
+        <ThemedText style={styles.learnText}>
           {isMine || isCustom ? "Start Learning" : "Try this Deck"}
-        </Text>
+        </ThemedText>
         <View style={styles.btnSide} />
       </Pressable>
     </View>
@@ -238,8 +240,11 @@ const styles = StyleSheet.create({
     height: 40,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#F5F5F5",
+    backgroundColor: Palette.white,
     borderRadius: 20,
+    borderWidth: Strokes.thin,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
   },
   heroSection: {
     alignItems: "center",
@@ -253,14 +258,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 24,
+    borderWidth: Strokes.thin,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
   },
   titleText: {
-    fontSize: 32,
-    fontWeight: "900",
+    fontSize: FontSizes.h1,
     color: TEXT,
     textAlign: "center",
     marginBottom: 8,
     letterSpacing: -1,
+    fontFamily: 'PlayfairDisplay_700Bold',
   },
   metaRow: {
     flexDirection: "row",
@@ -292,10 +300,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 8,
     height: 48,
-    borderRadius: 16,
-    backgroundColor: "#F5F5F5",
-    borderWidth: 1,
-    borderColor: "transparent",
+    borderRadius: Radii.button,
+    backgroundColor: Palette.white,
+    borderWidth: Strokes.thin,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
   },
   favBtnActive: {
     backgroundColor: "#FF4444",
@@ -306,13 +315,13 @@ const styles = StyleSheet.create({
     borderColor: "#000000",
   },
   deleteBtn: {
-    borderColor: "#FF4444",
+    borderColor: Palette.error,
     backgroundColor: "#FFF0F0",
   },
   actionBtnText: {
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: FontSizes.body,
     color: TEXT,
+    fontFamily: 'Inter_700Bold',
   },
   wordsHeader: {
     flexDirection: "row",
@@ -340,36 +349,41 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   wordCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
+    backgroundColor: Palette.white,
+    borderRadius: Radii.card,
     padding: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    borderBottomWidth: 1,
-    borderBottomColor: "#F5F5F5",
+    borderWidth: Strokes.thin,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
   },
   wordContent: {
     flex: 1,
   },
   wordEn: {
-    fontSize: 18,
-    fontWeight: "700",
+    fontSize: FontSizes.phrase,
     color: TEXT,
     marginBottom: 4,
+    fontFamily: 'PlayfairDisplay_500Medium',
   },
   wordTh: {
-    fontSize: 16,
+    fontSize: FontSizes.body,
     color: TEXT,
     opacity: 0.6,
+    fontFamily: 'Inter_500Medium',
   },
   wordAudioBtn: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: Palette.white,
     alignItems: "center",
     justifyContent: "center",
+    borderWidth: Strokes.thin,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
   },
   wordAudioBtnActive: {
     backgroundColor: "#000000",
@@ -383,19 +397,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     height: 64,
-    backgroundColor: "#000000",
-    borderRadius: 20,
+    backgroundColor: Palette.black,
+    borderRadius: Radii.button,
     gap: 8,
-    shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
+    borderWidth: Strokes.regular,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
     paddingHorizontal: 16,
   },
   learnText: {
     color: ACCENT,
-    fontWeight: "700",
-    fontSize: 20,
+    fontFamily: 'Inter_700Bold',
+    fontSize: FontSizes.button,
     textAlign: "center",
     flex: 1,
   },

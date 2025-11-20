@@ -6,10 +6,12 @@ import { Image } from "expo-image";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Palette, Radii, Strokes, Shadows, FontSizes } from '@/constants/theme';
+import { ThemedText } from '@/components/themed-text';
 
-const ACCENT = "#F1FF00";
-const TEXT = "#000000";
-const PAGE_BG = "#FFFFFF";
+const ACCENT = Palette.primary;
+const TEXT = Palette.black;
+const PAGE_BG = Palette.cream;
 
 export default function DeckProgressScreen() {
   const { title, count, slug } = useLocalSearchParams<{
@@ -63,32 +65,32 @@ export default function DeckProgressScreen() {
             style={styles.illustration}
           />
           <View style={styles.bubble}>
-            <Text style={styles.bubbleText}>Keep it up!</Text>
+            <ThemedText style={styles.bubbleText}>Keep it up!</ThemedText>
           </View>
         </View>
 
-        <Text style={styles.titleText}>{deck?.title ?? title ?? "Deck"}</Text>
+        <ThemedText type="title" style={styles.titleText}>{deck?.title ?? title ?? "Deck"}</ThemedText>
 
         {/* Simple Stats Row */}
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{stats.mastered}</Text>
-            <Text style={styles.statLabel}>Mastered</Text>
+            <ThemedText style={styles.statValue}>{stats.mastered}</ThemedText>
+            <ThemedText style={styles.statLabel}>Mastered</ThemedText>
           </View>
           <View style={styles.separator} />
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{stats.review}</Text>
-            <Text style={styles.statLabel}>Review</Text>
+            <ThemedText style={styles.statValue}>{stats.review}</ThemedText>
+            <ThemedText style={styles.statLabel}>Review</ThemedText>
           </View>
           <View style={styles.separator} />
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{stats.learning}</Text>
-            <Text style={styles.statLabel}>Learning</Text>
+            <ThemedText style={styles.statValue}>{stats.learning}</ThemedText>
+            <ThemedText style={styles.statLabel}>Learning</ThemedText>
           </View>
         </View>
 
         <View style={styles.totalRow}>
-          <Text style={styles.totalText}>{stats.new} New Cards Remaining</Text>
+          <ThemedText style={styles.totalText}>{stats.new} New Cards Remaining</ThemedText>
         </View>
 
       </ScrollView>
@@ -116,7 +118,7 @@ export default function DeckProgressScreen() {
             <MaterialIcons name="play-arrow" size={20} color={ACCENT} />
           </View>
         </View>
-        <Text style={styles.learnText}>Continue Learning</Text>
+        <ThemedText style={styles.learnText}>Continue Learning</ThemedText>
         <View style={styles.btnSide} />
       </Pressable>
     </View>
@@ -144,8 +146,11 @@ const styles = StyleSheet.create({
     height: 40,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#F5F5F5",
+    backgroundColor: Palette.white,
     borderRadius: 20,
+    borderWidth: Strokes.thin,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
   },
   illustrationHolder: {
     alignItems: "center",
@@ -163,23 +168,24 @@ const styles = StyleSheet.create({
     right: 32,
     top: 12,
     backgroundColor: ACCENT,
-    borderRadius: 16,
+    borderRadius: Radii.button,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    borderWidth: 2,
+    borderWidth: Strokes.thin,
     borderColor: TEXT,
+    ...Shadows.brutalist,
   },
   bubbleText: {
     color: TEXT,
-    fontWeight: "700",
+    fontFamily: 'Inter_700Bold',
   },
   titleText: {
-    fontSize: 32,
-    fontWeight: "800",
+    fontSize: FontSizes.h1,
     color: TEXT,
     marginBottom: 24,
     textAlign: "center",
     letterSpacing: -1,
+    fontFamily: 'PlayfairDisplay_700Bold',
   },
   statsRow: {
     flexDirection: "row",
@@ -187,15 +193,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 24,
     marginBottom: 24,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: Palette.white,
     padding: 20,
-    borderRadius: 20,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    borderWidth: 1,
-    borderColor: "#F0F0F0",
+    borderRadius: Radii.card,
+    borderWidth: Strokes.regular,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
   },
   statItem: {
     alignItems: "center",
@@ -203,30 +206,31 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   statValue: {
-    fontSize: 24,
-    fontWeight: "700",
+    fontSize: FontSizes.phrase,
     color: TEXT,
+    fontFamily: 'PlayfairDisplay_500Medium',
   },
   statLabel: {
     color: TEXT,
     opacity: 0.6,
-    fontSize: 14,
+    fontSize: FontSizes.small,
     marginTop: 4,
+    fontFamily: 'Inter_500Medium',
   },
   separator: {
-    width: 1,
+    width: Strokes.thin,
     height: 40,
-    backgroundColor: "#E0E0E0",
+    backgroundColor: Palette.black,
   },
   totalRow: {
     alignItems: "center",
     marginBottom: 24,
   },
   totalText: {
-    fontSize: 16,
+    fontSize: FontSizes.body,
     color: TEXT,
     opacity: 0.6,
-    fontWeight: "600",
+    fontFamily: 'Inter_500Medium',
   },
   floatingLearnBar: {
     position: "absolute",
@@ -237,19 +241,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     height: 64,
-    backgroundColor: "#000000",
-    borderRadius: 20,
+    backgroundColor: Palette.black,
+    borderRadius: Radii.button,
     gap: 8,
-    shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
+    borderWidth: Strokes.regular,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
     paddingHorizontal: 16,
   },
   learnText: {
     color: ACCENT,
-    fontWeight: "700",
-    fontSize: 20,
+    fontFamily: 'Inter_700Bold',
+    fontSize: FontSizes.button,
     textAlign: "center",
     flex: 1,
   },
