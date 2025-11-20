@@ -12,6 +12,7 @@ import {
 } from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useAudioPlayer, useAudioRecorder } from 'expo-audio';
+import { Audio } from 'expo-av';
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import * as Speech from 'expo-speech';
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -57,10 +58,20 @@ export default function LearnScreen() {
 
   // Audio Recording State
   const recorder = useAudioRecorder({
+    extension: 'm4a',
+    numberOfChannels: 1,
     sampleRate: 44100,
     bitRate: 128000,
-    channels: 1,
-    format: 'm4a',
+    android: {
+      extension: 'm4a',
+      outputFormat: 'mpeg4' as any,
+      audioEncoder: 'aac' as any,
+    },
+    ios: {
+      extension: 'm4a',
+      outputFormat: 'mpeg4AAC',
+      audioQuality: 127,
+    },
   });
   const [recordedUri, setRecordedUri] = useState<string | null>(null);
   const player = useAudioPlayer(recordedUri);
@@ -154,6 +165,16 @@ export default function LearnScreen() {
 
   async function startRecording() {
     try {
+      // Request permissions first on mobile
+      const { granted } = await Audio.getPermissionsAsync();
+      if (!granted) {
+        const { granted: newGranted } = await Audio.requestPermissionsAsync();
+        if (!newGranted) {
+          console.log('Microphone permission denied');
+          return;
+        }
+      }
+
       if (recorder.isRecording) {
         await recorder.stop();
         setIsRecording(false);
@@ -163,6 +184,7 @@ export default function LearnScreen() {
       }
     } catch (err) {
       console.error('Failed to toggle recording', err);
+      setIsRecording(false);
     }
   }
 

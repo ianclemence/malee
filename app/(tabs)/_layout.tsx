@@ -1,17 +1,13 @@
-import { Tabs, useRouter } from 'expo-router';
-import { BottomTabBar } from '@react-navigation/bottom-tabs';
-import React from 'react';
-import { View, Pressable } from 'react-native';
 import BottomPlayer from '@/components/bottom-player';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { BottomTabBar } from '@react-navigation/bottom-tabs';
+import { Tabs, useRouter } from 'expo-router';
+import React from 'react';
+import { Pressable, View } from 'react-native';
 
 import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
   const router = useRouter();
 
   return (
@@ -23,7 +19,6 @@ export default function TabLayout() {
           headerShown: false,
           tabBarButton: HapticTab,
           tabBarStyle: { backgroundColor: '#000000', borderTopWidth: 0, elevation: 0, justifyContent: 'space-between' },
-          sceneContainerStyle: { backgroundColor: 'transparent' },
           tabBarBackground: () => <View style={{ backgroundColor: '#000000' }} />,
         }}
         tabBar={(props) => (
@@ -37,7 +32,7 @@ export default function TabLayout() {
           name="index"
           options={{
             title: 'Home',
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+            tabBarIcon: ({ color }) => <MaterialIcons name="home" size={28} color={color} />,
           }}
         />
         <Tabs.Screen
@@ -74,7 +69,7 @@ export default function TabLayout() {
           name="explore"
           options={{
             title: 'Decks',
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="rectangle.stack.fill" color={color} />,
+            tabBarIcon: ({ color }) => <MaterialIcons name="explore" size={28} color={color} />,
           }}
         />
       </Tabs>
