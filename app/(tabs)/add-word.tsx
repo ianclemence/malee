@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     backgroundColor: BG,
   },
   container: {
-    paddingHorizontal: 24,
+    paddingHorizontal: 16,
     paddingBottom: 40,
     marginTop: 48,
   },
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 32,
+    marginBottom: 24,
   },
   headerTitle: {
     fontSize: 32,

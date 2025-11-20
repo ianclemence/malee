@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
     backgroundColor: BG,
   },
   container: {
-    paddingHorizontal: 24,
+    paddingHorizontal: 16,
     paddingBottom: 120,
     marginTop: 48,
   },

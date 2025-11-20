@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     backgroundColor: PAGE_BG,
   },
   container: {
-    paddingHorizontal: 24,
+    paddingHorizontal: 16,
     paddingBottom: 120,
     marginTop: 48,
   },
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 12,
+    marginBottom: 24,
   },
   iconButton: {
     width: 40,
