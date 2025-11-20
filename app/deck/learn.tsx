@@ -17,6 +17,7 @@ import * as Speech from 'expo-speech';
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import Animated, {
+  interpolate,
   useAnimatedStyle,
   useSharedValue,
   withTiming
@@ -61,6 +62,7 @@ export default function LearnScreen() {
   const activeCard = cards[activeCardIndex];
 
   const topCardStyle = useAnimatedStyle(() => ({
+    zIndex: 10,
     transform: [
       { perspective: 1000 },
       { rotateY: `${flip.value * 180}deg` },
@@ -68,17 +70,22 @@ export default function LearnScreen() {
   }));
 
   const nextCardStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scaleNext.value }],
+    zIndex: 1,
+    transform: [
+      { scale: scaleNext.value },
+      { translateY: interpolate(scaleNext.value, [0.96, 1], [20, 0]) } // Move up as it scales up
+    ],
+    opacity: interpolate(flip.value, [0, 0.5], [1, 0]), // Fade out quickly when flipping starts
   }));
 
   const frontFaceStyle = useAnimatedStyle(() => ({
     transform: [{ rotateY: `${-flip.value * 180}deg` }],
-    opacity: 1 - flip.value,
+    opacity: interpolate(flip.value, [0.5, 0.51], [1, 0]), // Hide halfway
   }));
 
   const backFaceStyle = useAnimatedStyle(() => ({
     transform: [{ rotateY: `${180 - flip.value * 180}deg` }],
-    opacity: flip.value,
+    opacity: interpolate(flip.value, [0.5, 0.51], [0, 1]), // Show halfway
   }));
 
   // Load Queue
@@ -169,13 +176,6 @@ export default function LearnScreen() {
     const next = flipped ? 0 : 1;
     setFlipped(!flipped);
     flip.value = withTiming(next);
-    if (!flipped) {
-      // Just flipped to back (Thai). 
-      // If we wanted to speak English on reveal, we'd do it here.
-      // But usually we speak English on the front.
-    } else {
-      // Flipped back to front
-    }
   }
 
   function goNext() {
@@ -265,7 +265,7 @@ export default function LearnScreen() {
       <View style={styles.cardArea}>
         {/* Next Card (Visual Only) */}
         {currentIndex + 1 < queue.length && (
-          <Animated.View style={[styles.card, styles.nextCard, nextCardStyle]}>
+          <Animated.View style={[styles.card, nextCardStyle]}>
             <View style={styles.cardFace}>
               <Text style={styles.cardText}>{cards[queue[currentIndex + 1]].front}</Text>
             </View>
@@ -295,21 +295,19 @@ export default function LearnScreen() {
                   />
                 </Pressable>
               </View>
-
-              <View style={styles.tapHintRow}>
-                <Text style={styles.tapHint}>Tap to flip</Text>
-              </View>
             </Animated.View>
 
             {/* Back Face */}
             <Animated.View style={[styles.cardFace, styles.cardFaceBack, backFaceStyle]}>
               <Text style={styles.cardText}>{activeCard.back}</Text>
-              <View style={styles.tapHintRow}>
-                <Text style={styles.tapHint}>Tap to flip</Text>
-              </View>
             </Animated.View>
           </Pressable>
         </Animated.View>
+
+        {/* Static Hint Text */}
+        <View style={styles.staticHintContainer}>
+          <Text style={styles.tapHint}>Tap to flip</Text>
+        </View>
       </View>
 
       <View style={styles.assessRow}>
@@ -405,6 +403,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    position: 'relative',
   },
   card: {
     width: "90%",
@@ -418,8 +417,7 @@ const styles = StyleSheet.create({
     position: "absolute",
   },
   nextCard: {
-    top: 20,
-    transform: [{ scale: 0.96 }],
+    // Initial state handled by animated style
   },
   cardFace: {
     flex: 1,
@@ -451,10 +449,11 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     marginBottom: 24,
   },
-  tapHintRow: {
+  staticHintContainer: {
     position: "absolute",
-    bottom: 16,
+    bottom: 40, // Adjust based on card height
     alignSelf: "center",
+    zIndex: 20,
   },
   tapHint: {
     color: TEXT,
