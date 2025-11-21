@@ -14,6 +14,7 @@ import {
   getSettings,
   getStreak,
   getTotalLearned,
+  getTotalTime,
   resetProgress,
   saveSettings,
 } from "@/lib/storage";
@@ -99,9 +100,15 @@ export default function SettingsScreen() {
       ...customDecks.map((d) => d.slug),
     ];
     const learned = await getTotalLearned(allSlugs);
+    const totalSeconds = await getTotalTime();
     const hm = await getHeatmapData();
 
-    setStats({ words: learned, time: "4h", streak });
+    // Format time
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const timeStr = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+
+    setStats({ words: learned, time: timeStr, streak });
     setHeatmap(hm);
   };
 

@@ -20,6 +20,7 @@ import {
   getSettings,
   getTodayInteractions,
   incTodayInteractions,
+  incTotalTime,
   saveWordStats,
   setCurrentDeck,
 } from "@/lib/storage";
@@ -34,14 +35,15 @@ import {
 import * as Haptics from "expo-haptics";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import * as Speech from "expo-speech";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  AppState,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
-  View,
+  View
 } from "react-native";
 import Animated, {
   interpolate,
@@ -242,6 +244,63 @@ export default function LearnScreen() {
       };
     }, [started, slug, deck?.title, cards.length, progress])
   );
+
+  // Timer Logic
+  const startTimeRef = useRef<number | null>(null);
+  const appState = useRef(AppState.currentState);
+
+  // Save accumulated time
+  const saveTime = async () => {
+    if (startTimeRef.current !== null) {
+      const now = Date.now();
+      const elapsed = Math.floor((now - startTimeRef.current) / 1000);
+      if (elapsed > 0) {
+        await incTotalTime(elapsed);
+      }
+      startTimeRef.current = null; // Reset start time
+    }
+  };
+
+  // Handle App State changes (background/foreground)
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (nextAppState) => {
+      if (
+        appState.current.match(/active/) &&
+        nextAppState.match(/inactive|background/)
+      ) {
+        // Going to background -> Pause timer
+        if (started) {
+          saveTime();
+        }
+      } else if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState === "active"
+      ) {
+        // Coming to foreground -> Resume timer if started
+        if (started) {
+          startTimeRef.current = Date.now();
+        }
+      }
+      appState.current = nextAppState;
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [started]);
+
+  // Handle Start/Pause/Unmount
+  useEffect(() => {
+    if (started) {
+      startTimeRef.current = Date.now();
+    } else {
+      saveTime();
+    }
+
+    return () => {
+      saveTime(); // Save on unmount
+    };
+  }, [started]);
 
   // Audio Functions
   async function speak(text: string) {

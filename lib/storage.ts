@@ -198,6 +198,20 @@ export async function addWordToCustomDeck(deckSlug: string, word: { en: string; 
   }
 }
 
+// --- Time Tracking ---
+
+const TOTAL_TIME_KEY = "malee:totalTime";
+
+export async function getTotalTime(): Promise<number> {
+  const v = await AsyncStorage.getItem(TOTAL_TIME_KEY);
+  return v ? parseInt(v, 10) : 0;
+}
+
+export async function incTotalTime(seconds: number): Promise<void> {
+  const current = await getTotalTime();
+  await AsyncStorage.setItem(TOTAL_TIME_KEY, String(current + seconds));
+}
+
 // --- Settings ---
 
 const SETTINGS_KEY = "malee:settings";
@@ -329,6 +343,7 @@ export async function resetProgress(): Promise<void> {
   // 4. Clear Favorites/My Decks
   await AsyncStorage.removeItem(MYDECKS_KEY);
   await AsyncStorage.removeItem(FAVORITES_KEY);
+  await AsyncStorage.removeItem(TOTAL_TIME_KEY);
 
   // 5. Clear Deck Progress (This is harder because keys are dynamic)
   // We need to find all keys starting with PROGRESS_PREFIX
