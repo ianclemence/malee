@@ -2,11 +2,12 @@ import * as Device from 'expo-device';
 import { Alert, Platform } from 'react-native';
 
 async function loadNotifications() {
+    return null;
     // if (Constants.appOwnership === 'expo') {
     //     return null;
     // }
-    const mod = await import('expo-notifications');
-    return mod;
+    // const mod = await import('expo-notifications');
+    // return mod;
 }
 
 export async function registerForPushNotificationsAsync() {

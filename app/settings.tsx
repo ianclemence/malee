@@ -673,14 +673,16 @@ const styles = StyleSheet.create({
     maxWidth: 320,
     backgroundColor: Palette.white,
     borderRadius: Radii.card,
-    padding: 24,
+    padding: 20,
     borderWidth: Strokes.regular,
     borderColor: Palette.black,
     ...Shadows.brutalist,
   },
   modalTitle: {
-    marginBottom: 16,
+    marginBottom: 20,
     textAlign: "center",
+    color: TEXT,
+    fontFamily: "PlayfairDisplay_600SemiBold",
   },
   input: {
     width: "100%",
@@ -691,7 +693,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     fontSize: FontSizes.body,
     fontFamily: "Inter_500Medium",
-    marginBottom: 24,
+    marginBottom: 20,
     backgroundColor: "#F5F5F5",
   },
   modalButtons: {
