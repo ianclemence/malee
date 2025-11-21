@@ -2,6 +2,7 @@ import { ThemedText } from "@/components/themed-text";
 import { HeaderBar } from "@/components/ui/header-bar";
 import { FontSizes, Palette, Radii, Shadows, Strokes } from "@/constants/theme";
 import { DEFAULT_DECKS } from "@/data/decks";
+import { useBottomSheet } from "@/hooks/bottom-sheet-store";
 import {
   cancelAllNotifications,
   scheduleDailyReminder,
@@ -62,6 +63,7 @@ const BADGES = [
 
 export default function SettingsScreen() {
   const router = useRouter();
+  const bottomSheet = useBottomSheet();
   const [stats, setStats] = useState({ words: 0, time: "4h", streak: 0 });
   const [settings, setSettings] = useState<AppSettings>({
     dailyReminders: true,
@@ -317,6 +319,7 @@ export default function SettingsScreen() {
         <Pressable
           style={styles.logoutBtn}
           onPress={async () => {
+            bottomSheet.hide();
             await resetProgress();
             // Reload data to reflect changes (or just go back/reset state)
             setStats({ words: 0, time: "0h", streak: 0 });
