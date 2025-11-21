@@ -23,6 +23,7 @@ export default function HomeScreen() {
   const [currentDeck, setCurrentDeck] = useState<CurrentDeck | null>(null);
   const [totalDue, setTotalDue] = useState(0);
   const [dailyGoal, setDailyGoal] = useState(50);
+  const [avatarUri, setAvatarUri] = useState<string | null>(null);
 
   const loadData = async () => {
     const fav = await getFavorites();
@@ -40,7 +41,10 @@ export default function HomeScreen() {
     setTodayCount(t);
     setCurrentDeck(c);
     setTotalDue(due);
+    setCurrentDeck(c);
+    setTotalDue(due);
     setDailyGoal(s.dailyGoal);
+    setAvatarUri(s.avatarUri);
   };
 
   useEffect(() => {
@@ -71,10 +75,16 @@ export default function HomeScreen() {
       <View style={styles.header}>
         <ThemedText type="title" style={styles.logo}>Malee</ThemedText>
         <Pressable onPress={() => router.push("/settings")}>
-          <Image
-            source={require("@/assets/images/react-logo.png")}
-            style={{ width: 40, height: 40, borderRadius: 20, borderWidth: 1, borderColor: "#E0E0E0" }}
-          />
+          <Pressable onPress={() => router.push("/settings")}>
+            <Image
+              source={
+                avatarUri
+                  ? { uri: avatarUri }
+                  : require("@/assets/images/react-logo.png")
+              }
+              style={{ width: 40, height: 40, borderRadius: 20, borderWidth: 1, borderColor: "#E0E0E0" }}
+            />
+          </Pressable>
         </Pressable>
       </View>
 

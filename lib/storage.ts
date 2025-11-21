@@ -207,6 +207,8 @@ export type AppSettings = {
   soundEffects: boolean;
   dailyGoal: number; // New: Configurable daily goal
   textSize: number; // New: Font size multiplier (0.8, 1, 1.2)
+  name: string;
+  avatarUri: string | null;
 };
 
 const DEFAULT_SETTINGS: AppSettings = {
@@ -214,6 +216,8 @@ const DEFAULT_SETTINGS: AppSettings = {
   soundEffects: true,
   dailyGoal: 50,
   textSize: 1,
+  name: "Guest User",
+  avatarUri: null,
 };
 
 export async function getSettings(): Promise<AppSettings> {

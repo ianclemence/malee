@@ -1,15 +1,14 @@
+import { ThemedText } from '@/components/themed-text';
+import { ChipGroup } from '@/components/ui/chip-group';
+import { DeckCard } from '@/components/ui/deck-card';
+import { SearchBar } from '@/components/ui/search-bar';
+import { Palette } from '@/constants/theme';
 import { DEFAULT_DECKS } from "@/data/decks";
-import { CustomDeck, getCustomDecks, getFavorites, getMyDecks, setFavorite } from "@/lib/storage";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { CustomDeck, getCustomDecks, getFavorites, getMyDecks, getSettings, setFavorite } from "@/lib/storage";
 import { Image } from "expo-image";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
-import { ThemedText } from '@/components/themed-text';
-import { Palette, Radii, Strokes, Shadows } from '@/constants/theme';
-import { DeckCard } from '@/components/ui/deck-card';
-import { ChipGroup } from '@/components/ui/chip-group';
-import { SearchBar } from '@/components/ui/search-bar';
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 const ACCENT = Palette.primary;
 const TEXT = Palette.black;
@@ -24,6 +23,7 @@ export default function DecksScreen() {
   const [customDecks, setCustomDecks] = useState<CustomDeck[]>([]);
   const [view, setView] = useState<"all" | "my" | "favorites">("all");
   const [query, setQuery] = useState("");
+  const [avatarUri, setAvatarUri] = useState<string | null>(null);
 
   const loadData = async () => {
     const fav = await getFavorites();
@@ -32,6 +32,8 @@ export default function DecksScreen() {
     setFavorites(fav);
     setMyDecksState(mine);
     setCustomDecks(custom);
+    const s = await getSettings();
+    setAvatarUri(s.avatarUri);
   };
 
   useEffect(() => {
@@ -69,10 +71,16 @@ export default function DecksScreen() {
       <View style={styles.header}>
         <ThemedText type="title" style={styles.logo}>Malee</ThemedText>
         <Pressable onPress={() => router.push("/settings")}>
-          <Image
-            source={require("@/assets/images/react-logo.png")}
-            style={{ width: 40, height: 40, borderRadius: 20, borderWidth: 1, borderColor: "#E0E0E0" }}
-          />
+          <Pressable onPress={() => router.push("/settings")}>
+            <Image
+              source={
+                avatarUri
+                  ? { uri: avatarUri }
+                  : require("@/assets/images/react-logo.png")
+              }
+              style={{ width: 40, height: 40, borderRadius: 20, borderWidth: 1, borderColor: "#E0E0E0" }}
+            />
+          </Pressable>
         </Pressable>
       </View>
 
@@ -138,16 +146,16 @@ const styles = StyleSheet.create({
   logo: {
     color: TEXT,
   },
-  
-  
-  
+
+
+
   grid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
     gap: 12,
   },
-  
+
   emptyState: {
     padding: 40,
     alignItems: "center",

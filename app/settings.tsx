@@ -19,14 +19,17 @@ import {
 } from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Image } from "expo-image";
+import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
   Switch,
   Text,
+  TextInput,
   View,
 } from "react-native";
 
@@ -70,8 +73,16 @@ export default function SettingsScreen() {
     soundEffects: true,
     dailyGoal: 50,
     textSize: 1,
+    name: "Guest User",
+    avatarUri: null,
   });
   const [heatmap, setHeatmap] = useState<{ [date: string]: number }>({});
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [newName, setNewName] = useState("");
+
+  useEffect(() => {
+    setNewName(settings.name);
+  }, [settings.name]);
 
   useEffect(() => {
     loadData();
@@ -122,6 +133,19 @@ export default function SettingsScreen() {
     return d.toISOString().slice(0, 10);
   });
 
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.5,
+    });
+
+    if (!result.canceled) {
+      await updateSetting("avatarUri", result.assets[0].uri);
+    }
+  };
+
   return (
     <View style={styles.page}>
       <ScrollView contentContainerStyle={styles.container}>
@@ -129,17 +153,32 @@ export default function SettingsScreen() {
 
         <View style={styles.profileSection}>
           <View style={styles.avatarContainer}>
-            <Image
-              source={require("@/assets/images/react-logo.png")}
-              style={styles.avatar}
-            />
-            <View style={styles.editBadge}>
-              <MaterialIcons name="edit" size={14} color={TEXT} />
-            </View>
+            <Pressable onPress={pickImage}>
+              <Image
+                source={
+                  settings.avatarUri
+                    ? { uri: settings.avatarUri }
+                    : require("@/assets/images/react-logo.png")
+                }
+                style={styles.avatar}
+              />
+              <View style={styles.editBadge}>
+                <MaterialIcons name="edit" size={14} color={TEXT} />
+              </View>
+            </Pressable>
           </View>
-          <ThemedText type="title" style={styles.name}>
-            John Doe
-          </ThemedText>
+          <Pressable
+            onPress={() => {
+              setNewName(settings.name);
+              setIsEditingName(true);
+            }}
+            style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
+          >
+            <ThemedText type="title" style={styles.name}>
+              {settings.name}
+            </ThemedText>
+            <MaterialIcons name="edit" size={16} color={TEXT} style={{ opacity: 0.5 }} />
+          </Pressable>
           <ThemedText style={styles.level}>English Level: Advanced</ThemedText>
         </View>
 
@@ -333,6 +372,47 @@ export default function SettingsScreen() {
 
         <ThemedText style={styles.versionText}>Version 1.0.0</ThemedText>
       </ScrollView>
+
+      {/* Name Edit Modal */}
+      <Modal
+        visible={isEditingName}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIsEditingName(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <ThemedText type="subtitle" style={styles.modalTitle}>
+              Edit Name
+            </ThemedText>
+            <TextInput
+              style={styles.input}
+              value={newName}
+              onChangeText={setNewName}
+              placeholder="Enter your name"
+              placeholderTextColor="#999"
+              autoFocus
+            />
+            <View style={styles.modalButtons}>
+              <Pressable
+                style={[styles.modalBtn, styles.cancelBtn]}
+                onPress={() => setIsEditingName(false)}
+              >
+                <Text style={styles.cancelBtnText}>Cancel</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.modalBtn, styles.saveBtn]}
+                onPress={() => {
+                  updateSetting("name", newName);
+                  setIsEditingName(false);
+                }}
+              >
+                <Text style={styles.saveBtnText}>Save</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -573,5 +653,66 @@ const styles = StyleSheet.create({
   },
   toggleTextActive: {
     color: ACCENT,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  modalContent: {
+    width: "100%",
+    maxWidth: 320,
+    backgroundColor: Palette.white,
+    borderRadius: Radii.card,
+    padding: 24,
+    borderWidth: Strokes.regular,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
+  },
+  modalTitle: {
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  input: {
+    width: "100%",
+    height: 48,
+    borderWidth: Strokes.thin,
+    borderColor: Palette.black,
+    borderRadius: Radii.button,
+    paddingHorizontal: 16,
+    fontSize: FontSizes.body,
+    fontFamily: "Inter_500Medium",
+    marginBottom: 24,
+    backgroundColor: "#F5F5F5",
+  },
+  modalButtons: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  modalBtn: {
+    flex: 1,
+    height: 44,
+    borderRadius: Radii.button,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: Strokes.thin,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
+  },
+  cancelBtn: {
+    backgroundColor: Palette.white,
+  },
+  saveBtn: {
+    backgroundColor: ACCENT,
+  },
+  cancelBtnText: {
+    fontFamily: "Inter_700Bold",
+    color: TEXT,
+  },
+  saveBtnText: {
+    fontFamily: "Inter_700Bold",
+    color: TEXT,
   },
 });
