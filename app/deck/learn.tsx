@@ -466,18 +466,25 @@ export default function LearnScreen() {
       </View>
     );
   }
-
   if (currentIndex >= queue.length) {
     return (
       <View
         style={[
           styles.page,
-          { justifyContent: "center", alignItems: "center" },
+          {
+            justifyContent: "center",
+            alignItems: "center",
+            marginTop: 0,
+            paddingHorizontal: 0,
+            paddingBottom: 0,
+          },
         ]}
       >
         <Confetti />
         <MaterialIcons name="check-circle" size={64} color={ACCENT} />
-        <Text style={styles.doneText}>All caught up!</Text>
+        <Text style={[styles.doneText, { fontFamily: "PlayfairDisplay_600SemiBold" }]}>
+          All caught up!
+        </Text>
         <Text style={styles.doneSubText}>
           Come back later for more reviews.
         </Text>
