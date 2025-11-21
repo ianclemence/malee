@@ -15,6 +15,7 @@ import {
   getStreak,
   getTotalLearned,
   getTotalTime,
+  getUserLevel,
   resetProgress,
   saveSettings,
 } from "@/lib/storage";
@@ -186,7 +187,7 @@ export default function SettingsScreen() {
             </ThemedText>
             <MaterialIcons name="edit" size={16} color={TEXT} style={{ opacity: 0.5 }} />
           </Pressable>
-          <ThemedText style={styles.level}>English Level: Advanced</ThemedText>
+          <ThemedText style={styles.level}>English Level: {getUserLevel(stats.words)}</ThemedText>
         </View>
 
         <View style={styles.statsRow}>

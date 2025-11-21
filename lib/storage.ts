@@ -212,6 +212,12 @@ export async function incTotalTime(seconds: number): Promise<void> {
   await AsyncStorage.setItem(TOTAL_TIME_KEY, String(current + seconds));
 }
 
+export function getUserLevel(learnedCount: number): string {
+  if (learnedCount >= 200) return "Advanced";
+  if (learnedCount >= 50) return "Intermediate";
+  return "Beginner";
+}
+
 // --- Settings ---
 
 const SETTINGS_KEY = "malee:settings";
