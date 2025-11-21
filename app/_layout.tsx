@@ -5,6 +5,7 @@ import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular';
 import { Inter_500Medium } from '@expo-google-fonts/inter/500Medium';
 import { Inter_700Bold } from '@expo-google-fonts/inter/700Bold';
 import { PlayfairDisplay_500Medium } from '@expo-google-fonts/playfair-display/500Medium';
+import { PlayfairDisplay_600SemiBold } from '@expo-google-fonts/playfair-display/600SemiBold';
 import { PlayfairDisplay_700Bold } from '@expo-google-fonts/playfair-display/700Bold';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
@@ -27,6 +28,7 @@ export default function RootLayout() {
     Inter_500Medium,
     Inter_700Bold,
     PlayfairDisplay_500Medium,
+    PlayfairDisplay_600SemiBold,
     PlayfairDisplay_700Bold,
   });
 

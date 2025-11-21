@@ -144,7 +144,7 @@ export default function SettingsScreen() {
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
             <ThemedText style={styles.statValue}>{stats.words}</ThemedText>
-            <ThemedText style={styles.statLabel}>Learned Words</ThemedText>
+            <ThemedText style={styles.statLabel}>Words</ThemedText>
           </View>
           <View style={styles.statCard}>
             <Text style={styles.statValue}>{stats.time}</Text>
