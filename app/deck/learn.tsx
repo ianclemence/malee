@@ -481,7 +481,7 @@ export default function LearnScreen() {
         ]}
       >
         <Confetti />
-        <MaterialIcons name="check-circle" size={64} color={TEXT} />
+        <Text style={{ fontSize: 64 }}>🎊</Text>
         <Text style={[styles.doneText, { fontFamily: "PlayfairDisplay_600SemiBold" }]}>
           All caught up!
         </Text>
