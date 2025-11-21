@@ -1,11 +1,10 @@
 import * as Device from 'expo-device';
-import Constants from 'expo-constants';
-import { Platform, Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 
 async function loadNotifications() {
-    if (Constants.appOwnership === 'expo') {
-        return null;
-    }
+    // if (Constants.appOwnership === 'expo') {
+    //     return null;
+    // }
     const mod = await import('expo-notifications');
     return mod;
 }

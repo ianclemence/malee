@@ -5,6 +5,7 @@ import { WordCard } from '@/components/ui/word-card';
 import { FontSizes, Palette, Radii, Shadows, Strokes } from '@/constants/theme';
 import { getDeckBySlug } from "@/data/decks";
 import {
+  AppSettings,
   DeckProgress,
   deleteCustomDeck,
   getCustomDecks,
@@ -12,6 +13,7 @@ import {
   getDeckProgressStats,
   getFavorites,
   getMyDecks,
+  getSettings,
   setFavorite,
   setMyDeck,
 } from "@/lib/storage";
@@ -39,6 +41,14 @@ export default function DeckScreen() {
 
   const [deck, setDeck] = useState<any>(getDeckBySlug(String(slug)));
   const [isCustom, setIsCustom] = useState(false);
+  const [settings, setSettings] = useState<AppSettings>({
+    dailyReminders: true,
+    soundEffects: true,
+    dailyGoal: 50,
+    textSize: 1,
+    name: "Guest User",
+    avatarUri: null,
+  });
 
   const wordCount = deck ? deck.words.length : Number(count ?? "0");
   const isFav = !!favorites[String(slug)];
@@ -46,7 +56,9 @@ export default function DeckScreen() {
   const [progress, setProgress] = useState(0);
 
   const speak = (text: string) => {
-    Speech.speak(text, { language: "en" });
+    if (settings.soundEffects) {
+      Speech.speak(text, { language: "en" });
+    }
   };
 
   const loadData = async () => {
@@ -54,6 +66,8 @@ export default function DeckScreen() {
     const mine = await getMyDecks();
     setFavorites(fav);
     setMyDecksState(mine);
+    const s = await getSettings();
+    setSettings(s);
 
     let d: any = getDeckBySlug(String(slug));
     let custom = false;
