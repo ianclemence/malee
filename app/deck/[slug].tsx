@@ -17,6 +17,7 @@ import {
 } from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import * as Speech from "expo-speech";
 import { useCallback, useEffect, useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
@@ -43,6 +44,10 @@ export default function DeckScreen() {
   const isFav = !!favorites[String(slug)];
   const isMine = !!myDecks[String(slug)];
   const [progress, setProgress] = useState(0);
+
+  const speak = (text: string) => {
+    Speech.speak(text, { language: "en" });
+  };
 
   const loadData = async () => {
     const fav = await getFavorites();
@@ -167,7 +172,7 @@ export default function DeckScreen() {
                   en={w.en}
                   th={w.th}
                   learned={isLearned}
-                  onPlay={() => { }}
+                  onPlay={() => speak(w.en)}
                 />
               );
             })}

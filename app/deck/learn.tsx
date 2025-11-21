@@ -24,7 +24,8 @@ import {
   setCurrentDeck,
 } from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { Audio, useAudioPlayer, useAudioRecorder } from "expo-audio";
+import { useAudioPlayer, useAudioRecorder } from "expo-audio";
+import { Audio as ExpoAV } from "expo-av";
 import * as Haptics from "expo-haptics";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import * as Speech from "expo-speech";
@@ -137,6 +138,19 @@ export default function LearnScreen() {
   // Load Queue & Data
   useEffect(() => {
     (async () => {
+      // Configure Audio Session for Mobile (iOS/Android)
+      try {
+        await ExpoAV.setAudioModeAsync({
+          allowsRecordingIOS: true,
+          playsInSilentModeIOS: true,
+          staysActiveInBackground: false,
+          shouldDuckAndroid: true,
+          playThroughEarpieceAndroid: false,
+        });
+      } catch (e) {
+        console.error("Failed to set audio mode", e);
+      }
+
       setLoading(true);
 
       // Load Settings
@@ -234,9 +248,9 @@ export default function LearnScreen() {
   async function startRecording() {
     try {
       // Request permissions first on mobile
-      const { granted } = await Audio.getPermissionsAsync();
+      const { granted } = await ExpoAV.getPermissionsAsync();
       if (!granted) {
-        const { granted: newGranted } = await Audio.requestPermissionsAsync();
+        const { granted: newGranted } = await ExpoAV.requestPermissionsAsync();
         if (!newGranted) {
           console.log("Microphone permission denied");
           return;
@@ -514,10 +528,10 @@ export default function LearnScreen() {
                     isRecording
                       ? "stop"
                       : recordedUri
-                      ? isPlaying
-                        ? "volume-up"
-                        : "play-arrow"
-                      : "mic"
+                        ? isPlaying
+                          ? "volume-up"
+                          : "play-arrow"
+                        : "mic"
                   }
                   size={64}
                   disabled={!started}
