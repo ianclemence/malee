@@ -122,7 +122,7 @@ export default function DeckScreen() {
 
         <View style={styles.heroSection}>
           <View style={styles.heroIcon}>
-            <MaterialIcons name={deck?.icon as any ?? "style"} size={64} color={TEXT} />
+            <Text style={{ fontSize: 56 }}>{deck?.icon ?? "📚"}</Text>
           </View>
           <ThemedText type="title" style={styles.titleText}>{deck?.title ?? title ?? "Deck"}</ThemedText>
           <View style={styles.metaRow}>

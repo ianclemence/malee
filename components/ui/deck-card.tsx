@@ -1,8 +1,8 @@
-import React from 'react';
-import { Pressable, View, Text, ViewStyle } from 'react-native';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { Palette, Radii, Strokes, Shadows } from '@/constants/theme';
 import { ThemedText } from '@/components/themed-text';
+import { Palette, Radii, Shadows, Strokes } from '@/constants/theme';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import React from 'react';
+import { Pressable, Text, View, ViewStyle } from 'react-native';
 
 type DeckCardProps = {
   title: string;
@@ -74,7 +74,7 @@ export function DeckCard({
       onPress={onPress}
     >
       <View style={iconBox}>
-        <MaterialIcons name={icon as any} size={32} color={TEXT} />
+        <Text style={{ fontSize: 28 }}>{icon}</Text>
       </View>
 
       {variant === 'grid' ? (

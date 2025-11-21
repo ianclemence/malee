@@ -16,7 +16,7 @@ export const DEFAULT_DECKS: Deck[] = [
   {
     slug: "airport",
     title: "At the airport",
-    icon: "flight",
+    icon: "✈️",
     bg: BEIGE_BG,
     words: [
       { en: "Check-in counter", th: "เคาน์เตอร์เช็คอิน", example: "Please go to the check-in counter to drop your bags." },
@@ -36,7 +36,7 @@ export const DEFAULT_DECKS: Deck[] = [
   {
     slug: "job-interview",
     title: "Job interview",
-    icon: "work",
+    icon: "💼",
     bg: GRAY_BG,
     words: [
       { en: "Strengths", th: "จุดแข็ง" },
@@ -56,7 +56,7 @@ export const DEFAULT_DECKS: Deck[] = [
   {
     slug: "restaurant",
     title: "Restaurant ordering",
-    icon: "restaurant",
+    icon: "🍽️",
     bg: PURPLE_BG,
     words: [
       { en: "Menu", th: "เมนู" },
@@ -76,7 +76,7 @@ export const DEFAULT_DECKS: Deck[] = [
   {
     slug: "clothing",
     title: "Clothing",
-    icon: "checkroom",
+    icon: "👕",
     bg: GRAY_BG,
     words: [
       { en: "Size", th: "ขนาด" },
@@ -96,7 +96,7 @@ export const DEFAULT_DECKS: Deck[] = [
   {
     slug: "aviation",
     title: "Aviation",
-    icon: "flight-takeoff",
+    icon: "🛫",
     bg: GREEN_BG,
     words: [
       { en: "Pilot", th: "นักบิน" },

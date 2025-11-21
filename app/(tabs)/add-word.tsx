@@ -69,7 +69,7 @@ export default function AddWordScreen() {
         const newDeck: CustomDeck = {
           slug,
           title: name,
-          icon: "style", // Default icon
+          icon: "📚", // Default emoji
           bg: "#EFEFEF",
           createdAt: Date.now(),
           words: [],
