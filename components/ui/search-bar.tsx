@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, TextInput } from 'react-native';
+import { Palette, Radii, Shadows, Strokes } from '@/constants/theme';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { Palette, Radii, Strokes, Shadows } from '@/constants/theme';
+import React from 'react';
+import { TextInput, View } from 'react-native';
 
 type SearchBarProps = {
   value: string;
@@ -19,7 +19,7 @@ export function SearchBar({ value, onChangeText, placeholder }: SearchBarProps) 
         alignItems: 'center',
         height: 56,
         borderRadius: Radii.button,
-        backgroundColor: Palette.white,
+        backgroundColor: "#F5F5F5",
         paddingHorizontal: 16,
         marginBottom: 24,
         borderWidth: Strokes.regular,
