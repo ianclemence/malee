@@ -13,6 +13,7 @@ import {
   getSettings,
   getStreak,
   getTotalLearned,
+  resetProgress,
   saveSettings,
 } from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -143,7 +144,7 @@ export default function SettingsScreen() {
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
             <ThemedText style={styles.statValue}>{stats.words}</ThemedText>
-            <ThemedText style={styles.statLabel}>Words</ThemedText>
+            <ThemedText style={styles.statLabel}>Learned Words</ThemedText>
           </View>
           <View style={styles.statCard}>
             <Text style={styles.statValue}>{stats.time}</Text>
@@ -171,17 +172,17 @@ export default function SettingsScreen() {
                     styles.heatmapSquare,
                     isActive
                       ? {
-                          backgroundColor: ACCENT,
-                          borderWidth: Strokes.thin,
-                          borderColor: Palette.black,
-                        }
+                        backgroundColor: ACCENT,
+                        borderWidth: Strokes.thin,
+                        borderColor: Palette.black,
+                      }
                       : {
-                          backgroundColor: Palette.white,
-                          borderWidth: Strokes.thin,
-                          borderColor: Palette.black,
-                          opacity: 0.5,
-                          ...Shadows.brutalist,
-                        },
+                        backgroundColor: Palette.white,
+                        borderWidth: Strokes.thin,
+                        borderColor: Palette.black,
+                        opacity: 0.5,
+                        ...Shadows.brutalist,
+                      },
                   ]}
                 />
               );
@@ -313,8 +314,18 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        <Pressable style={styles.logoutBtn}>
-          <ThemedText style={styles.logoutText}>Log Out</ThemedText>
+        <Pressable
+          style={styles.logoutBtn}
+          onPress={async () => {
+            await resetProgress();
+            // Reload data to reflect changes (or just go back/reset state)
+            setStats({ words: 0, time: "0h", streak: 0 });
+            setHeatmap({});
+            // Optional: Navigate to a welcome screen or just show empty state
+            router.replace("/(tabs)");
+          }}
+        >
+          <ThemedText style={styles.logoutText}>Reset Progress</ThemedText>
         </Pressable>
 
         <ThemedText style={styles.versionText}>Version 1.0.0</ThemedText>

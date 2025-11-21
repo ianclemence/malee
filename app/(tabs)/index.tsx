@@ -1,6 +1,7 @@
 import { ProgressRing } from "@/components/progress-ring";
 import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui/button';
+import { DeckCard } from '@/components/ui/deck-card';
 import { FontSizes, Palette, Radii, Shadows, Strokes } from '@/constants/theme';
 import { DEFAULT_DECKS } from "@/data/decks";
 import { CurrentDeck, getAllDueCards, getCurrentDeck, getCustomDecks, getFavorites, getSettings, getTodayInteractions, setFavorite } from "@/lib/storage";
@@ -9,7 +10,6 @@ import { Image } from "expo-image";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { DeckCard } from '@/components/ui/deck-card';
 
 const ACCENT = Palette.primary;
 const BG = Palette.cream;
@@ -102,7 +102,7 @@ export default function HomeScreen() {
             <ProgressRing radius={50} stroke={8} progress={dailyProgress} color={ACCENT} trackColor={Palette.black} />
             <View style={styles.ringInner}>
               <Text style={styles.ringCount}>{todayCount}</Text>
-              <Text style={styles.ringLabel}>/ {dailyGoal} XP</Text>
+              <Text style={styles.ringLabel}>/ {dailyGoal} Daily XP</Text>
             </View>
           </View>
         </View>
@@ -301,5 +301,5 @@ const styles = StyleSheet.create({
     paddingRight: 16,
     gap: 16,
   },
-  
+
 });

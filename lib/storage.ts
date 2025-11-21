@@ -311,3 +311,26 @@ export async function getAllDueCards(allDeckSlugs: string[], deckSizes: { [slug:
   }
   return totalDue;
 }
+
+export async function resetProgress(): Promise<void> {
+  // 1. Clear Daily Interactions
+  await AsyncStorage.removeItem(DAILY_KEY);
+
+  // 2. Clear Current Deck (Resume state)
+  await AsyncStorage.removeItem(CURRENT_DECK_KEY);
+
+  // 3. Clear Custom Decks
+  await AsyncStorage.removeItem(CUSTOM_DECKS_KEY);
+
+  // 4. Clear Favorites/My Decks
+  await AsyncStorage.removeItem(MYDECKS_KEY);
+  await AsyncStorage.removeItem(FAVORITES_KEY);
+
+  // 5. Clear Deck Progress (This is harder because keys are dynamic)
+  // We need to find all keys starting with PROGRESS_PREFIX
+  const keys = await AsyncStorage.getAllKeys();
+  const progressKeys = keys.filter((k) => k.startsWith(PROGRESS_PREFIX));
+  if (progressKeys.length > 0) {
+    await AsyncStorage.multiRemove(progressKeys);
+  }
+}
