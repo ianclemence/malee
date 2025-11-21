@@ -24,8 +24,13 @@ import {
   setCurrentDeck,
 } from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { useAudioPlayer, useAudioRecorder } from "expo-audio";
-import { Audio as ExpoAV } from "expo-av";
+import {
+  AudioModule,
+  getRecordingPermissionsAsync,
+  requestRecordingPermissionsAsync,
+  useAudioPlayer,
+  useAudioRecorder,
+} from "expo-audio";
 import * as Haptics from "expo-haptics";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import * as Speech from "expo-speech";
@@ -140,7 +145,7 @@ export default function LearnScreen() {
     (async () => {
       // Configure Audio Session for Mobile (iOS/Android)
       try {
-        await ExpoAV.setAudioModeAsync({
+        await AudioModule.setAudioModeAsync({
           allowsRecordingIOS: true,
           playsInSilentModeIOS: true,
           staysActiveInBackground: false,
@@ -248,9 +253,9 @@ export default function LearnScreen() {
   async function startRecording() {
     try {
       // Request permissions first on mobile
-      const { granted } = await ExpoAV.getPermissionsAsync();
+      const { granted } = await getRecordingPermissionsAsync();
       if (!granted) {
-        const { granted: newGranted } = await ExpoAV.requestPermissionsAsync();
+        const { granted: newGranted } = await requestRecordingPermissionsAsync();
         if (!newGranted) {
           console.log("Microphone permission denied");
           return;
