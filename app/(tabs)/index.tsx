@@ -64,7 +64,10 @@ export default function HomeScreen() {
   }, []);
 
   const dailyProgress = Math.min(1, todayCount / dailyGoal);
-  const greeting = todayCount === 0 ? "Good Morning!" : (todayCount >= dailyGoal ? "Goal Reached!" : "Keep it up!");
+
+  const hour = new Date().getHours();
+  const timeGreeting = hour < 12 ? "Good Morning!" : hour < 18 ? "Good Afternoon!" : "Good Evening!";
+  const greeting = todayCount === 0 ? timeGreeting : (todayCount >= dailyGoal ? "Goal Reached!" : "Keep it up!");
 
   return (
     <ScrollView
