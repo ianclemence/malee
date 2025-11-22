@@ -295,8 +295,10 @@ export default function SettingsScreen() {
             <Switch
               value={settings.dailyReminders}
               onValueChange={() => toggleSetting("dailyReminders")}
-              trackColor={{ false: "#E0E0E0", true: ACCENT }}
+              trackColor={{ false: Palette.black, true: ACCENT }}
               thumbColor={Palette.white}
+              ios_backgroundColor={Palette.black}
+              style={{ borderRadius: 16, borderWidth: Strokes.thin, borderColor: Palette.black }}
             />
           </View>
           <View style={styles.settingRow}>
@@ -304,8 +306,10 @@ export default function SettingsScreen() {
             <Switch
               value={settings.soundEffects}
               onValueChange={() => toggleSetting("soundEffects")}
-              trackColor={{ false: "#E0E0E0", true: ACCENT }}
+              trackColor={{ false: Palette.black, true: ACCENT }}
               thumbColor={Palette.white}
+              ios_backgroundColor={Palette.black}
+              style={{ borderRadius: 16, borderWidth: Strokes.thin, borderColor: Palette.black }}
             />
           </View>
           <View style={styles.settingRow}>
