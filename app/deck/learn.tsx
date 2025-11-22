@@ -450,6 +450,7 @@ export default function LearnScreen() {
     setRecordedUri(null);
     setIsRecording(false);
     setIsPlaying(false);
+    setScore(null);
     scaleNext.value = withTiming(0.96);
 
     if (currentIndex < queue.length - 1) {
