@@ -133,4 +133,66 @@ export const FluentMeService = {
             return null;
         }
     },
+    async runDiagnostics(): Promise<string> {
+        const logs: string[] = [];
+        const log = (msg: string) => {
+            console.log(`[Diagnostics] ${msg}`);
+            logs.push(msg);
+        };
+
+        try {
+            log("Starting API Diagnostics...");
+
+            // 1. Test Auth
+            log("1. Testing Authentication...");
+            const token = await this.getToken();
+            if (!token) {
+                log("❌ Authentication Failed");
+                return logs.join("\n");
+            }
+            log("✅ Authentication Success");
+
+            // 2. Test Get Languages
+            log("2. Testing Get Languages...");
+            const langResponse = await fetch(`${BASE_URL}/language`, {
+                headers: { "x-access-token": token },
+            });
+            if (langResponse.ok) {
+                const langs = await langResponse.json();
+                log(`✅ Get Languages Success (Found ${langs.supported_languages?.length || 0} languages)`);
+            } else {
+                log(`❌ Get Languages Failed: ${langResponse.status}`);
+            }
+
+            // 3. Test Create Post
+            log("3. Testing Create Post...");
+            const testTitle = `Test Post ${Date.now()}`;
+            const testContent = "The AI generates a sound file based on the text you provided.";
+            const postId = await this.createPost(testTitle, testContent);
+
+            if (!postId) {
+                log("❌ Create Post Failed");
+                return logs.join("\n");
+            }
+            log(`✅ Create Post Success (ID: ${postId})`);
+
+            // 4. Test Score with SAMPLE URL
+            log("4. Testing Scoring with SAMPLE URL...");
+            const sampleAudioUrl = "https://malee-app.s3.ap-southeast-2.amazonaws.com/audio/recording_1763800328759.mp4";
+            const scoreResult = await this.scoreRecording(postId, sampleAudioUrl);
+
+            if (scoreResult) {
+                log(`✅ Scoring Success! Points: ${scoreResult.overall_points}`);
+            } else {
+                log("❌ Scoring Failed");
+            }
+
+            log("Diagnostics Complete.");
+            return logs.join("\n");
+
+        } catch (error) {
+            log(`❌ Diagnostics Error: ${error}`);
+            return logs.join("\n");
+        }
+    },
 };

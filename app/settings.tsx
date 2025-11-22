@@ -19,12 +19,14 @@ import {
   resetProgress,
   saveSettings,
 } from "@/lib/storage";
+import { FluentMeService } from "@/services/fluent-me";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
+  Alert,
   Modal,
   Pressable,
   ScrollView,
@@ -154,6 +156,12 @@ export default function SettingsScreen() {
     }
   };
 
+  const runDiagnostics = async () => {
+    Alert.alert("Running Diagnostics", "Please wait...");
+    const result = await FluentMeService.runDiagnostics();
+    Alert.alert("Diagnostics Result", result);
+  };
+
   return (
     <View style={styles.page}>
       <ScrollView contentContainerStyle={styles.container}>
@@ -277,73 +285,94 @@ export default function SettingsScreen() {
           </ScrollView>
         </View>
 
+        {/* Preferences */}
         <View style={styles.section}>
           <ThemedText type="subtitle" style={styles.sectionTitle}>
-            Study Settings
+            Preferences
           </ThemedText>
-          <View style={styles.card}>
-            {/* Daily Goal */}
-            <View style={styles.row}>
-              <View style={styles.rowIcon}>
-                <MaterialIcons name="flag" size={20} color={TEXT} />
-              </View>
-              <ThemedText style={styles.rowLabel}>Daily Goal</ThemedText>
-              <View style={styles.toggles}>
-                {[10, 20, 50].map((val) => (
-                  <Pressable
-                    key={val}
-                    style={[
-                      styles.toggleBtn,
-                      settings.dailyGoal === val && styles.toggleBtnActive,
-                    ]}
-                    onPress={() => updateSetting("dailyGoal", val)}
-                  >
-                    <ThemedText
-                      style={[
-                        styles.toggleText,
-                        settings.dailyGoal === val && styles.toggleTextActive,
-                      ]}
-                    >
-                      {val}
-                    </ThemedText>
-                  </Pressable>
-                ))}
-              </View>
-            </View>
-            <View style={styles.divider} />
-
-            {/* Daily Reminders */}
-            <View style={styles.row}>
-              <View style={styles.rowIcon}>
-                <MaterialIcons name="notifications" size={20} color={TEXT} />
-              </View>
-              <ThemedText style={styles.rowLabel}>Daily Reminders</ThemedText>
-              <Switch
-                value={settings.dailyReminders}
-                onValueChange={() => toggleSetting("dailyReminders")}
-                trackColor={{ false: "#E0E0E0", true: ACCENT }}
-                thumbColor={TEXT}
-              />
-            </View>
-            <View style={styles.divider} />
-
-            {/* Sound Effects */}
-            <Pressable
-              style={styles.row}
-              onPress={() => toggleSetting("soundEffects")}
-            >
-              <View style={styles.rowIcon}>
-                <MaterialIcons name="volume-up" size={20} color={TEXT} />
-              </View>
-              <ThemedText style={styles.rowLabel}>Sound Effects</ThemedText>
-              <Switch
-                value={settings.soundEffects}
-                onValueChange={() => toggleSetting("soundEffects")}
-                trackColor={{ false: "#E0E0E0", true: ACCENT }}
-                thumbColor={TEXT}
-              />
-            </Pressable>
+          <View style={styles.settingRow}>
+            <ThemedText style={styles.settingLabel}>Daily Reminders</ThemedText>
+            <Switch
+              value={settings.dailyReminders}
+              onValueChange={() => toggleSetting("dailyReminders")}
+              trackColor={{ false: "#E0E0E0", true: ACCENT }}
+              thumbColor={Palette.white}
+            />
           </View>
+          <View style={styles.settingRow}>
+            <ThemedText style={styles.settingLabel}>Sound Effects</ThemedText>
+            <Switch
+              value={settings.soundEffects}
+              onValueChange={() => toggleSetting("soundEffects")}
+              trackColor={{ false: "#E0E0E0", true: ACCENT }}
+              thumbColor={Palette.white}
+            />
+          </View>
+          <View style={styles.settingRow}>
+            <ThemedText style={styles.settingLabel}>Daily Goal</ThemedText>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+              <Pressable
+                onPress={() =>
+                  updateSetting("dailyGoal", Math.max(10, settings.dailyGoal - 10))
+                }
+                style={styles.iconButton}
+              >
+                <MaterialIcons name="remove" size={20} color={TEXT} />
+              </Pressable>
+              <Text style={{ fontSize: 16, fontWeight: "600", color: TEXT, width: 30, textAlign: "center" }}>
+                {settings.dailyGoal}
+              </Text>
+              <Pressable
+                onPress={() =>
+                  updateSetting("dailyGoal", Math.min(100, settings.dailyGoal + 10))
+                }
+                style={styles.iconButton}
+              >
+                <MaterialIcons name="add" size={20} color={TEXT} />
+              </Pressable>
+            </View>
+          </View>
+        </View>
+
+        {/* Diagnostics */}
+        <View style={styles.section}>
+          <ThemedText type="subtitle" style={styles.sectionTitle}>
+            Diagnostics
+          </ThemedText>
+          <Pressable onPress={runDiagnostics} style={styles.dangerButton}>
+            <MaterialIcons name="bug-report" size={20} color={Palette.white} />
+            <Text style={styles.dangerButtonText}>Run API Diagnostics</Text>
+          </Pressable>
+        </View>
+
+        {/* Danger Zone */}
+        <View style={styles.section}>
+          <ThemedText type="subtitle" style={styles.sectionTitle}>
+            Danger Zone
+          </ThemedText>
+          <Pressable
+            onPress={() => {
+              Alert.alert(
+                "Reset Progress",
+                "Are you sure you want to reset all progress? This cannot be undone.",
+                [
+                  { text: "Cancel", style: "cancel" },
+                  {
+                    text: "Reset",
+                    style: "destructive",
+                    onPress: async () => {
+                      await resetProgress();
+                      await loadData();
+                    },
+                  },
+                ]
+              );
+            }}
+            style={[styles.dangerButton, { backgroundColor: Palette.error }]}
+          >
+            <MaterialIcons name="delete-forever" size={20} color={Palette.white} />
+            <Text style={styles.dangerButtonText}>Reset Progress</Text>
+          </Pressable>
         </View>
 
         <View style={styles.section}>
@@ -365,66 +394,49 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        <Pressable
-          style={styles.logoutBtn}
-          onPress={async () => {
-            bottomSheet.hide();
-            await resetProgress();
-            // Reload data to reflect changes (or just go back/reset state)
-            setStats({ words: 0, time: "0h", streak: 0 });
-            setHeatmap({});
-            // Optional: Navigate to a welcome screen or just show empty state
-            router.replace("/(tabs)");
-          }}
-        >
-          <ThemedText style={styles.logoutText}>Reset Progress</ThemedText>
-        </Pressable>
-
         <ThemedText style={styles.versionText}>Version 1.0.0</ThemedText>
-      </ScrollView >
+      </ScrollView>
 
       {/* Name Edit Modal */}
-      < Modal
+      <Modal
         visible={isEditingName}
         transparent
         animationType="fade"
-        onRequestClose={() => setIsEditingName(false)
-        }
+        onRequestClose={() => setIsEditingName(false)}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <ThemedText type="subtitle" style={styles.modalTitle}>
+            <ThemedText type="subtitle" style={{ marginBottom: 16 }}>
               Edit Name
             </ThemedText>
             <TextInput
-              style={styles.input}
               value={newName}
               onChangeText={setNewName}
+              style={styles.input}
               placeholder="Enter your name"
-              placeholderTextColor="#999"
               autoFocus
             />
-            <View style={styles.modalButtons}>
+            <View style={styles.modalActions}>
               <Pressable
-                style={[styles.modalBtn, styles.cancelBtn]}
                 onPress={() => setIsEditingName(false)}
+                style={[styles.modalButton, { backgroundColor: "#E0E0E0" }]}
               >
-                <Text style={styles.cancelBtnText}>Cancel</Text>
+                <Text style={{ color: TEXT, fontWeight: "600" }}>Cancel</Text>
               </Pressable>
               <Pressable
-                style={[styles.modalBtn, styles.saveBtn]}
-                onPress={() => {
-                  updateSetting("name", newName);
+                onPress={async () => {
+                  await updateSetting("name", newName);
                   setIsEditingName(false);
                 }}
+                style={[styles.modalButton, { backgroundColor: ACCENT }]}
               >
-                <Text style={styles.saveBtnText}>Save</Text>
+                <Text style={{ color: Palette.white, fontWeight: "600" }}>Save</Text>
               </Pressable>
             </View>
           </View>
         </View>
-      </Modal >
-    </View >
+      </Modal>
+    </View>
   );
 }
 
@@ -542,54 +554,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderWidth: Strokes.thin,
     borderColor: Palette.black,
-    ...Shadows.brutalist,
   },
   rowLabel: {
     flex: 1,
     fontSize: FontSizes.body,
     color: TEXT,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Inter_500Medium",
   },
   rowValue: {
     fontSize: FontSizes.body,
     color: ACCENT,
-    backgroundColor: Palette.black,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: Radii.button,
-    overflow: "hidden",
-    borderWidth: Strokes.thin,
-    borderColor: Palette.black,
-    ...Shadows.brutalist,
-  },
-  divider: {
-    height: Strokes.thin,
-    backgroundColor: Palette.black,
-    alignSelf: "stretch",
-    marginLeft: 0,
-  },
-  logoutBtn: {
-    height: 56,
-    borderRadius: Radii.button,
-    borderWidth: Strokes.regular,
-    borderColor: Palette.error,
-    backgroundColor: Palette.error,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 24,
-    ...Shadows.brutalist,
-  },
-  logoutText: {
-    color: "#FFFFFF",
-    fontFamily: "Inter_700Bold",
-    fontSize: FontSizes.button,
-  },
-  versionText: {
-    textAlign: "center",
-    color: TEXT,
-    opacity: 0.3,
-    fontSize: FontSizes.small,
-    fontFamily: "Inter_500Medium",
+    fontFamily: "Inter_600SemiBold",
   },
   heatmapContainer: {
     flexDirection: "row",
@@ -602,130 +577,136 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   badgesRow: {
-    gap: 12,
     paddingRight: 16,
+    gap: 16,
   },
   badgeCard: {
     width: 100,
-    height: 120,
     backgroundColor: Palette.white,
     borderRadius: Radii.card,
-    alignItems: "center",
-    justifyContent: "center",
     padding: 12,
-    gap: 12,
+    alignItems: "center",
     borderWidth: Strokes.thin,
     borderColor: Palette.black,
     ...Shadows.brutalist,
   },
   badgeLocked: {
     opacity: 0.5,
+    backgroundColor: "#F5F5F5",
   },
   badgeIcon: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: Palette.white,
+    backgroundColor: "#E0E0E0",
     alignItems: "center",
     justifyContent: "center",
+    marginBottom: 8,
     borderWidth: Strokes.thin,
     borderColor: Palette.black,
-    ...Shadows.brutalist,
   },
   badgeTitle: {
-    fontSize: FontSizes.small,
-    color: TEXT,
+    fontSize: 12,
     textAlign: "center",
-    fontFamily: "Inter_700Bold",
+    color: TEXT,
+    fontFamily: "Inter_500Medium",
   },
-  toggles: {
+  settingRow: {
     flexDirection: "row",
-    gap: 8,
-  },
-  toggleBtn: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: Radii.button,
-    backgroundColor: Palette.white,
     alignItems: "center",
-    justifyContent: "center",
-    minWidth: 40,
+    justifyContent: "space-between",
+    backgroundColor: Palette.white,
+    padding: 16,
+    borderRadius: Radii.card,
+    marginBottom: 12,
     borderWidth: Strokes.thin,
     borderColor: Palette.black,
     ...Shadows.brutalist,
   },
-  toggleBtnActive: {
-    backgroundColor: TEXT,
-  },
-  toggleText: {
+  settingLabel: {
     fontSize: FontSizes.body,
     color: TEXT,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Inter_500Medium",
   },
-  toggleTextActive: {
-    color: ACCENT,
+  iconButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "#F5F5F5",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+  },
+  dangerButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: ACCENT,
+    padding: 16,
+    borderRadius: Radii.card,
+    gap: 8,
+    borderWidth: Strokes.thin,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
+  },
+  dangerButtonText: {
+    color: Palette.white,
+    fontSize: FontSizes.body,
+    fontWeight: "600",
+    fontFamily: "Inter_600SemiBold",
+  },
+  logoutBtn: {
+    marginTop: 24,
+    alignItems: "center",
+    padding: 16,
+  },
+  logoutText: {
+    color: Palette.error,
+    fontSize: FontSizes.body,
+    fontWeight: "600",
+    fontFamily: "Inter_600SemiBold",
+  },
+  versionText: {
+    textAlign: "center",
+    color: "#999",
+    fontSize: 12,
+    marginTop: 32,
+    fontFamily: "Inter_400Regular",
   },
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
+    padding: 16,
   },
   modalContent: {
-    width: "100%",
-    maxWidth: 320,
     backgroundColor: Palette.white,
     borderRadius: Radii.card,
-    padding: 20,
+    padding: 24,
     borderWidth: Strokes.regular,
     borderColor: Palette.black,
     ...Shadows.brutalist,
   },
-  modalTitle: {
-    marginBottom: 20,
-    textAlign: "center",
-    color: TEXT,
-    fontFamily: "PlayfairDisplay_600SemiBold",
-  },
   input: {
-    width: "100%",
-    height: 48,
     borderWidth: Strokes.thin,
     borderColor: Palette.black,
     borderRadius: Radii.button,
-    paddingHorizontal: 16,
-    fontSize: FontSizes.body,
-    fontFamily: "Inter_500Medium",
-    marginBottom: 20,
-    backgroundColor: "#F5F5F5",
+    padding: 12,
+    fontSize: 16,
+    marginBottom: 24,
+    fontFamily: "Inter_400Regular",
   },
-  modalButtons: {
+  modalActions: {
     flexDirection: "row",
     gap: 12,
   },
-  modalBtn: {
+  modalButton: {
     flex: 1,
-    height: 44,
+    padding: 12,
     borderRadius: Radii.button,
     alignItems: "center",
-    justifyContent: "center",
     borderWidth: Strokes.thin,
     borderColor: Palette.black,
-    ...Shadows.brutalist,
-  },
-  cancelBtn: {
-    backgroundColor: Palette.white,
-  },
-  saveBtn: {
-    backgroundColor: ACCENT,
-  },
-  cancelBtnText: {
-    fontFamily: "Inter_700Bold",
-    color: TEXT,
-  },
-  saveBtnText: {
-    fontFamily: "Inter_700Bold",
-    color: TEXT,
   },
 });
