@@ -24,14 +24,9 @@ import {
   saveWordStats,
   setCurrentDeck,
 } from "@/lib/storage";
+import { FluentMeService, ScoreResult } from "@/services/fluent-me";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import {
-  AudioModule,
-  getRecordingPermissionsAsync,
-  requestRecordingPermissionsAsync,
-  useAudioPlayer,
-  useAudioRecorder,
-} from "expo-audio";
+import { AudioModule } from "expo-audio";
 import * as Haptics from "expo-haptics";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import * as Speech from "expo-speech";
@@ -40,19 +35,27 @@ import {
   ActivityIndicator,
   Alert,
   AppState,
+  PermissionsAndroid,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
-  View
+  View,
 } from "react-native";
+import AudioRecorderPlayer, {
+  AudioEncoderAndroidType,
+  AudioSourceAndroidType,
+  AVEncoderAudioQualityIOSType,
+  OutputFormatAndroidType
+} from "react-native-audio-recorder-player";
+import RNFS from "react-native-fs";
 import Animated, {
   interpolate,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-
 
 const ACCENT = Palette.primary;
 const TEXT = Palette.black;
@@ -95,25 +98,13 @@ export default function LearnScreen() {
   const [todayCount, setTodayCount] = useState(0);
   const [started, setStarted] = useState(false);
 
+  const [score, setScore] = useState<ScoreResult | null>(null);
+  const [isScoring, setIsScoring] = useState(false);
+
   // Audio Recording State
-  const recorder = useAudioRecorder({
-    extension: "m4a",
-    numberOfChannels: 1,
-    sampleRate: 44100,
-    bitRate: 128000,
-    android: {
-      extension: "m4a",
-      outputFormat: "mpeg4" as any,
-      audioEncoder: "aac" as any,
-    },
-    ios: {
-      extension: "m4a",
-      outputFormat: "mpeg4AAC",
-      audioQuality: 127,
-    },
-  });
+  // AudioRecorderPlayer is a singleton instance, so we use it directly or via ref without 'new'
+  const audioRecorderPlayer = useRef(AudioRecorderPlayer).current;
   const [recordedUri, setRecordedUri] = useState<string | null>(null);
-  const player = useAudioPlayer(recordedUri);
   const [isRecording, setIsRecording] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -319,28 +310,54 @@ export default function LearnScreen() {
   async function startRecording() {
     try {
       console.log("Requesting permissions..");
-      // Request permissions first on mobile
-      const { granted } = await getRecordingPermissionsAsync();
-      if (!granted) {
-        const { granted: newGranted } = await requestRecordingPermissionsAsync();
-        if (!newGranted) {
-          Alert.alert("Permission Denied", "Microphone permission is required.");
+      if (Platform.OS === "android") {
+        const grants = await PermissionsAndroid.requestMultiple([
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+          PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+        ]);
+
+        if (
+          grants["android.permission.WRITE_EXTERNAL_STORAGE"] ===
+          PermissionsAndroid.RESULTS.GRANTED &&
+          grants["android.permission.READ_EXTERNAL_STORAGE"] ===
+          PermissionsAndroid.RESULTS.GRANTED &&
+          grants["android.permission.RECORD_AUDIO"] ===
+          PermissionsAndroid.RESULTS.GRANTED
+        ) {
+          console.log("Permissions granted");
+        } else {
+          console.log("All required permissions not granted");
+          Alert.alert("Permission Denied", "Microphone and Storage permissions are required.");
           return;
         }
       }
 
-      console.log("Checking recorder status:", recorder.isRecording);
-      if (recorder.isRecording) {
-        console.log("Stopping recording...");
-        await recorder.stop();
-        setIsRecording(false);
-      } else {
-        console.log("Starting recording...");
-        await recorder.record();
-        setIsRecording(true);
-      }
+      const dirs = Platform.OS === 'ios' ? RNFS.DocumentDirectoryPath : RNFS.CachesDirectoryPath;
+      const path = Platform.select({
+        ios: `${dirs}/recording_${Date.now()}.m4a`,
+        android: `${dirs}/recording_${Date.now()}.mp4`,
+      });
+
+      const audioSet = {
+        AudioEncoderAndroid: AudioEncoderAndroidType.AAC,
+        AudioSourceAndroid: AudioSourceAndroidType.MIC,
+        AVModeIOS: AVModeIOSOption.measurement,
+        AVEncoderAudioQualityKeyIOS: AVEncoderAudioQualityIOSType.high,
+        AVFormatIDKeyIOS: AVEncodingOption.aac,
+        OutputFormatAndroid: OutputFormatAndroidType.MPEG_4,
+      };
+
+      console.log("Starting recording at path:", path);
+      const result = await audioRecorderPlayer.startRecorder(path, audioSet);
+      audioRecorderPlayer.addRecordBackListener((e) => {
+        // console.log('Recording . . . ', e.currentPosition);
+        return;
+      });
+      console.log("Recording started:", result);
+      setIsRecording(true);
     } catch (err) {
-      console.error("Failed to toggle recording", err);
+      console.error("Failed to start recording", err);
       Alert.alert("Recording Error", String(err));
       setIsRecording(false);
     }
@@ -349,39 +366,73 @@ export default function LearnScreen() {
   async function stopRecording() {
     console.log("Stopping recording...");
     try {
-      if (recorder.isRecording) {
-        await recorder.stop();
+      const result = await audioRecorderPlayer.stopRecorder();
+      audioRecorderPlayer.removeRecordBackListener();
+      setIsRecording(false);
+      console.log("Recording stopped. File saved at:", result);
+
+      // Verify file exists
+      const exists = await RNFS.exists(result);
+      console.log("File exists check:", exists);
+
+      if (result) {
+        setRecordedUri(result);
+
+        // Start Scoring
+        setIsScoring(true);
+        setScore(null);
+
+        const postId = await FluentMeService.createPost(
+          `Practice: ${activeCard.front.substring(0, 20)}`,
+          activeCard.front
+        );
+
+        if (postId) {
+          console.log("Created Post ID:", postId);
+          const resultUri = Platform.OS === 'android' ? result : result; // Ensure correct format
+          const scoreResult = await FluentMeService.scoreRecording(postId, resultUri);
+          if (scoreResult) {
+            console.log("Scoring Result:", scoreResult);
+            setScore(scoreResult);
+          } else {
+            Alert.alert("Scoring Failed", "Could not get a score from the API.");
+          }
+        } else {
+          Alert.alert("Error", "Failed to initialize scoring session.");
+        }
+        setIsScoring(false);
       }
     } catch (e) {
       console.error("Error stopping recording:", e);
       Alert.alert("Error", "Failed to stop recording cleanly.");
-    } finally {
       setIsRecording(false);
-      // Small delay to ensure URI is populated if needed, though usually it's immediate after stop
-      setTimeout(() => {
-        console.log("Recording URI:", recorder.uri);
-        if (recorder.uri) {
-          setRecordedUri(recorder.uri);
-        }
-      }, 100);
     }
   }
 
   async function playRecording() {
     console.log("Attempting to play recording. URI:", recordedUri);
-    if (player && !player.playing) {
+    if (isPlaying) {
+      console.log("Stopping playback...");
+      await audioRecorderPlayer.stopPlayer();
+      audioRecorderPlayer.removePlayBackListener();
+      setIsPlaying(false);
+      return;
+    }
+
+    if (recordedUri) {
       console.log("Playing...");
       setIsPlaying(true);
-      player.play();
-      // Reset playing state after duration (approximate or listen to event if available)
-      // For now, just toggle visually
-      setTimeout(() => setIsPlaying(false), (player.duration || 1) * 1000);
-    } else if (player) {
-      console.log("Pausing...");
-      player.pause();
-      setIsPlaying(false);
+      await audioRecorderPlayer.startPlayer(recordedUri);
+      audioRecorderPlayer.addPlayBackListener((e) => {
+        if (e.currentPosition === e.duration) {
+          console.log("Playback finished");
+          audioRecorderPlayer.stopPlayer();
+          audioRecorderPlayer.removePlayBackListener();
+          setIsPlaying(false);
+        }
+      });
     } else {
-      console.log("Player not ready or no URI");
+      console.log("No URI to play");
     }
   }
 
@@ -641,6 +692,38 @@ export default function LearnScreen() {
                   }}
                 />
               </View>
+              {/* Scoring Display */}
+              {isScoring && (
+                <View style={{ marginTop: 20, alignItems: "center" }}>
+                  <ActivityIndicator color={ACCENT} />
+                  <ThemedText style={{ marginTop: 8, fontSize: 14, opacity: 0.7 }}>
+                    Analyzing pronunciation...
+                  </ThemedText>
+                </View>
+              )}
+
+              {score && !isScoring && (
+                <View style={{ marginTop: 20, alignItems: "center" }}>
+                  <ThemedText type="subtitle" style={{ color: score.overall_points >= 80 ? Palette.success : Palette.primary }}>
+                    Score: {Math.round(score.overall_points)}%
+                  </ThemedText>
+                  {score.word_result_data && (
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8, marginTop: 8 }}>
+                      {score.word_result_data.map((w, i) => (
+                        <View key={i} style={{ alignItems: 'center' }}>
+                          <ThemedText style={{
+                            color: w.points >= 80 ? Palette.success : w.points >= 50 ? Palette.primary : Palette.error,
+                            fontWeight: 'bold'
+                          }}>
+                            {w.word}
+                          </ThemedText>
+                          <ThemedText style={{ fontSize: 10, opacity: 0.6 }}>{Math.round(w.points)}%</ThemedText>
+                        </View>
+                      ))}
+                    </View>
+                  )}
+                </View>
+              )}
             </Animated.View>
 
             {/* Back Face */}
