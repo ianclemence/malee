@@ -38,6 +38,7 @@ import * as Speech from "expo-speech";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   AppState,
   Pressable,
   ScrollView,
@@ -51,6 +52,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+
 
 const ACCENT = Palette.primary;
 const TEXT = Palette.black;
@@ -306,7 +308,11 @@ export default function LearnScreen() {
   async function speak(text: string) {
     console.log("Attempting to speak:", text, "Sound effects enabled:", settings.soundEffects);
     if (settings.soundEffects) {
-      Speech.speak(text, { language: "en" });
+      try {
+        Speech.speak(text, { language: "en" });
+      } catch (e) {
+        Alert.alert("TTS Error", String(e));
+      }
     }
   }
 
@@ -318,7 +324,7 @@ export default function LearnScreen() {
       if (!granted) {
         const { granted: newGranted } = await requestRecordingPermissionsAsync();
         if (!newGranted) {
-          console.log("Microphone permission denied");
+          Alert.alert("Permission Denied", "Microphone permission is required.");
           return;
         }
       }
@@ -335,6 +341,7 @@ export default function LearnScreen() {
       }
     } catch (err) {
       console.error("Failed to toggle recording", err);
+      Alert.alert("Recording Error", String(err));
       setIsRecording(false);
     }
   }
@@ -587,6 +594,7 @@ export default function LearnScreen() {
             {/* Front Face */}
             <Animated.View
               style={[styles.cardFace, styles.cardFaceFront, frontFaceStyle]}
+              pointerEvents={flipped ? "none" : "auto"}
             >
               <ThemedText
                 type="phrase"
@@ -603,7 +611,6 @@ export default function LearnScreen() {
                 <IconButton
                   icon="volume-up"
                   size={64}
-                  disabled={!started}
                   onPress={() => speak(activeCard.front)}
                 />
                 <IconButton
@@ -617,7 +624,6 @@ export default function LearnScreen() {
                         : "mic"
                   }
                   size={64}
-                  disabled={!started}
                   variant={isRecording ? "danger" : "default"}
                   iconColor={isRecording ? "#FFFFFF" : TEXT}
                   onPress={() => {
@@ -632,6 +638,7 @@ export default function LearnScreen() {
             {/* Back Face */}
             <Animated.View
               style={[styles.cardFace, styles.cardFaceBack, backFaceStyle]}
+              pointerEvents={flipped ? "auto" : "none"}
             >
               <View style={styles.backContent}>
                 <ThemedText
