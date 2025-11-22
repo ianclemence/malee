@@ -37,7 +37,7 @@ export const uploadAudioToS3 = async (fileUri: string): Promise<string | null> =
 
         // Read file as base64 using expo-file-system
         const fileContent = await FileSystem.readAsStringAsync(fileUri, {
-            encoding: FileSystem.EncodingType.Base64
+            encoding: 'base64'
         });
         const buffer = Buffer.from(fileContent, "base64");
 

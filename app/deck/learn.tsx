@@ -25,10 +25,13 @@ import {
   setCurrentDeck,
 } from "@/lib/storage";
 import { FluentMeService, ScoreResult } from "@/services/fluent-me";
-import { uploadAudioToS3 } from "@/services/s3";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import {
-  AudioModule
+  AudioModule,
+  AudioQuality,
+  IOSOutputFormat,
+  useAudioRecorder,
+  useAudioRecorderState
 } from 'expo-audio';
 import * as Haptics from "expo-haptics";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
@@ -357,13 +360,14 @@ export default function LearnScreen() {
         if (postId) {
           console.log("Created Post ID:", postId);
 
-          // Upload to S3
+          // Upload to S3 (API requires a public URL, not a local file)
           console.log("Uploading to S3...");
           const publicUrl = await uploadAudioToS3(recordingUri);
 
           if (publicUrl) {
             console.log("S3 Upload Success:", publicUrl);
             const scoreResult = await FluentMeService.scoreRecording(postId, publicUrl);
+
             if (scoreResult) {
               console.log("Scoring Result:", scoreResult);
               setScore(scoreResult);
@@ -373,7 +377,6 @@ export default function LearnScreen() {
           } else {
             Alert.alert("Upload Failed", "Could not upload audio to S3.");
           }
-
         } else {
           Alert.alert("Error", "Failed to initialize scoring session.");
         }
