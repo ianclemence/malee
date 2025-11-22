@@ -658,7 +658,7 @@ export default function LearnScreen() {
               {/* Scoring Display - At very top */}
               {isScoring && (
                 <View style={{ position: 'absolute', top: 80, left: 0, right: 0, alignItems: "center", zIndex: 10 }}>
-                  <ActivityIndicator size="large" color={ACCENT} />
+                  <ActivityIndicator size="large" color="#000000" />
                   <ThemedText style={{ marginTop: 8, fontSize: 14, opacity: 0.7 }}>
                     Analyzing pronunciation...
                   </ThemedText>
