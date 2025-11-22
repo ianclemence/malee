@@ -57,7 +57,7 @@ export default function DeckScreen() {
 
   const speak = (text: string) => {
     if (settings.soundEffects) {
-      Speech.speak(text, { language: "en" });
+      Speech.speak(text, { language: "en", rate: 0.75 });
     }
   };
 
