@@ -47,7 +47,7 @@ import AudioRecorderPlayer, {
   AudioEncoderAndroidType,
   AudioSourceAndroidType,
   AVEncoderAudioQualityIOSType,
-  OutputFormatAndroidType
+  OutputFormatAndroidType,
 } from "react-native-audio-recorder-player";
 import RNFS from "react-native-fs";
 import Animated, {
@@ -79,6 +79,8 @@ export default function LearnScreen() {
     soundEffects: true,
     dailyGoal: 50,
     textSize: 1,
+    name: "User",
+    avatarUri: null,
   });
 
   // Queue management
@@ -163,9 +165,7 @@ export default function LearnScreen() {
         const customDecks = await getCustomDecks();
         d = customDecks.find((cd) => cd.slug === slug);
       }
-      setDeck(d);
-
-      if (!d) {
+      setDeck(d); if (!d) {
         setLoading(false);
         return;
       }
@@ -317,18 +317,16 @@ export default function LearnScreen() {
           PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
         ]);
 
+        console.log("Permissions grants:", grants);
+
         if (
-          grants["android.permission.WRITE_EXTERNAL_STORAGE"] ===
-          PermissionsAndroid.RESULTS.GRANTED &&
-          grants["android.permission.READ_EXTERNAL_STORAGE"] ===
-          PermissionsAndroid.RESULTS.GRANTED &&
           grants["android.permission.RECORD_AUDIO"] ===
           PermissionsAndroid.RESULTS.GRANTED
         ) {
           console.log("Permissions granted");
         } else {
           console.log("All required permissions not granted");
-          Alert.alert("Permission Denied", "Microphone and Storage permissions are required.");
+          Alert.alert("Permission Denied", "Microphone permission is required.");
           return;
         }
       }
@@ -342,15 +340,15 @@ export default function LearnScreen() {
       const audioSet = {
         AudioEncoderAndroid: AudioEncoderAndroidType.AAC,
         AudioSourceAndroid: AudioSourceAndroidType.MIC,
-        AVModeIOS: AVModeIOSOption.measurement,
+        AVModeIOS: 'measurement',
         AVEncoderAudioQualityKeyIOS: AVEncoderAudioQualityIOSType.high,
-        AVFormatIDKeyIOS: AVEncodingOption.aac,
+        AVFormatIDKeyIOS: 'aac',
         OutputFormatAndroid: OutputFormatAndroidType.MPEG_4,
       };
 
       console.log("Starting recording at path:", path);
       const result = await audioRecorderPlayer.startRecorder(path, audioSet);
-      audioRecorderPlayer.addRecordBackListener((e) => {
+      audioRecorderPlayer.addRecordBackListener((e: any) => {
         // console.log('Recording . . . ', e.currentPosition);
         return;
       });
@@ -423,7 +421,7 @@ export default function LearnScreen() {
       console.log("Playing...");
       setIsPlaying(true);
       await audioRecorderPlayer.startPlayer(recordedUri);
-      audioRecorderPlayer.addPlayBackListener((e) => {
+      audioRecorderPlayer.addPlayBackListener((e: any) => {
         if (e.currentPosition === e.duration) {
           console.log("Playback finished");
           audioRecorderPlayer.stopPlayer();
