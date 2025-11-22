@@ -203,8 +203,9 @@ export const FluentMeService = {
             }
 
             // 5. Test Score with SAMPLE URL
-            log("5. Testing Scoring with SAMPLE URL...");
-            const sampleAudioUrl = "https://malee-app.s3.ap-southeast-2.amazonaws.com/audio/recording_1763800328759.mp4";
+            log("5. Testing Scoring with S3 WAV file...");
+            // Use the latest uploaded WAV file from S3
+            const sampleAudioUrl = "https://malee-app.s3.ap-southeast-2.amazonaws.com/audio/recording_1763806466751.wav";
 
             const scoreResponse = await fetch(`${BASE_URL}/score/${postId}`, {
                 method: "POST",
