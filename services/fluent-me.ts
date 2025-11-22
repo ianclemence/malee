@@ -1,13 +1,10 @@
-import { Platform } from "react-native";
 
 const BASE_URL = "https://thefluent.me/api/swagger";
 const API_KEY = "20251122033453-fQaj7AdeKhp-55433";
 
-// TODO: Store these securely (e.g., in secure storage)
 const USERNAME = "ianclemence";
 const PASSWORD = "Cupid4881.";
 
-// Token cache
 let cachedToken: string | null = null;
 let tokenExpiry: number = 0;
 
@@ -20,23 +17,17 @@ export interface ScoreResult {
     }[];
 }
 
-// Helper to create Basic Auth header
 function createBasicAuthHeader(username: string, password: string): string {
-    const credentials = `${username}:${password}`;
-    const encoded = btoa(credentials);
-    return `Basic ${encoded}`;
+    return `Basic ${btoa(`${username}:${password}`)}`;
 }
 
 export const FluentMeService = {
     async getToken(): Promise<string | null> {
-        //Return cached token if still valid (with 5 min buffer)
-        if (cachedToken && Date.now() < tokenExpiry - 5 * 60 * 1000) {
-            console.log("FluentMe: Using cached token");
+        if (cachedToken && Date.now() < tokenExpiry - 300000) {
             return cachedToken;
         }
 
         try {
-            console.log("FluentMe: Requesting new token...");
             const response = await fetch(`${BASE_URL}/login`, {
                 method: "GET",
                 headers: {
@@ -46,25 +37,17 @@ export const FluentMeService = {
                 },
             });
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error("FluentMe: Failed to login", errorText);
-                return null;
-            }
+            if (!response.ok) return null;
 
             const data = await response.json();
-            console.log("FluentMe: Login successful, token received");
-
             if (data.token) {
                 cachedToken = data.token;
-                // Token valid for 1 hour per docs
-                tokenExpiry = Date.now() + 60 * 60 * 1000;
+                tokenExpiry = Date.now() + 3600000;
                 return data.token;
             }
-
             return null;
         } catch (error) {
-            console.error("FluentMe: Error during login", error);
+            console.error("FluentMe: Login error", error);
             return null;
         }
     },
@@ -76,16 +59,7 @@ export const FluentMeService = {
     ): Promise<string | null> {
         try {
             const token = await this.getToken();
-            if (!token) {
-                console.error("FluentMe: No valid token available");
-                return null;
-            }
-
-            console.log("FluentMe: Creating post with:", {
-                title,
-                content: content.substring(0, 50),
-                languageId: String(languageId),
-            });
+            if (!token) return null;
 
             const response = await fetch(`${BASE_URL}/post`, {
                 method: "POST",
@@ -100,22 +74,12 @@ export const FluentMeService = {
                 }),
             });
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error("FluentMe: Failed to create post", errorText);
-                return null;
-            }
+            if (!response.ok) return null;
 
             const data = await response.json();
-            console.log("FluentMe: Create post response:", data);
-
-            if (data.post_id) {
-                return data.post_id;
-            }
-
-            return null;
+            return data.post_id || null;
         } catch (error) {
-            console.error("FluentMe: Error creating post", error);
+            console.error("FluentMe: Create post error", error);
             return null;
         }
     },
@@ -126,24 +90,23 @@ export const FluentMeService = {
     ): Promise<ScoreResult | null> {
         try {
             const token = await this.getToken();
-            if (!token) {
-                console.error("FluentMe: No valid token available");
-                return null;
-            }
+            if (!token) return null;
 
             const formData = new FormData();
 
-            const filename = audioUri.split("/").pop() || "recording.wav";
-            const type = "audio/wav";
+            // Extract filename
+            const filename = audioUri.split("/").pop() || "recording.mp4";
 
-            formData.append("user_audio_file", {
-                uri:
-                    Platform.OS === "android"
-                        ? audioUri
-                        : audioUri.replace("file://", ""),
+            // Create file object - KEEP file:// prefix as per React Native guide!
+            const file = {
+                uri: audioUri, // Keep file:// prefix
+                type: "audio/mp4",
                 name: filename,
-                type: type,
-            } as any);
+            };
+
+            console.log("FluentMe: Uploading audio file:", file);
+
+            formData.append("user_audio_file", file as any);
 
             const response = await fetch(`${BASE_URL}/score/${postId}`, {
                 method: "POST",
@@ -153,30 +116,21 @@ export const FluentMeService = {
                 body: formData,
             });
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error("FluentMe: Failed to score recording", errorText);
-                return null;
-            }
 
             const data = await response.json();
-            console.log("FluentMe: Score response:", data);
+            console.log("FluentMe: Score success:", JSON.stringify(data, null, 2));
 
             let overallPoints = 0;
             let wordResults = [];
 
             if (Array.isArray(data)) {
                 const overallObj = data.find((item) => item.overall_result_data);
-                if (
-                    overallObj &&
-                    overallObj.overall_result_data &&
-                    overallObj.overall_result_data.length > 0
-                ) {
+                if (overallObj?.overall_result_data?.[0]) {
                     overallPoints = overallObj.overall_result_data[0].overall_points;
                 }
 
                 const wordObj = data.find((item) => item.word_result_data);
-                if (wordObj && wordObj.word_result_data) {
+                if (wordObj?.word_result_data) {
                     wordResults = wordObj.word_result_data;
                 }
             }
@@ -186,7 +140,7 @@ export const FluentMeService = {
                 word_result_data: wordResults,
             };
         } catch (error) {
-            console.error("FluentMe: Error scoring recording", error);
+            console.error("FluentMe: Score error", error);
             return null;
         }
     },
