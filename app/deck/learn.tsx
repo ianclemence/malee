@@ -309,7 +309,7 @@ export default function LearnScreen() {
     console.log("Attempting to speak:", text, "Sound effects enabled:", settings.soundEffects);
     if (settings.soundEffects) {
       try {
-        Speech.speak(text, { language: "en" });
+        Speech.speak(text, { language: "en", rate: 0.75 });
       } catch (e) {
         Alert.alert("TTS Error", String(e));
       }
