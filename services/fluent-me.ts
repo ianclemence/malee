@@ -1,9 +1,9 @@
 
 const BASE_URL = "https://thefluent.me/api/swagger";
-const API_KEY = "20251122033453-fQaj7AdeKhp-55433";
+const API_KEY = process.env.EXPO_PUBLIC_FLUENT_ME_API_KEY || "";
 
-const USERNAME = "ianclemence";
-const PASSWORD = "Cupid4881.";
+const USERNAME = process.env.EXPO_PUBLIC_FLUENT_ME_USERNAME || "";
+const PASSWORD = process.env.EXPO_PUBLIC_FLUENT_ME_PASSWORD || "";
 
 let cachedToken: string | null = null;
 let tokenExpiry: number = 0;
@@ -92,28 +92,17 @@ export const FluentMeService = {
             const token = await this.getToken();
             if (!token) return null;
 
-            const formData = new FormData();
-
-            // Extract filename
-            const filename = audioUri.split("/").pop() || "recording.mp4";
-
-            // Create file object - KEEP file:// prefix as per React Native guide!
-            const file = {
-                uri: audioUri, // Keep file:// prefix
-                type: "audio/mp4",
-                name: filename,
-            };
-
-            console.log("FluentMe: Uploading audio file:", file);
-
-            formData.append("user_audio_file", file as any);
+            console.log("FluentMe: Scoring with audio URL:", audioUri);
 
             const response = await fetch(`${BASE_URL}/score/${postId}`, {
                 method: "POST",
                 headers: {
+                    "Content-Type": "application/json",
                     "x-access-token": token,
                 },
-                body: formData,
+                body: JSON.stringify({
+                    audio_provided: audioUri
+                }),
             });
 
 
