@@ -1,9 +1,15 @@
 import { Platform } from "react-native";
 
-const API_BASE = "https://thefluent.me/api/swagger";
-// Using the test API key from the documentation examples.
-// In a real app, this should be in an environment variable.
+const BASE_URL = "https://thefluent.me/api/swagger";
 const API_KEY = "20251122033453-fQaj7AdeKhp-55433";
+
+// TODO: Store these securely (e.g., in secure storage)
+const USERNAME = "ianclemence";
+const PASSWORD = "Cupid4881."; // You should move this to secure storage
+
+// Token cache
+let cachedToken: string | null = null;
+let tokenExpiry: number = 0;
 
 export interface ScoreResult {
     overall_points: number;
@@ -14,35 +20,92 @@ export interface ScoreResult {
     }[];
 }
 
+// Helper to create Basic Auth header
+function createBasicAuthHeader(username: string, password: string): string {
+    // In React Native, we need to use a polyfill or built-in btoa
+    const credentials = `${username}:${password}`;
+    // btoa is available in React Native
+    const encoded = btoa(credentials);
+    return `Basic ${encoded}`;
+}
+
 export const FluentMeService = {
-    async createPost(title: string, content: string, languageId: number = 22): Promise<string | null> {
+    async getToken(): Promise<string | null> {
+        // Return cached token if still valid (with 5 min buffer)
+        if (cachedToken && Date.now() < tokenExpiry - 5 * 60 * 1000) {
+            console.log("FluentMe: Using cached token");
+            return cachedToken;
+        }
+
         try {
-            const response = await fetch(`${API_BASE}/post`, {
-                method: "POST",
+            console.log("FluentMe: Requesting new token...");
+            const response = await fetch(`${BASE_URL}/login`, {
+                method: "GET",
                 headers: {
-                    "Content-Type": "application/json",
-                    "api-key": API_KEY,
+                    "Accept": "application/json",
+                    "x-api-key": API_KEY,
+                    "Authorization": createBasicAuthHeader(USERNAME, PASSWORD),
                 },
-                body: JSON.stringify({
-                    post_title: title,
-                    post_content: content,
-                    post_language_id: languageId, // 22 is English (US)
-                }),
             });
 
             if (!response.ok) {
-                console.error("FluentMe: Failed to create post", await response.text());
+                const errorText = await response.text();
+                console.error("FluentMe: Failed to login", errorText);
                 return null;
             }
 
             const data = await response.json();
-            // The API returns a list of posts or the created post. 
-            // Based on docs, we need the post_id.
-            // Assuming the response structure matches the "postResponseAddPost" example or similar.
-            // Let's try to parse it safely.
-            if (Array.isArray(data) && data.length > 0) {
-                return data[0].post_id;
-            } else if (data.post_id) {
+            console.log("FluentMe: Login successful, token received");
+
+            if (data.token) {
+                cachedToken = data.token;
+                // Token valid for 1 hour per docs
+                tokenExpiry = Date.now() + 60 * 60 * 1000;
+                return data.token;
+            }
+
+            return null;
+        } catch (error) {
+            console.error("FluentMe: Error during login", error);
+            return null;
+        }
+    },
+
+    async createPost(
+        title: string,
+        content: string,
+        languageId: number = 22
+    ): Promise<string | null> {
+        try {
+            const token = await this.getToken();
+            if (!token) {
+                console.error("FluentMe: No valid token available");
+                return null;
+            }
+
+            const response = await fetch(`${BASE_URL}/post`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-access-token": token,
+                },
+                body: JSON.stringify({
+                    post_language_id: languageId,
+                    post_title: title,
+                    post_content: content,
+                }),
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error("FluentMe: Failed to create post", errorText);
+                return null;
+            }
+
+            const data = await response.json();
+            console.log("FluentMe: Create post response:", data);
+
+            if (data.post_id) {
                 return data.post_id;
             }
 
@@ -53,49 +116,55 @@ export const FluentMeService = {
         }
     },
 
-    async scoreRecording(postId: string, audioUri: string): Promise<ScoreResult | null> {
+    async scoreRecording(
+        postId: string,
+        audioUri: string
+    ): Promise<ScoreResult | null> {
         try {
+            const token = await this.getToken();
+            if (!token) {
+                console.error("FluentMe: No valid token available");
+                return null;
+            }
+
             const formData = new FormData();
 
-            // Append the audio file. 
-            // React Native's FormData requires a specific object structure for files.
-            const filename = audioUri.split('/').pop() || 'recording.m4a';
-            const type = 'audio/m4a'; // Adjust based on actual recording format
+            const filename = audioUri.split("/").pop() || "recording.mp4";
+            const type = "audio/mp4";
 
-            formData.append('user_audio_file', {
-                uri: Platform.OS === 'android' ? audioUri : audioUri.replace('file://', ''),
+            formData.append("user_audio_file", {
+                uri: Platform.OS === "android" ? audioUri : audioUri.replace("file://", ""),
                 name: filename,
                 type: type,
             } as any);
 
-            const response = await fetch(`${API_BASE}/score/${postId}`, {
+            const response = await fetch(`${BASE_URL}/score/${postId}`, {
                 method: "POST",
                 headers: {
-                    "api-key": API_KEY,
-                    // Content-Type is set automatically by FormData
+                    "x-access-token": token,
                 },
                 body: formData,
             });
 
             if (!response.ok) {
-                console.error("FluentMe: Failed to score recording", await response.text());
+                const errorText = await response.text();
+                console.error("FluentMe: Failed to score recording", errorText);
                 return null;
             }
 
             const data = await response.json();
-
-            // Parse the response based on "scoreResponse" schema
-            // It returns a list, we usually want the "overall_result_data" and "word_result_data"
-
-            // Example structure from docs:
-            // [ { provided_data: ... }, { overall_result_data: [...] }, { word_result_data: [...] } ]
+            console.log("FluentMe: Score response:", data);
 
             let overallPoints = 0;
             let wordResults = [];
 
             if (Array.isArray(data)) {
                 const overallObj = data.find((item) => item.overall_result_data);
-                if (overallObj && overallObj.overall_result_data && overallObj.overall_result_data.length > 0) {
+                if (
+                    overallObj &&
+                    overallObj.overall_result_data &&
+                    overallObj.overall_result_data.length > 0
+                ) {
                     overallPoints = overallObj.overall_result_data[0].overall_points;
                 }
 
@@ -109,10 +178,9 @@ export const FluentMeService = {
                 overall_points: overallPoints,
                 word_result_data: wordResults,
             };
-
         } catch (error) {
             console.error("FluentMe: Error scoring recording", error);
             return null;
         }
-    }
+    },
 };
