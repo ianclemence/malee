@@ -410,17 +410,19 @@ export default function LearnScreen() {
   async function playRecording() {
     console.log("Attempting to play recording. URI:", recordedUri);
     if (isPlaying) {
-      console.log("Stopping playback...");
-      await audioRecorderPlayer.stopPlayer();
-      audioRecorderPlayer.removePlayBackListener();
+      console.log("Pausing playback...");
+      await audioRecorderPlayer.pausePlayer();
       setIsPlaying(false);
       return;
     }
 
     if (recordedUri) {
-      console.log("Playing...");
+      console.log("Playing/Resuming...");
       setIsPlaying(true);
+
+      // Start player (this works for both first play and resume after pause)
       await audioRecorderPlayer.startPlayer(recordedUri);
+
       audioRecorderPlayer.addPlayBackListener((e: any) => {
         if (e.currentPosition === e.duration) {
           console.log("Playback finished");
@@ -653,46 +655,9 @@ export default function LearnScreen() {
               style={[styles.cardFace, styles.cardFaceFront, frontFaceStyle]}
               pointerEvents={flipped ? "none" : "auto"}
             >
-              <ThemedText
-                type="phrase"
-                style={[
-                  styles.cardText,
-                  { fontSize: FontSizes.phrase * textSizeMultiplier },
-                ]}
-              >
-                {activeCard.front}
-              </ThemedText>
-
-              {/* Controls Row: Stop Propagation by handling press */}
-              <View style={[styles.controlsRow, !started && { opacity: 0.5 }]}>
-                <IconButton
-                  icon="volume-up"
-                  size={64}
-                  onPress={() => speak(activeCard.front)}
-                />
-                <IconButton
-                  icon={
-                    isRecording
-                      ? "stop"
-                      : recordedUri
-                        ? isPlaying
-                          ? "volume-up"
-                          : "play-arrow"
-                        : "mic"
-                  }
-                  size={64}
-                  variant={isRecording ? "danger" : "default"}
-                  iconColor={isRecording ? "#FFFFFF" : TEXT}
-                  onPress={() => {
-                    if (isRecording) stopRecording();
-                    else if (recordedUri) playRecording();
-                    else startRecording();
-                  }}
-                />
-              </View>
-              {/* Scoring Display */}
+              {/* Scoring Display - Moved to top */}
               {isScoring && (
-                <View style={{ marginTop: 20, alignItems: "center" }}>
+                <View style={{ marginBottom: 16, alignItems: "center" }}>
                   <ActivityIndicator color={ACCENT} />
                   <ThemedText style={{ marginTop: 8, fontSize: 14, opacity: 0.7 }}>
                     Analyzing pronunciation...
@@ -701,7 +666,7 @@ export default function LearnScreen() {
               )}
 
               {score && !isScoring && (
-                <View style={{ marginTop: 20, alignItems: "center" }}>
+                <View style={{ marginBottom: 16, alignItems: "center" }}>
                   <ThemedText type="subtitle" style={{ color: score.overall_points >= 80 ? Palette.success : Palette.primary }}>
                     Score: {Math.round(score.overall_points)}%
                   </ThemedText>
@@ -722,6 +687,44 @@ export default function LearnScreen() {
                   )}
                 </View>
               )}
+
+              <ThemedText
+                type="phrase"
+                style={[
+                  styles.cardText,
+                  { fontSize: FontSizes.phrase * textSizeMultiplier },
+                ]}
+              >
+                {activeCard.front}
+              </ThemedText>
+
+              {/* Controls Row */}
+              <View style={[styles.controlsRow, !started && { opacity: 0.5 }]}>
+                <IconButton
+                  icon="volume-up"
+                  size={64}
+                  onPress={() => speak(activeCard.front)}
+                />
+                <IconButton
+                  icon={
+                    isRecording
+                      ? "stop"
+                      : recordedUri
+                        ? isPlaying
+                          ? "pause"
+                          : "play-arrow"
+                        : "mic"
+                  }
+                  size={64}
+                  variant={isRecording ? "danger" : "default"}
+                  iconColor={isRecording ? "#FFFFFF" : TEXT}
+                  onPress={() => {
+                    if (isRecording) stopRecording();
+                    else if (recordedUri) playRecording();
+                    else startRecording();
+                  }}
+                />
+              </View>
             </Animated.View>
 
             {/* Back Face */}
@@ -790,7 +793,7 @@ export default function LearnScreen() {
           iconColor={Palette.error}
         />
       </View>
-    </ScrollView>
+    </ScrollView >
   );
 }
 
