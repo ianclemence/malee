@@ -667,7 +667,7 @@ export default function LearnScreen() {
 
               {score && !isScoring && (
                 <View style={{ position: 'absolute', top: 80, left: 0, right: 0, alignItems: "center", zIndex: 10 }}>
-                  <ThemedText type="subtitle" style={{ color: score.overall_points >= 80 ? Palette.success : Palette.primary }}>
+                  <ThemedText type="phrase" style={[styles.scoreText, { color: score.overall_points >= 80 ? Palette.success : Palette.primary }]}>
                     {Math.round(score.overall_points)}%
                   </ThemedText>
                   {score.word_result_data && (
@@ -892,6 +892,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: TEXT,
     marginBottom: 32,
+  },
+  scoreText: {
+    fontSize: 72,
+    textAlign: "center",
+    fontFamily: 'PlayfairDisplay_600SemiBold',
   },
   staticHintContainer: {
     position: "absolute",
