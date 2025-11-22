@@ -347,14 +347,22 @@ export default function LearnScreen() {
   }
 
   async function stopRecording() {
-    console.log("Forcing stop recording...");
-    if (recorder.isRecording) {
-      await recorder.stop();
+    console.log("Stopping recording...");
+    try {
+      if (recorder.isRecording) {
+        await recorder.stop();
+      }
+    } catch (e) {
+      console.error("Error stopping recording:", e);
+      Alert.alert("Error", "Failed to stop recording cleanly.");
+    } finally {
       setIsRecording(false);
-      // Wait a bit for file to be ready
+      // Small delay to ensure URI is populated if needed, though usually it's immediate after stop
       setTimeout(() => {
         console.log("Recording URI:", recorder.uri);
-        setRecordedUri(recorder.uri);
+        if (recorder.uri) {
+          setRecordedUri(recorder.uri);
+        }
       }, 100);
     }
   }
