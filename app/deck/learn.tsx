@@ -720,7 +720,18 @@ export default function LearnScreen() {
                   }
                   size={64}
                   variant={isRecording ? "danger" : "default"}
-                  iconColor={isRecording ? "#FFFFFF" : TEXT}
+                  bgColor={
+                    isRecording
+                      ? Palette.error
+                      : (isPlaying || recordedUri)
+                        ? Palette.success
+                        : undefined
+                  }
+                  iconColor={
+                    isRecording || isPlaying || recordedUri
+                      ? "#FFFFFF"
+                      : TEXT
+                  }
                   onPress={() => {
                     if (isRecording) stopRecording();
                     else if (recordedUri) playRecording();
