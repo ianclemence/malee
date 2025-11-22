@@ -5,7 +5,7 @@ const API_KEY = "20251122033453-fQaj7AdeKhp-55433";
 
 // TODO: Store these securely (e.g., in secure storage)
 const USERNAME = "ianclemence";
-const PASSWORD = "Cupid4881."; // You should move this to secure storage
+const PASSWORD = "Cupid4881.";
 
 // Token cache
 let cachedToken: string | null = null;
@@ -22,9 +22,7 @@ export interface ScoreResult {
 
 // Helper to create Basic Auth header
 function createBasicAuthHeader(username: string, password: string): string {
-    // In React Native, we need to use a polyfill or built-in btoa
     const credentials = `${username}:${password}`;
-    // btoa is available in React Native
     const encoded = btoa(credentials);
     return `Basic ${encoded}`;
 }
@@ -42,9 +40,9 @@ export const FluentMeService = {
             const response = await fetch(`${BASE_URL}/login`, {
                 method: "GET",
                 headers: {
-                    "Accept": "application/json",
+                    Accept: "application/json",
                     "x-api-key": API_KEY,
-                    "Authorization": createBasicAuthHeader(USERNAME, PASSWORD),
+                    Authorization: createBasicAuthHeader(USERNAME, PASSWORD),
                 },
             });
 
@@ -83,6 +81,12 @@ export const FluentMeService = {
                 return null;
             }
 
+            console.log("FluentMe: Creating post with:", {
+                title,
+                content: content.substring(0, 50),
+                languageId: String(languageId),
+            });
+
             const response = await fetch(`${BASE_URL}/post`, {
                 method: "POST",
                 headers: {
@@ -90,7 +94,7 @@ export const FluentMeService = {
                     "x-access-token": token,
                 },
                 body: JSON.stringify({
-                    post_language_id: languageId,
+                    post_language_id: String(languageId),
                     post_title: title,
                     post_content: content,
                 }),
@@ -133,7 +137,10 @@ export const FluentMeService = {
             const type = "audio/mp4";
 
             formData.append("user_audio_file", {
-                uri: Platform.OS === "android" ? audioUri : audioUri.replace("file://", ""),
+                uri:
+                    Platform.OS === "android"
+                        ? audioUri
+                        : audioUri.replace("file://", ""),
                 name: filename,
                 type: type,
             } as any);
