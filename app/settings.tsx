@@ -389,7 +389,9 @@ export default function SettingsScreen() {
                 />
               </View>
               <ThemedText style={styles.rowLabel}>Current Plan</ThemedText>
-              <ThemedText style={styles.rowValue}>Pro</ThemedText>
+              <View style={styles.proPill}>
+                <Text style={styles.proText}>Pro</Text>
+              </View>
             </Pressable>
           </View>
         </View>
@@ -708,5 +710,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: Strokes.thin,
     borderColor: Palette.black,
+  },
+  proPill: {
+    backgroundColor: Palette.black,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: Radii.button,
+    borderWidth: Strokes.thin,
+    borderColor: Palette.black,
+    ...Shadows.brutalist,
+  },
+  proText: {
+    color: Palette.primary,
+    fontFamily: 'Inter_700Bold',
+    fontSize: 14,
   },
 });
