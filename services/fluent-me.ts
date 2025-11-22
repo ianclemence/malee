@@ -202,10 +202,10 @@ export const FluentMeService = {
                 log(`❌ Translate Failed: ${translateResponse.status} - ${translateData.message || 'Unknown error'}`);
             }
 
-            // 5. Test Score with Official Sample
-            log("5. Testing Scoring with Official Sample WAV...");
-            // Use the official Fluent Me sample file
-            const sampleAudioUrl = "https://storage.googleapis.com/thefluentme.appspot.com/audio/test/sample_user_recording_1.wav";
+            // 5. Test Score with SAMPLE URL
+            log("5. Testing Scoring with S3 WAV file...");
+            // Use the latest uploaded WAV file from S3
+            const sampleAudioUrl = "https://malee-app.s3.ap-southeast-2.amazonaws.com/audio/recording_1763806466751.wav";
 
             const scoreResponse = await fetch(`${BASE_URL}/score/${postId}`, {
                 method: "POST",
