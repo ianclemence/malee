@@ -652,8 +652,6 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: Radii.card,
     gap: 8,
-    borderWidth: Strokes.thin,
-    borderColor: Palette.black,
     ...Shadows.brutalist,
   },
   dangerButtonText: {

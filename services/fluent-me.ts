@@ -157,10 +157,14 @@ export const FluentMeService = {
             const langResponse = await fetch(`${BASE_URL}/language`, {
                 headers: { "x-access-token": token },
             });
+            console.log("Language Response Status:", langResponse.status);
             if (langResponse.ok) {
                 const langs = await langResponse.json();
+                console.log("Languages:", JSON.stringify(langs, null, 2));
                 log(`✅ Get Languages Success (Found ${langs.supported_languages?.length || 0} languages)`);
             } else {
+                const errorText = await langResponse.text();
+                console.log("Language Error:", errorText);
                 log(`❌ Get Languages Failed: ${langResponse.status}`);
             }
 
@@ -176,15 +180,60 @@ export const FluentMeService = {
             }
             log(`✅ Create Post Success (ID: ${postId})`);
 
-            // 4. Test Score with SAMPLE URL
-            log("4. Testing Scoring with SAMPLE URL...");
-            const sampleAudioUrl = "https://malee-app.s3.ap-southeast-2.amazonaws.com/audio/recording_1763800328759.mp4";
-            const scoreResult = await this.scoreRecording(postId, sampleAudioUrl);
+            // 4. Test Translate
+            log("4. Testing Translate Post...");
+            const translateResponse = await fetch(`${BASE_URL}/translate/${postId}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-access-token": token,
+                },
+                body: JSON.stringify({
+                    target_language_id: "30" // German
+                }),
+            });
+            console.log("Translate Response Status:", translateResponse.status);
+            const translateData = await translateResponse.json();
+            console.log("Translate Response:", JSON.stringify(translateData, null, 2));
 
-            if (scoreResult) {
-                log(`✅ Scoring Success! Points: ${scoreResult.overall_points}`);
+            if (translateResponse.ok) {
+                log(`✅ Translate Success (Language: ${translateData.post_language_name})`);
             } else {
-                log("❌ Scoring Failed");
+                log(`❌ Translate Failed: ${translateResponse.status} - ${translateData.message || 'Unknown error'}`);
+            }
+
+            // 5. Test Score with SAMPLE URL
+            log("5. Testing Scoring with SAMPLE URL...");
+            const sampleAudioUrl = "https://malee-app.s3.ap-southeast-2.amazonaws.com/audio/recording_1763800328759.mp4";
+
+            const scoreResponse = await fetch(`${BASE_URL}/score/${postId}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-access-token": token,
+                },
+                body: JSON.stringify({
+                    audio_provided: sampleAudioUrl
+                }),
+            });
+
+            console.log("Score Response Status:", scoreResponse.status);
+            const scoreData = await scoreResponse.json();
+            console.log("Score Response:", JSON.stringify(scoreData, null, 2));
+
+            if (scoreResponse.ok) {
+                // Check if it's a valid score response (has overall_result_data)
+                if (Array.isArray(scoreData) && scoreData.find(item => item.overall_result_data)) {
+                    const overallObj = scoreData.find((item) => item.overall_result_data);
+                    const overallPoints = overallObj?.overall_result_data?.[0]?.overall_points || 0;
+                    log(`✅ Scoring Success! Points: ${overallPoints}`);
+                } else {
+                    log(`❌ Scoring Failed: Invalid response format`);
+                }
+            } else {
+                // It's an error response
+                const errorMessage = scoreData.message || 'Unknown error';
+                log(`❌ Scoring Failed: ${scoreResponse.status} - ${errorMessage}`);
             }
 
             log("Diagnostics Complete.");
@@ -192,6 +241,7 @@ export const FluentMeService = {
 
         } catch (error) {
             log(`❌ Diagnostics Error: ${error}`);
+            console.error("Diagnostics Error:", error);
             return logs.join("\n");
         }
     },
