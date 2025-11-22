@@ -727,6 +727,20 @@ export default function LearnScreen() {
                   }}
                 />
               </View>
+
+              {/* Try Again Text - Only show when there's a recording */}
+              {recordedUri && (
+                <Pressable
+                  onPress={() => {
+                    setRecordedUri(null);
+                    setScore(null);
+                    setIsPlaying(false);
+                  }}
+                  disabled={!started}
+                >
+                  <ThemedText style={styles.tryAgainHint}>Try again</ThemedText>
+                </Pressable>
+              )}
             </Animated.View>
 
             {/* Back Face */}
@@ -911,6 +925,16 @@ const styles = StyleSheet.create({
     color: TEXT,
     opacity: 0.4,
     fontWeight: "600",
+  },
+  tryAgainHint: {
+    color: TEXT,
+    opacity: 0.4,
+    fontWeight: "600",
+    textDecorationLine: "underline",
+    textDecorationStyle: "solid",
+    textDecorationColor: TEXT,
+    textAlign: "center",
+    marginTop: 8,
   },
   controlsRow: {
     flexDirection: "row",
