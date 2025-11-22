@@ -27,7 +27,9 @@ import {
 import { FluentMeService, ScoreResult } from "@/services/fluent-me";
 import { uploadAudioToS3 } from "@/services/s3";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { AudioModule } from "expo-audio";
+import {
+  AudioModule
+} from 'expo-audio';
 import * as Haptics from "expo-haptics";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import * as Speech from "expo-speech";
@@ -36,21 +38,12 @@ import {
   ActivityIndicator,
   Alert,
   AppState,
-  PermissionsAndroid,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
-  View,
+  View
 } from "react-native";
-import AudioRecorderPlayer, {
-  AudioEncoderAndroidType,
-  AudioSourceAndroidType,
-  AVEncoderAudioQualityIOSType,
-  OutputFormatAndroidType,
-} from "react-native-audio-recorder-player";
-import RNFS from "react-native-fs";
 import Animated, {
   interpolate,
   useAnimatedStyle,
@@ -61,6 +54,29 @@ import Animated, {
 const ACCENT = Palette.primary;
 const TEXT = Palette.black;
 const PAGE_BG = Palette.cream;
+
+// Custom recording preset optimized for speech recognition
+const SPEECH_RECORDING_OPTIONS = {
+  extension: '.wav',
+  sampleRate: 16000, // Google Speech-to-Text recommends 16kHz for speech
+  numberOfChannels: 1, // Mono
+  bitRate: 128000,
+  android: {
+    outputFormat: 'mpeg4' as const,
+    audioEncoder: 'aac' as const,
+  },
+  ios: {
+    outputFormat: IOSOutputFormat.LINEARPCM, // True WAV format
+    audioQuality: AudioQuality.HIGH,
+    linearPCMBitDepth: 16,
+    linearPCMIsBigEndian: false,
+    linearPCMIsFloat: false,
+  },
+  web: {
+    mimeType: 'audio/wav',
+    bitsPerSecond: 128000,
+  },
+};
 
 type CardData = { front: string; back: string; example?: string };
 
@@ -104,11 +120,10 @@ export default function LearnScreen() {
   const [score, setScore] = useState<ScoreResult | null>(null);
   const [isScoring, setIsScoring] = useState(false);
 
-  // Audio Recording State
-  // AudioRecorderPlayer is a singleton instance, so we use it directly or via ref without 'new'
-  const audioRecorderPlayer = useRef(AudioRecorderPlayer).current;
+  // Audio Recording State - using expo-audio
+  const audioRecorder = useAudioRecorder(SPEECH_RECORDING_OPTIONS);
+  const recorderState = useAudioRecorderState(audioRecorder);
   const [recordedUri, setRecordedUri] = useState<string | null>(null);
-  const [isRecording, setIsRecording] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
 
   const activeCardIndex = queue[currentIndex];
@@ -310,71 +325,25 @@ export default function LearnScreen() {
 
   async function startRecording() {
     try {
-      console.log("Requesting permissions..");
-      if (Platform.OS === "android") {
-        const grants = await PermissionsAndroid.requestMultiple([
-          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-          PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-        ]);
-
-        console.log("Permissions grants:", grants);
-
-        if (
-          grants["android.permission.RECORD_AUDIO"] ===
-          PermissionsAndroid.RESULTS.GRANTED
-        ) {
-          console.log("Permissions granted");
-        } else {
-          console.log("All required permissions not granted");
-          Alert.alert("Permission Denied", "Microphone permission is required.");
-          return;
-        }
-      }
-
-      const dirs = Platform.OS === 'ios' ? RNFS.DocumentDirectoryPath : RNFS.CachesDirectoryPath;
-      const path = `${dirs}/recording_${Date.now()}.wav`;
-
-      const audioSet = {
-        AudioEncoderAndroid: AudioEncoderAndroidType.DEFAULT,
-        AudioSourceAndroid: AudioSourceAndroidType.MIC,
-        AVModeIOS: 'measurement' as any,
-        AVEncoderAudioQualityKeyIOS: AVEncoderAudioQualityIOSType.high,
-        AVFormatIDKeyIOS: 'lpcm' as any,
-        OutputFormatAndroid: OutputFormatAndroidType.THREE_GPP,
-        AudioSamplingRate: 44100,
-        AudioChannels: 1,
-      };
-
-      console.log("Starting recording at path:", path);
-      const result = await audioRecorderPlayer.startRecorder(path, audioSet);
-      audioRecorderPlayer.addRecordBackListener((e: any) => {
-        // console.log('Recording . . . ', e.currentPosition);
-        return;
-      });
-      console.log("Recording started:", result);
-      setIsRecording(true);
+      console.log("Starting recording with expo-audio...");
+      await audioRecorder.prepareToRecordAsync();
+      audioRecorder.record();
+      console.log("Recording started");
     } catch (err) {
       console.error("Failed to start recording", err);
       Alert.alert("Recording Error", String(err));
-      setIsRecording(false);
     }
   }
 
   async function stopRecording() {
     console.log("Stopping recording...");
     try {
-      const result = await audioRecorderPlayer.stopRecorder();
-      audioRecorderPlayer.removeRecordBackListener();
-      setIsRecording(false);
-      console.log("Recording stopped. File saved at:", result);
+      await audioRecorder.stop();
+      const recordingUri = audioRecorder.uri;
+      console.log("Recording stopped. File saved at:", recordingUri);
 
-      // Verify file exists
-      const exists = await RNFS.exists(result);
-      console.log("File exists check:", exists);
-
-      if (result) {
-        setRecordedUri(result);
+      if (recordingUri) {
+        setRecordedUri(recordingUri);
 
         // Start Scoring
         setIsScoring(true);
@@ -390,7 +359,7 @@ export default function LearnScreen() {
 
           // Upload to S3
           console.log("Uploading to S3...");
-          const publicUrl = await uploadAudioToS3(result);
+          const publicUrl = await uploadAudioToS3(recordingUri);
 
           if (publicUrl) {
             console.log("S3 Upload Success:", publicUrl);
@@ -413,37 +382,14 @@ export default function LearnScreen() {
     } catch (e) {
       console.error("Error stopping recording:", e);
       Alert.alert("Error", "Failed to stop recording cleanly.");
-      setIsRecording(false);
+      setIsScoring(false);
     }
   }
 
   async function playRecording() {
-    console.log("Attempting to play recording. URI:", recordedUri);
-    if (isPlaying) {
-      console.log("Pausing playback...");
-      await audioRecorderPlayer.pausePlayer();
-      setIsPlaying(false);
-      return;
-    }
-
-    if (recordedUri) {
-      console.log("Playing/Resuming...");
-      setIsPlaying(true);
-
-      // Start player (this works for both first play and resume after pause)
-      await audioRecorderPlayer.startPlayer(recordedUri);
-
-      audioRecorderPlayer.addPlayBackListener((e: any) => {
-        if (e.currentPosition === e.duration) {
-          console.log("Playback finished");
-          audioRecorderPlayer.stopPlayer();
-          audioRecorderPlayer.removePlayBackListener();
-          setIsPlaying(false);
-        }
-      });
-    } else {
-      console.log("No URI to play");
-    }
+    // TODO: Implement playback with expo-audio useAudioPlayer hook
+    console.log("Playback not yet implemented with expo-audio");
+    Alert.alert("Playback", "Audio playback will be implemented in the next update.");
   }
 
   function handleFlip() {
@@ -458,7 +404,6 @@ export default function LearnScreen() {
     flip.value = 0;
     setFlipped(false);
     setRecordedUri(null);
-    setIsRecording(false);
     setIsPlaying(false);
     setScore(null);
     scaleNext.value = withTiming(0.96);
@@ -720,7 +665,7 @@ export default function LearnScreen() {
                 />
                 <IconButton
                   icon={
-                    isRecording
+                    recorderState.isRecording
                       ? "stop"
                       : recordedUri
                         ? isPlaying
@@ -729,21 +674,21 @@ export default function LearnScreen() {
                         : "mic"
                   }
                   size={64}
-                  variant={isRecording ? "danger" : "default"}
+                  variant={recorderState.isRecording ? "danger" : "default"}
                   bgColor={
-                    isRecording
+                    recorderState.isRecording
                       ? Palette.error
                       : (isPlaying || recordedUri)
                         ? Palette.success
                         : undefined
                   }
                   iconColor={
-                    isRecording || isPlaying || recordedUri
+                    recorderState.isRecording || isPlaying || recordedUri
                       ? "#FFFFFF"
                       : TEXT
                   }
                   onPress={() => {
-                    if (isRecording) stopRecording();
+                    if (recorderState.isRecording) stopRecording();
                     else if (recordedUri) playRecording();
                     else startRecording();
                   }}

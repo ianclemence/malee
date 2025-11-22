@@ -1,6 +1,6 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { Buffer } from "buffer";
-import RNFS from "react-native-fs";
+import * as FileSystem from 'expo-file-system';
 import "react-native-get-random-values";
 import "react-native-url-polyfill/auto";
 
@@ -35,8 +35,10 @@ export const uploadAudioToS3 = async (fileUri: string): Promise<string | null> =
         const filename = `recording_${Date.now()}.${fileExtension}`;
         const key = `audio/${filename}`;
 
-        // Read file as base64
-        const fileContent = await RNFS.readFile(fileUri, "base64");
+        // Read file as base64 using expo-file-system
+        const fileContent = await FileSystem.readAsStringAsync(fileUri, {
+            encoding: FileSystem.EncodingType.Base64
+        });
         const buffer = Buffer.from(fileContent, "base64");
 
         const command = new PutObjectCommand({
