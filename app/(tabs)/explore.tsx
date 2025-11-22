@@ -2,7 +2,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ChipGroup } from '@/components/ui/chip-group';
 import { DeckCard } from '@/components/ui/deck-card';
 import { SearchBar } from '@/components/ui/search-bar';
-import { Palette } from '@/constants/theme';
+import { Palette, Strokes } from '@/constants/theme';
 import { DEFAULT_DECKS } from "@/data/decks";
 import { CustomDeck, getCustomDecks, getFavorites, getMyDecks, getSettings, setFavorite } from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -76,10 +76,25 @@ export default function DecksScreen() {
             {avatarUri ? (
               <Image
                 source={{ uri: avatarUri }}
-                style={{ width: 40, height: 40, borderRadius: 20, borderWidth: 1, borderColor: "#E0E0E0" }}
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 20,
+                  borderWidth: Strokes.thin,
+                  borderColor: Palette.black,
+                }}
               />
             ) : (
-              <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: "#E0E0E0", alignItems: "center", justifyContent: "center" }}>
+              <View style={{
+                width: 40,
+                height: 40,
+                borderRadius: 20,
+                backgroundColor: "#E0E0E0",
+                alignItems: "center",
+                justifyContent: "center",
+                borderWidth: Strokes.thin,
+                borderColor: Palette.black,
+              }}>
                 <MaterialIcons name="person" size={24} color="#757575" />
               </View>
             )}
