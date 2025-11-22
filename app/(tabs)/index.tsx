@@ -82,10 +82,25 @@ export default function HomeScreen() {
             {avatarUri ? (
               <Image
                 source={{ uri: avatarUri }}
-                style={{ width: 40, height: 40, borderRadius: 20, borderWidth: 1, borderColor: "#E0E0E0" }}
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 20,
+                  borderWidth: Strokes.thin,
+                  borderColor: Palette.black,
+                }}
               />
             ) : (
-              <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: "#E0E0E0", alignItems: "center", justifyContent: "center" }}>
+              <View style={{
+                width: 40,
+                height: 40,
+                borderRadius: 20,
+                backgroundColor: "#E0E0E0",
+                alignItems: "center",
+                justifyContent: "center",
+                borderWidth: Strokes.thin,
+                borderColor: Palette.black,
+              }}>
                 <MaterialIcons name="person" size={24} color="#757575" />
               </View>
             )}
