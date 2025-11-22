@@ -333,8 +333,8 @@ export default function LearnScreen() {
 
       const dirs = Platform.OS === 'ios' ? RNFS.DocumentDirectoryPath : RNFS.CachesDirectoryPath;
       const path = Platform.select({
-        ios: `${dirs}/recording_${Date.now()}.m4a`,
-        android: `${dirs}/recording_${Date.now()}.mp4`,
+        ios: `${dirs}/recording_${Date.now()}.wav`,
+        android: `${dirs}/recording_${Date.now()}.wav`,
       });
 
       const audioSet = {
@@ -342,8 +342,8 @@ export default function LearnScreen() {
         AudioSourceAndroid: AudioSourceAndroidType.MIC,
         AVModeIOS: 'measurement',
         AVEncoderAudioQualityKeyIOS: AVEncoderAudioQualityIOSType.high,
-        AVFormatIDKeyIOS: 'aac',
-        OutputFormatAndroid: OutputFormatAndroidType.MPEG_4,
+        AVFormatIDKeyIOS: 'lpcm', // Linear PCM for WAV
+        OutputFormatAndroid: OutputFormatAndroidType.AAC_ADTS, // AAC ADTS is closer to WAV
       };
 
       console.log("Starting recording at path:", path);

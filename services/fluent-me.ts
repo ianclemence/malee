@@ -29,7 +29,7 @@ function createBasicAuthHeader(username: string, password: string): string {
 
 export const FluentMeService = {
     async getToken(): Promise<string | null> {
-        // Return cached token if still valid (with 5 min buffer)
+        //Return cached token if still valid (with 5 min buffer)
         if (cachedToken && Date.now() < tokenExpiry - 5 * 60 * 1000) {
             console.log("FluentMe: Using cached token");
             return cachedToken;
@@ -133,8 +133,8 @@ export const FluentMeService = {
 
             const formData = new FormData();
 
-            const filename = audioUri.split("/").pop() || "recording.mp4";
-            const type = "audio/mp4";
+            const filename = audioUri.split("/").pop() || "recording.wav";
+            const type = "audio/wav";
 
             formData.append("user_audio_file", {
                 uri:
