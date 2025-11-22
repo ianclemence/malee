@@ -655,9 +655,9 @@ export default function LearnScreen() {
               style={[styles.cardFace, styles.cardFaceFront, frontFaceStyle]}
               pointerEvents={flipped ? "none" : "auto"}
             >
-              {/* Scoring Display - Moved to top */}
+              {/* Scoring Display - At very top */}
               {isScoring && (
-                <View style={{ marginBottom: 16, alignItems: "center" }}>
+                <View style={{ position: 'absolute', top: 60, left: 0, right: 0, alignItems: "center", zIndex: 10 }}>
                   <ActivityIndicator color={ACCENT} />
                   <ThemedText style={{ marginTop: 8, fontSize: 14, opacity: 0.7 }}>
                     Analyzing pronunciation...
@@ -666,12 +666,12 @@ export default function LearnScreen() {
               )}
 
               {score && !isScoring && (
-                <View style={{ marginBottom: 16, alignItems: "center" }}>
+                <View style={{ position: 'absolute', top: 80, left: 0, right: 0, alignItems: "center", zIndex: 10 }}>
                   <ThemedText type="subtitle" style={{ color: score.overall_points >= 80 ? Palette.success : Palette.primary }}>
-                    Score: {Math.round(score.overall_points)}%
+                    {Math.round(score.overall_points)}%
                   </ThemedText>
                   {score.word_result_data && (
-                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8, marginTop: 8 }}>
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8, marginTop: 8, paddingHorizontal: 16 }}>
                       {score.word_result_data.map((w, i) => (
                         <View key={i} style={{ alignItems: 'center' }}>
                           <ThemedText style={{
