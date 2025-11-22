@@ -51,6 +51,12 @@
         }
       ],
       [
+        "expo-audio",
+        {
+          "microphonePermission": "Allow Malee to access your microphone to record your pronunciation practice."
+        }
+      ],
+      [
         "expo-notifications",
         {
           "icon": "./assets/images/icon.png",

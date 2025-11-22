@@ -304,6 +304,7 @@ export default function LearnScreen() {
 
   // Audio Functions
   async function speak(text: string) {
+    console.log("Attempting to speak:", text, "Sound effects enabled:", settings.soundEffects);
     if (settings.soundEffects) {
       Speech.speak(text, { language: "en" });
     }
@@ -311,6 +312,7 @@ export default function LearnScreen() {
 
   async function startRecording() {
     try {
+      console.log("Requesting permissions..");
       // Request permissions first on mobile
       const { granted } = await getRecordingPermissionsAsync();
       if (!granted) {
@@ -321,10 +323,13 @@ export default function LearnScreen() {
         }
       }
 
+      console.log("Checking recorder status:", recorder.isRecording);
       if (recorder.isRecording) {
+        console.log("Stopping recording...");
         await recorder.stop();
         setIsRecording(false);
       } else {
+        console.log("Starting recording...");
         await recorder.record();
         setIsRecording(true);
       }
@@ -335,26 +340,33 @@ export default function LearnScreen() {
   }
 
   async function stopRecording() {
+    console.log("Forcing stop recording...");
     if (recorder.isRecording) {
       await recorder.stop();
       setIsRecording(false);
       // Wait a bit for file to be ready
       setTimeout(() => {
+        console.log("Recording URI:", recorder.uri);
         setRecordedUri(recorder.uri);
       }, 100);
     }
   }
 
   async function playRecording() {
+    console.log("Attempting to play recording. URI:", recordedUri);
     if (player && !player.playing) {
+      console.log("Playing...");
       setIsPlaying(true);
       player.play();
       // Reset playing state after duration (approximate or listen to event if available)
       // For now, just toggle visually
       setTimeout(() => setIsPlaying(false), (player.duration || 1) * 1000);
     } else if (player) {
+      console.log("Pausing...");
       player.pause();
       setIsPlaying(false);
+    } else {
+      console.log("Player not ready or no URI");
     }
   }
 
