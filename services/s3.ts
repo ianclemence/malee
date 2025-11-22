@@ -1,4 +1,5 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { Buffer } from "buffer";
 import RNFS from "react-native-fs";
 import "react-native-get-random-values";
 import "react-native-url-polyfill/auto";
