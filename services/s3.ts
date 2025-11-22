@@ -30,7 +30,7 @@ export const uploadAudioToS3 = async (fileUri: string): Promise<string | null> =
     }
 
     try {
-        const filename = `recording_${Date.now()}.mp4`; // Or .wav if you convert it
+        const filename = `recording_${Date.now()}.amr`; // Or .wav if you convert it
         const key = `audio/${filename}`;
 
         // Read file as base64
@@ -41,7 +41,7 @@ export const uploadAudioToS3 = async (fileUri: string): Promise<string | null> =
             Bucket: BUCKET_NAME,
             Key: key,
             Body: buffer,
-            ContentType: "audio/mp4", // Adjust if you change format
+            ContentType: filename.endsWith(".wav") ? "audio/wav" : "audio/amr", // Adjust if you change format
             // ACL: "public-read", // Optional: If bucket is public, this might be needed or configured via bucket policy
         });
 
