@@ -650,7 +650,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: ACCENT,
     padding: 16,
-    borderRadius: Radii.card,
+    borderRadius: Radii.button,
     gap: 8,
     ...Shadows.brutalist,
   },
