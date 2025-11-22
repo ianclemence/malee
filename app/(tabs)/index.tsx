@@ -79,14 +79,16 @@ export default function HomeScreen() {
         <ThemedText type="title" style={styles.logo}>Malee</ThemedText>
         <Pressable onPress={() => router.push("/settings")}>
           <Pressable onPress={() => router.push("/settings")}>
-            <Image
-              source={
-                avatarUri
-                  ? { uri: avatarUri }
-                  : require("@/assets/images/react-logo.png")
-              }
-              style={{ width: 40, height: 40, borderRadius: 20, borderWidth: 1, borderColor: "#E0E0E0" }}
-            />
+            {avatarUri ? (
+              <Image
+                source={{ uri: avatarUri }}
+                style={{ width: 40, height: 40, borderRadius: 20, borderWidth: 1, borderColor: "#E0E0E0" }}
+              />
+            ) : (
+              <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: "#E0E0E0", alignItems: "center", justifyContent: "center" }}>
+                <MaterialIcons name="person" size={24} color="#757575" />
+              </View>
+            )}
           </Pressable>
         </Pressable>
       </View>

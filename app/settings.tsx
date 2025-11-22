@@ -162,14 +162,16 @@ export default function SettingsScreen() {
         <View style={styles.profileSection}>
           <View style={styles.avatarContainer}>
             <Pressable onPress={pickImage}>
-              <Image
-                source={
-                  settings.avatarUri
-                    ? { uri: settings.avatarUri }
-                    : require("@/assets/images/react-logo.png")
-                }
-                style={styles.avatar}
-              />
+              {settings.avatarUri ? (
+                <Image
+                  source={{ uri: settings.avatarUri }}
+                  style={styles.avatar}
+                />
+              ) : (
+                <View style={[styles.avatar, { backgroundColor: "#E0E0E0", alignItems: "center", justifyContent: "center" }]}>
+                  <MaterialIcons name="person" size={64} color="#757575" />
+                </View>
+              )}
               <View style={styles.editBadge}>
                 <MaterialIcons name="edit" size={14} color={TEXT} />
               </View>
@@ -379,14 +381,15 @@ export default function SettingsScreen() {
         </Pressable>
 
         <ThemedText style={styles.versionText}>Version 1.0.0</ThemedText>
-      </ScrollView>
+      </ScrollView >
 
       {/* Name Edit Modal */}
-      <Modal
+      < Modal
         visible={isEditingName}
         transparent
         animationType="fade"
-        onRequestClose={() => setIsEditingName(false)}
+        onRequestClose={() => setIsEditingName(false)
+        }
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -420,8 +423,8 @@ export default function SettingsScreen() {
             </View>
           </View>
         </View>
-      </Modal>
-    </View>
+      </Modal >
+    </View >
   );
 }
 

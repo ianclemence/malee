@@ -1,14 +1,12 @@
 import { ThemedText } from '@/components/themed-text';
+import { FloatingActionBar } from '@/components/ui/floating-action-bar';
+import { HeaderBar } from '@/components/ui/header-bar';
 import { FontSizes, Palette, Radii, Shadows, Strokes } from '@/constants/theme';
 import { getDeckBySlug } from "@/data/decks";
 import { DetailedStats, getDetailedDeckStats } from "@/lib/storage";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { Image } from "expo-image";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
-import { HeaderBar } from '@/components/ui/header-bar';
-import { FloatingActionBar } from '@/components/ui/floating-action-bar';
+import { ScrollView, StyleSheet, View } from "react-native";
 
 const ACCENT = Palette.primary;
 const TEXT = Palette.black;
@@ -57,10 +55,7 @@ export default function DeckProgressScreen() {
         <HeaderBar rightIconName="close" onRightPress={() => router.back()} />
 
         <View style={styles.illustrationHolder}>
-          <Image
-            source={require("@/assets/images/react-logo.png")}
-            style={styles.illustration}
-          />
+          <ThemedText style={{ fontSize: 100 }}>{deck?.icon ?? "📚"}</ThemedText>
           <View style={styles.bubble}>
             <ThemedText style={styles.bubbleText}>Keep it up!</ThemedText>
           </View>
@@ -193,6 +188,6 @@ const styles = StyleSheet.create({
     opacity: 0.6,
     fontFamily: 'Inter_500Medium',
   },
-  
+
 });
 
