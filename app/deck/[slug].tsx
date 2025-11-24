@@ -191,6 +191,7 @@ export default function DeckScreen() {
               return (
                 <WordCard
                   key={`${deck.slug}-${i}`}
+                  index={i}
                   en={w.en}
                   th={w.th}
                   learned={isLearned}

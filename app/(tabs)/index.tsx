@@ -194,6 +194,7 @@ export default function HomeScreen() {
           {picked.map((d, i) => (
             <DeckCard
               key={d.slug}
+              index={i}
               title={d.title}
               icon={d.icon as any}
               count={d.count}

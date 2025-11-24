@@ -4,6 +4,7 @@ import { FontSizes, Palette, Radii, Shadows, Strokes } from '@/constants/theme';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import React from 'react';
 import { Pressable, View } from 'react-native';
+import Animated, { FadeInLeft } from 'react-native-reanimated';
 
 type WordCardProps = {
   en: string;
@@ -11,13 +12,15 @@ type WordCardProps = {
   learned?: boolean;
   onPlay?: () => void;
   isPlaying?: boolean;
+  index?: number; // For staggered animations
 };
 
-export function WordCard({ en, th, learned, onPlay, isPlaying }: WordCardProps) {
+export function WordCard({ en, th, learned, onPlay, isPlaying, index = 0 }: WordCardProps) {
   const TEXT = Palette.black;
 
   return (
-    <View
+    <Animated.View
+      entering={FadeInLeft.delay(index * 30).springify()}
       style={{
         backgroundColor: Palette.white,
         borderRadius: Radii.card,
@@ -61,6 +64,6 @@ export function WordCard({ en, th, learned, onPlay, isPlaying }: WordCardProps) 
           <MaterialIcons name="volume-up" size={20} color={learned ? Palette.primary : TEXT} style={!learned ? { opacity: 0.5 } : undefined} />
         </Pressable>
       </View>
-    </View>
+    </Animated.View>
   );
 }

@@ -1,6 +1,8 @@
+import { FontSizes, Palette, Radii, Shadows, Strokes } from '@/constants/theme';
+import { PressScaleValues, SpringPresets } from '@/lib/animation-utils';
 import React from 'react';
-import { Pressable, Text, ViewStyle, TextStyle } from 'react-native';
-import { Palette, Radii, Spacing, Strokes, Shadows, FontSizes } from '@/constants/theme';
+import { Pressable, Text, TextStyle, ViewStyle } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 type ButtonProps = {
   title: string;
@@ -10,12 +12,30 @@ type ButtonProps = {
   disabled?: boolean;
 };
 
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
 export function Button({ title, onPress, style, textStyle, disabled }: ButtonProps) {
+  const scale = useSharedValue(1);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const handlePressIn = () => {
+    scale.value = withSpring(PressScaleValues.normal, SpringPresets.quick);
+  };
+
+  const handlePressOut = () => {
+    scale.value = withSpring(1, SpringPresets.quick);
+  };
+
   return (
-    <Pressable
+    <AnimatedPressable
       onPress={onPress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
       disabled={disabled}
-      style={({ pressed }) => [
+      style={[
         {
           backgroundColor: Palette.primary,
           borderColor: Palette.black,
@@ -26,9 +46,9 @@ export function Button({ title, onPress, style, textStyle, disabled }: ButtonPro
           alignItems: 'center',
           justifyContent: 'center',
           ...(Shadows.brutalist as ViewStyle),
-          transform: [{ scale: pressed ? 0.96 : 1 }],
         },
         style,
+        animatedStyle,
       ]}
     >
       <Text
@@ -43,6 +63,6 @@ export function Button({ title, onPress, style, textStyle, disabled }: ButtonPro
       >
         {title}
       </Text>
-    </Pressable>
+    </AnimatedPressable>
   );
 }
