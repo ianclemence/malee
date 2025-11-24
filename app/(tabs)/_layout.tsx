@@ -33,7 +33,7 @@ export default function TabLayout() {
           name="index"
           options={{
             title: 'Home',
-            tabBarIcon: ({ color }) => <MaterialIcons name="home" size={28} color={color} />,
+            tabBarIcon: ({ color }) => <MaterialIcons name="cottage" size={28} color={color} />,
           }}
         />
         <Tabs.Screen
@@ -69,7 +69,7 @@ export default function TabLayout() {
           name="explore"
           options={{
             title: 'Decks',
-            tabBarIcon: ({ color }) => <MaterialIcons name="explore" size={28} color={color} />,
+            tabBarIcon: ({ color }) => <MaterialIcons name="style" size={28} color={color} />,
           }}
         />
       </Tabs>
