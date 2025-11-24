@@ -338,6 +338,12 @@ export default function LearnScreen() {
 
   async function startRecording() {
     try {
+      const perm = await audioRecorder.requestPermission();
+      if (!perm.granted) {
+        Alert.alert("Permission Required", "Please allow microphone access to record your pronunciation.");
+        return;
+      }
+
       console.log("Starting recording with expo-audio...");
       await audioRecorder.prepareToRecordAsync();
       audioRecorder.record();
