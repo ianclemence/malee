@@ -338,8 +338,29 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        {/* Diagnostics */}
         <View style={styles.section}>
+          <ThemedText type="subtitle" style={styles.sectionTitle}>
+            Subscription
+          </ThemedText>
+          <View style={styles.card}>
+            <Pressable style={styles.row}>
+              <View style={styles.rowIcon}>
+                <MaterialIcons
+                  name="workspace-premium"
+                  size={20}
+                  color={TEXT}
+                />
+              </View>
+              <ThemedText style={styles.rowLabel}>Current Plan</ThemedText>
+              <View style={styles.proPill}>
+                <Text style={styles.proText}>Pro</Text>
+              </View>
+            </Pressable>
+          </View>
+        </View>
+
+        {/* Diagnostics */}
+        {/* <View style={styles.section}>
           <ThemedText type="subtitle" style={styles.sectionTitle}>
             Diagnostics
           </ThemedText>
@@ -347,7 +368,7 @@ export default function SettingsScreen() {
             <MaterialIcons name="bug-report" size={20} color={Palette.white} />
             <Text style={styles.dangerButtonText}>Run API Diagnostics</Text>
           </Pressable>
-        </View>
+        </View> */}
 
         {/* Danger Zone */}
         <View style={styles.section}>
@@ -377,27 +398,6 @@ export default function SettingsScreen() {
             <MaterialIcons name="delete-forever" size={20} color={Palette.white} />
             <Text style={styles.dangerButtonText}>Reset Progress</Text>
           </Pressable>
-        </View>
-
-        <View style={styles.section}>
-          <ThemedText type="subtitle" style={styles.sectionTitle}>
-            Subscription
-          </ThemedText>
-          <View style={styles.card}>
-            <Pressable style={styles.row}>
-              <View style={styles.rowIcon}>
-                <MaterialIcons
-                  name="workspace-premium"
-                  size={20}
-                  color={TEXT}
-                />
-              </View>
-              <ThemedText style={styles.rowLabel}>Current Plan</ThemedText>
-              <View style={styles.proPill}>
-                <Text style={styles.proText}>Pro</Text>
-              </View>
-            </Pressable>
-          </View>
         </View>
 
         <ThemedText style={styles.versionText}>Version 1.0.0</ThemedText>
