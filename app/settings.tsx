@@ -290,50 +290,52 @@ export default function SettingsScreen() {
           <ThemedText type="subtitle" style={styles.sectionTitle}>
             Preferences
           </ThemedText>
-          <View style={styles.settingRow}>
-            <ThemedText style={styles.settingLabel}>Daily Reminders</ThemedText>
-            <Switch
-              value={settings.dailyReminders}
-              onValueChange={() => toggleSetting("dailyReminders")}
-              trackColor={{ false: Palette.black, true: ACCENT }}
-              thumbColor={Palette.white}
-              ios_backgroundColor={Palette.black}
-              style={{ borderRadius: 16, borderWidth: Strokes.thin, borderColor: Palette.black }}
-            />
-          </View>
-          <View style={styles.settingRow}>
-            <ThemedText style={styles.settingLabel}>Sound Effects</ThemedText>
-            <Switch
-              value={settings.soundEffects}
-              onValueChange={() => toggleSetting("soundEffects")}
-              trackColor={{ false: Palette.black, true: ACCENT }}
-              thumbColor={Palette.white}
-              ios_backgroundColor={Palette.black}
-              style={{ borderRadius: 16, borderWidth: Strokes.thin, borderColor: Palette.black }}
-            />
-          </View>
-          <View style={styles.settingRow}>
-            <ThemedText style={styles.settingLabel}>Daily Goal</ThemedText>
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-              <Pressable
-                onPress={() =>
-                  updateSetting("dailyGoal", Math.max(10, settings.dailyGoal - 10))
-                }
-                style={styles.iconButton}
-              >
-                <MaterialIcons name="remove" size={20} color={TEXT} />
-              </Pressable>
-              <Text style={{ fontSize: 16, fontWeight: "600", color: TEXT, width: 30, textAlign: "center" }}>
-                {settings.dailyGoal}
-              </Text>
-              <Pressable
-                onPress={() =>
-                  updateSetting("dailyGoal", Math.min(100, settings.dailyGoal + 10))
-                }
-                style={styles.iconButton}
-              >
-                <MaterialIcons name="add" size={20} color={TEXT} />
-              </Pressable>
+          <View style={{ gap: 12 }}>
+            <View style={styles.settingRow}>
+              <ThemedText style={styles.settingLabel}>Daily Reminders</ThemedText>
+              <Switch
+                value={settings.dailyReminders}
+                onValueChange={() => toggleSetting("dailyReminders")}
+                trackColor={{ false: Palette.black, true: ACCENT }}
+                thumbColor={Palette.white}
+                ios_backgroundColor={Palette.black}
+                style={{ borderRadius: 16, borderWidth: Strokes.thin, borderColor: Palette.black }}
+              />
+            </View>
+            <View style={styles.settingRow}>
+              <ThemedText style={styles.settingLabel}>Sound Effects</ThemedText>
+              <Switch
+                value={settings.soundEffects}
+                onValueChange={() => toggleSetting("soundEffects")}
+                trackColor={{ false: Palette.black, true: ACCENT }}
+                thumbColor={Palette.white}
+                ios_backgroundColor={Palette.black}
+                style={{ borderRadius: 16, borderWidth: Strokes.thin, borderColor: Palette.black }}
+              />
+            </View>
+            <View style={styles.settingRow}>
+              <ThemedText style={styles.settingLabel}>Daily Goal</ThemedText>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+                <Pressable
+                  onPress={() =>
+                    updateSetting("dailyGoal", Math.max(10, settings.dailyGoal - 10))
+                  }
+                  style={styles.iconButton}
+                >
+                  <MaterialIcons name="remove" size={20} color={TEXT} />
+                </Pressable>
+                <Text style={{ fontSize: 16, fontWeight: "600", color: TEXT, width: 30, textAlign: "center" }}>
+                  {settings.dailyGoal}
+                </Text>
+                <Pressable
+                  onPress={() =>
+                    updateSetting("dailyGoal", Math.min(100, settings.dailyGoal + 10))
+                  }
+                  style={styles.iconButton}
+                >
+                  <MaterialIcons name="add" size={20} color={TEXT} />
+                </Pressable>
+              </View>
             </View>
           </View>
         </View>
@@ -624,7 +626,6 @@ const styles = StyleSheet.create({
     backgroundColor: Palette.white,
     padding: 16,
     borderRadius: Radii.card,
-    marginBottom: 12,
     borderWidth: Strokes.thin,
     borderColor: Palette.black,
     ...Shadows.brutalist,
