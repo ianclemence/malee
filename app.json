@@ -44,12 +44,7 @@
           }
         }
       ],
-      [
-        "expo-av",
-        {
-          "microphonePermission": "Allow Malee to access your microphone to record your pronunciation practice."
-        }
-      ],
+
       [
         "expo-audio",
         {

@@ -31,6 +31,7 @@ import {
     AudioModule,
     AudioQuality,
     IOSOutputFormat,
+    useAudioPlayer,
     useAudioRecorder,
     useAudioRecorderState
 } from 'expo-audio';
@@ -131,6 +132,17 @@ export default function LearnScreen() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
 
+  const player = useAudioPlayer(recordedUri);
+
+  useEffect(() => {
+    if (player) {
+      const listener = player.addListener('playbackStatusUpdate', (status) => {
+        setIsPlaying(!player.paused);
+      });
+      return () => listener.remove();
+    }
+  }, [player]);
+
   const activeCardIndex = queue[currentIndex];
   const activeCard = cards[activeCardIndex];
 
@@ -164,11 +176,11 @@ export default function LearnScreen() {
       // Configure Audio Session for Mobile (iOS/Android)
       try {
         await AudioModule.setAudioModeAsync({
-          allowsRecordingIOS: true,
-          playsInSilentModeIOS: true,
-          staysActiveInBackground: false,
-          shouldDuckAndroid: true,
-          playThroughEarpieceAndroid: false,
+          allowsRecording: true,
+          playsInSilentMode: true,
+          shouldPlayInBackground: false,
+          interruptionModeAndroid: 'duckOthers',
+          shouldRouteThroughEarpiece: false,
         });
       } catch (e) {
         console.error("Failed to set audio mode", e);
@@ -399,9 +411,15 @@ export default function LearnScreen() {
   }
 
   async function playRecording() {
-    // TODO: Implement playback with expo-audio useAudioPlayer hook
-    console.log("Playback not yet implemented with expo-audio");
-    Alert.alert("Playback", "Audio playback will be implemented in the next update.");
+    if (!recordedUri || !player) return;
+
+    try {
+      console.log("Playing recording:", recordedUri);
+      player.play();
+    } catch (error) {
+      console.error("Failed to play recording", error);
+      Alert.alert("Playback Error", "Could not play the recording.");
+    }
   }
 
   function handleFlip() {
