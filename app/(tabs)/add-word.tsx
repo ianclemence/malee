@@ -2,15 +2,15 @@ import { ThemedText } from '@/components/themed-text';
 import { FontSizes, Palette, Radii, Shadows, Strokes } from '@/constants/theme';
 import { addWordToCustomDeck, CustomDeck, getCustomDecks, saveCustomDeck } from "@/lib/storage";
 import { useFocusEffect, useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
-  Alert,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
+    Alert,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
 } from "react-native";
 
 const ACCENT = Palette.primary;
@@ -27,9 +27,16 @@ export default function AddWordScreen() {
   const [isCreatingDeck, setIsCreatingDeck] = useState(false);
   const [newDeckName, setNewDeckName] = useState("");
 
+  const wordInputRef = useRef<TextInput>(null);
+
   useFocusEffect(
     React.useCallback(() => {
       loadDecks();
+      // Focus the word input when the screen comes into focus
+      const timer = setTimeout(() => {
+        wordInputRef.current?.focus();
+      }, 100);
+      return () => clearTimeout(timer);
     }, [])
   );
 
@@ -128,6 +135,7 @@ export default function AddWordScreen() {
           <View style={styles.inputGroup}>
             <ThemedText style={styles.label}>Word</ThemedText>
             <TextInput
+              ref={wordInputRef}
               value={word}
               onChangeText={setWord}
               placeholder="e.g. Dapper"
@@ -184,7 +192,6 @@ export default function AddWordScreen() {
                   placeholder="e.g. My Favorites"
                   placeholderTextColor="rgba(0,0,0,0.3)"
                   style={styles.input}
-                  autoFocus
                 />
               </View>
             ) : (
