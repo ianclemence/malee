@@ -2,56 +2,57 @@ import { Confetti } from "@/components/confetti";
 import { ThemedText } from "@/components/themed-text";
 import { IconButton } from "@/components/ui/icon-button";
 import { ProgressBar } from "@/components/ui/progress-bar";
+import { PulseCircle } from "@/components/ui/pulse-circle";
 import { FontSizes, Palette, Radii, Shadows, Strokes } from "@/constants/theme";
 import { getDeckBySlug } from "@/data/decks";
 import { useBottomSheet } from "@/hooks/bottom-sheet-store";
 import {
-  calculateNextReview,
-  INITIAL_STATS,
-  mapRatingToGrade,
-  SRSStats,
+    calculateNextReview,
+    INITIAL_STATS,
+    mapRatingToGrade,
+    SRSStats,
 } from "@/lib/srs";
 import {
-  AppSettings,
-  DeckProgress,
-  getCustomDecks,
-  getDeckProgress,
-  getDeckProgressStats,
-  getSettings,
-  getTodayInteractions,
-  incTodayInteractions,
-  incTotalTime,
-  saveWordStats,
-  setCurrentDeck,
+    AppSettings,
+    DeckProgress,
+    getCustomDecks,
+    getDeckProgress,
+    getDeckProgressStats,
+    getSettings,
+    getTodayInteractions,
+    incTodayInteractions,
+    incTotalTime,
+    saveWordStats,
+    setCurrentDeck,
 } from "@/lib/storage";
 import { FluentMeService, ScoreResult } from "@/services/fluent-me";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import {
-  AudioModule,
-  AudioQuality,
-  IOSOutputFormat,
-  useAudioRecorder,
-  useAudioRecorderState
+    AudioModule,
+    AudioQuality,
+    IOSOutputFormat,
+    useAudioRecorder,
+    useAudioRecorderState
 } from 'expo-audio';
 import * as Haptics from "expo-haptics";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import * as Speech from "expo-speech";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  AppState,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View
+    ActivityIndicator,
+    Alert,
+    AppState,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View
 } from "react-native";
 import Animated, {
-  interpolate,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
+    interpolate,
+    useAnimatedStyle,
+    useSharedValue,
+    withTiming,
 } from "react-native-reanimated";
 
 const ACCENT = Palette.primary;
@@ -128,6 +129,7 @@ export default function LearnScreen() {
   const recorderState = useAudioRecorderState(audioRecorder);
   const [recordedUri, setRecordedUri] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
   const activeCardIndex = queue[currentIndex];
   const activeCard = cards[activeCardIndex];
@@ -319,8 +321,16 @@ export default function LearnScreen() {
     console.log("Attempting to speak:", text, "Sound effects enabled:", settings.soundEffects);
     if (settings.soundEffects) {
       try {
-        Speech.speak(text, { language: "en", rate: 0.75 });
+        setIsSpeaking(true);
+        Speech.speak(text, {
+          language: "en",
+          rate: 0.75,
+          onDone: () => setIsSpeaking(false),
+          onStopped: () => setIsSpeaking(false),
+          onError: () => setIsSpeaking(false),
+        });
       } catch (e) {
+        setIsSpeaking(false);
         Alert.alert("TTS Error", String(e));
       }
     }
@@ -661,41 +671,59 @@ export default function LearnScreen() {
 
               {/* Controls Row */}
               <View style={[styles.controlsRow, !started && { opacity: 0.5 }]}>
-                <IconButton
-                  icon="volume-up"
-                  size={64}
-                  onPress={() => speak(activeCard.front)}
-                />
-                <IconButton
-                  icon={
-                    recorderState.isRecording
-                      ? "stop"
-                      : recordedUri
-                        ? isPlaying
-                          ? "pause"
-                          : "play-arrow"
-                        : "mic"
-                  }
-                  size={64}
-                  variant={recorderState.isRecording ? "danger" : "default"}
-                  bgColor={
-                    recorderState.isRecording
-                      ? Palette.error
-                      : (isPlaying || recordedUri)
-                        ? Palette.success
-                        : undefined
-                  }
-                  iconColor={
-                    recorderState.isRecording || isPlaying || recordedUri
-                      ? "#FFFFFF"
-                      : TEXT
-                  }
-                  onPress={() => {
-                    if (recorderState.isRecording) stopRecording();
-                    else if (recordedUri) playRecording();
-                    else startRecording();
-                  }}
-                />
+                <View style={{ position: 'relative', alignItems: 'center', justifyContent: 'center' }}>
+                  {isSpeaking && (
+                    <>
+                      <PulseCircle delay={0} size={64} />
+                      <PulseCircle delay={600} size={64} />
+                      <PulseCircle delay={1200} size={64} />
+                    </>
+                  )}
+                  <IconButton
+                    icon="volume-up"
+                    size={64}
+                    onPress={() => speak(activeCard.front)}
+                  />
+                </View>
+                <View style={{ position: 'relative', alignItems: 'center', justifyContent: 'center' }}>
+                  {isPlaying && (
+                    <>
+                      <PulseCircle delay={0} size={64} color={Palette.error} />
+                      <PulseCircle delay={600} size={64} color={Palette.error} />
+                      <PulseCircle delay={1200} size={64} color={Palette.error} />
+                    </>
+                  )}
+                  <IconButton
+                    icon={
+                      recorderState.isRecording
+                        ? "stop"
+                        : recordedUri
+                          ? isPlaying
+                            ? "pause"
+                            : "play-arrow"
+                          : "mic"
+                    }
+                    size={64}
+                    variant={recorderState.isRecording ? "danger" : "default"}
+                    bgColor={
+                      recorderState.isRecording
+                        ? Palette.error
+                        : (isPlaying || recordedUri)
+                          ? Palette.success
+                          : undefined
+                    }
+                    iconColor={
+                      recorderState.isRecording || isPlaying || recordedUri
+                        ? "#FFFFFF"
+                        : TEXT
+                    }
+                    onPress={() => {
+                      if (recorderState.isRecording) stopRecording();
+                      else if (recordedUri) playRecording();
+                      else startRecording();
+                    }}
+                  />
+                </View>
               </View>
 
               {/* Try Again Text - Only show when there's a recording */}

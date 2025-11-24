@@ -1,8 +1,9 @@
 import { ThemedText } from '@/components/themed-text';
+import { PulseCircle } from '@/components/ui/pulse-circle';
 import { FontSizes, Palette, Radii, Shadows, Strokes } from '@/constants/theme';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import React, { useEffect, useRef } from 'react';
-import { Animated, Easing, Pressable, View } from 'react-native';
+import React from 'react';
+import { Pressable, View } from 'react-native';
 
 type WordCardProps = {
   en: string;
@@ -10,51 +11,6 @@ type WordCardProps = {
   learned?: boolean;
   onPlay?: () => void;
   isPlaying?: boolean;
-};
-
-const PulseCircle = ({ delay }: { delay: number }) => {
-  const anim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    const loop = Animated.loop(
-      Animated.sequence([
-        Animated.delay(delay),
-        Animated.timing(anim, {
-          toValue: 1,
-          duration: 2000,
-          easing: Easing.out(Easing.ease),
-          useNativeDriver: true,
-        }),
-      ])
-    );
-    loop.start();
-    return () => loop.stop();
-  }, [delay]);
-
-  const scale = anim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [1, 2.5],
-  });
-
-  const opacity = anim.interpolate({
-    inputRange: [0, 0.5, 1],
-    outputRange: [0.6, 0.3, 0],
-  });
-
-  return (
-    <Animated.View
-      style={{
-        position: 'absolute',
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: Palette.primary,
-        transform: [{ scale }],
-        opacity,
-        zIndex: -1,
-      }}
-    />
-  );
 };
 
 export function WordCard({ en, th, learned, onPlay, isPlaying }: WordCardProps) {
