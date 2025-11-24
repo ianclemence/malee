@@ -5,17 +5,17 @@ import { WordCard } from '@/components/ui/word-card';
 import { FontSizes, Palette, Radii, Shadows, Strokes } from '@/constants/theme';
 import { getDeckBySlug } from "@/data/decks";
 import {
-  AppSettings,
-  DeckProgress,
-  deleteCustomDeck,
-  getCustomDecks,
-  getDeckProgress,
-  getDeckProgressStats,
-  getFavorites,
-  getMyDecks,
-  getSettings,
-  setFavorite,
-  setMyDeck,
+    AppSettings,
+    DeckProgress,
+    deleteCustomDeck,
+    getCustomDecks,
+    getDeckProgress,
+    getDeckProgressStats,
+    getFavorites,
+    getMyDecks,
+    getSettings,
+    setFavorite,
+    setMyDeck,
 } from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
@@ -38,6 +38,7 @@ export default function DeckScreen() {
   const [favorites, setFavorites] = useState<{ [key: string]: boolean }>({});
   const [myDecks, setMyDecksState] = useState<{ [key: string]: boolean }>({});
   const [deckStats, setDeckStats] = useState<DeckProgress>({});
+  const [playingIndex, setPlayingIndex] = useState<number | null>(null);
 
   const [deck, setDeck] = useState<any>(getDeckBySlug(String(slug)));
   const [isCustom, setIsCustom] = useState(false);
@@ -55,9 +56,16 @@ export default function DeckScreen() {
   const isMine = !!myDecks[String(slug)];
   const [progress, setProgress] = useState(0);
 
-  const speak = (text: string) => {
+  const speak = (text: string, index: number) => {
     if (settings.soundEffects) {
-      Speech.speak(text, { language: "en", rate: 0.75 });
+      setPlayingIndex(index);
+      Speech.speak(text, {
+        language: "en",
+        rate: 0.75,
+        onDone: () => setPlayingIndex(null),
+        onStopped: () => setPlayingIndex(null),
+        onError: () => setPlayingIndex(null),
+      });
     }
   };
 
@@ -186,7 +194,8 @@ export default function DeckScreen() {
                   en={w.en}
                   th={w.th}
                   learned={isLearned}
-                  onPlay={() => speak(w.en)}
+                  onPlay={() => speak(w.en, i)}
+                  isPlaying={playingIndex === i}
                 />
               );
             })}
