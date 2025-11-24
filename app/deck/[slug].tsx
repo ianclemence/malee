@@ -5,17 +5,17 @@ import { WordCard } from '@/components/ui/word-card';
 import { FontSizes, Palette, Radii, Shadows, Strokes } from '@/constants/theme';
 import { getDeckBySlug } from "@/data/decks";
 import {
-    AppSettings,
-    DeckProgress,
-    deleteCustomDeck,
-    getCustomDecks,
-    getDeckProgress,
-    getDeckProgressStats,
-    getFavorites,
-    getMyDecks,
-    getSettings,
-    setFavorite,
-    setMyDeck,
+  AppSettings,
+  DeckProgress,
+  deleteCustomDeck,
+  getCustomDecks,
+  getDeckProgress,
+  getDeckProgressStats,
+  getFavorites,
+  getMyDecks,
+  getSettings,
+  setFavorite,
+  setMyDeck,
 } from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
@@ -62,9 +62,9 @@ export default function DeckScreen() {
       Speech.speak(text, {
         language: "en",
         rate: 0.75,
-        onDone: () => setPlayingIndex(null),
-        onStopped: () => setPlayingIndex(null),
-        onError: () => setPlayingIndex(null),
+        onDone: () => setPlayingIndex((prev) => (prev === index ? null : prev)),
+        onStopped: () => setPlayingIndex((prev) => (prev === index ? null : prev)),
+        onError: () => setPlayingIndex((prev) => (prev === index ? null : prev)),
       });
     }
   };
