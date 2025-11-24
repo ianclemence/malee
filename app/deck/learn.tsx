@@ -137,7 +137,14 @@ export default function LearnScreen() {
   useEffect(() => {
     if (player) {
       const listener = player.addListener('playbackStatusUpdate', (status) => {
-        setIsPlaying(!player.paused);
+        // Check if playing and not at the end
+        const playing = !player.paused && player.playing;
+        setIsPlaying(playing);
+        
+        // If playback finished (reached the end), ensure we're not showing as playing
+        if (!player.playing && !player.paused) {
+          setIsPlaying(false);
+        }
       });
       return () => listener.remove();
     }
@@ -342,10 +349,17 @@ export default function LearnScreen() {
     console.log("Attempting to speak:", text, "Sound effects enabled:", settings.soundEffects);
     if (settings.soundEffects) {
       try {
-        setIsSpeaking(true);
+        // Stop any previous speech
+        Speech.stop();
+        setIsSpeaking(false);
+        
+        // Small delay to ensure previous speech is stopped
+        await new Promise(resolve => setTimeout(resolve, 50));
+        
         Speech.speak(text, {
           language: "en",
           rate: 0.75,
+          onStart: () => setIsSpeaking(true),
           onDone: () => setIsSpeaking(false),
           onStopped: () => setIsSpeaking(false),
           onError: () => setIsSpeaking(false),
@@ -354,6 +368,9 @@ export default function LearnScreen() {
         setIsSpeaking(false);
         Alert.alert("TTS Error", String(e));
       }
+    } else {
+      // Ensure isSpeaking is false if sound effects are disabled
+      setIsSpeaking(false);
     }
   }
 
