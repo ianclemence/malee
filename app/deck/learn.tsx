@@ -338,8 +338,8 @@ export default function LearnScreen() {
 
   async function startRecording() {
     try {
-      const perm = await audioRecorder.requestPermission();
-      if (!perm.granted) {
+      const perm = await AudioModule.requestRecordingPermissionsAsync();
+      if (perm.status !== 'granted') {
         Alert.alert("Permission Required", "Please allow microphone access to record your pronunciation.");
         return;
       }
@@ -376,22 +376,15 @@ export default function LearnScreen() {
         if (postId) {
           console.log("Created Post ID:", postId);
 
-          // Upload to S3 (API requires a public URL, not a local file)
-          console.log("Uploading to S3...");
-          const publicUrl = await uploadAudioToS3(recordingUri);
+          // Send local file directly to API
+          console.log("Sending audio to FluentMe API...");
+          const scoreResult = await FluentMeService.scoreRecording(postId, recordingUri);
 
-          if (publicUrl) {
-            console.log("S3 Upload Success:", publicUrl);
-            const scoreResult = await FluentMeService.scoreRecording(postId, publicUrl);
-
-            if (scoreResult) {
-              console.log("Scoring Result:", scoreResult);
-              setScore(scoreResult);
-            } else {
-              Alert.alert("Scoring Failed", "Could not get a score from the API.");
-            }
+          if (scoreResult) {
+            console.log("Scoring Result:", scoreResult);
+            setScore(scoreResult);
           } else {
-            Alert.alert("Upload Failed", "Could not upload audio to S3.");
+            Alert.alert("Scoring Failed", "Could not get a score from the API.");
           }
         } else {
           Alert.alert("Error", "Failed to initialize scoring session.");

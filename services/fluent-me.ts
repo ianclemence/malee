@@ -94,15 +94,31 @@ export const FluentMeService = {
 
             console.log("FluentMe: Scoring with audio URL:", audioUri);
 
+            let body;
+            let headers: any = {
+                "x-access-token": token,
+            };
+
+            if (audioUri.startsWith("file://")) {
+                const formData = new FormData();
+                formData.append("audio_provided", {
+                    uri: audioUri,
+                    name: "recording.wav",
+                    type: "audio/wav",
+                } as any);
+                body = formData;
+                // Content-Type header should be left out for FormData to let the browser/engine set the boundary
+            } else {
+                headers["Content-Type"] = "application/json";
+                body = JSON.stringify({
+                    audio_provided: audioUri
+                });
+            }
+
             const response = await fetch(`${BASE_URL}/score/${postId}`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "x-access-token": token,
-                },
-                body: JSON.stringify({
-                    audio_provided: audioUri
-                }),
+                headers,
+                body,
             });
 
 
