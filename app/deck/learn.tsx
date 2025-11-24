@@ -7,53 +7,53 @@ import { FontSizes, Palette, Radii, Shadows, Strokes } from "@/constants/theme";
 import { getDeckBySlug } from "@/data/decks";
 import { useBottomSheet } from "@/hooks/bottom-sheet-store";
 import {
-    calculateNextReview,
-    INITIAL_STATS,
-    mapRatingToGrade,
-    SRSStats,
+  calculateNextReview,
+  INITIAL_STATS,
+  mapRatingToGrade,
+  SRSStats,
 } from "@/lib/srs";
 import {
-    AppSettings,
-    DeckProgress,
-    getCustomDecks,
-    getDeckProgress,
-    getDeckProgressStats,
-    getSettings,
-    getTodayInteractions,
-    incTodayInteractions,
-    incTotalTime,
-    saveWordStats,
-    setCurrentDeck,
+  AppSettings,
+  DeckProgress,
+  getCustomDecks,
+  getDeckProgress,
+  getDeckProgressStats,
+  getSettings,
+  getTodayInteractions,
+  incTodayInteractions,
+  incTotalTime,
+  saveWordStats,
+  setCurrentDeck,
 } from "@/lib/storage";
 import { FluentMeService, ScoreResult } from "@/services/fluent-me";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import {
-    AudioModule,
-    AudioQuality,
-    IOSOutputFormat,
-    useAudioPlayer,
-    useAudioRecorder,
-    useAudioRecorderState
+  AudioModule,
+  AudioQuality,
+  IOSOutputFormat,
+  useAudioPlayer,
+  useAudioRecorder,
+  useAudioRecorderState
 } from 'expo-audio';
 import * as Haptics from "expo-haptics";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import * as Speech from "expo-speech";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    AppState,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View
+  ActivityIndicator,
+  Alert,
+  AppState,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View
 } from "react-native";
 import Animated, {
-    interpolate,
-    useAnimatedStyle,
-    useSharedValue,
-    withTiming,
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
 } from "react-native-reanimated";
 
 const ACCENT = Palette.primary;
@@ -142,6 +142,15 @@ export default function LearnScreen() {
       return () => listener.remove();
     }
   }, [player]);
+
+  // Ensure player doesn't auto-play when recordedUri is set
+  useEffect(() => {
+    if (player && recordedUri) {
+      // Pause the player when a new recording is available
+      // This prevents auto-play after recording stops
+      player.pause();
+    }
+  }, [player, recordedUri]);
 
   const activeCardIndex = queue[currentIndex];
   const activeCard = cards[activeCardIndex];
@@ -414,10 +423,15 @@ export default function LearnScreen() {
     if (!recordedUri || !player) return;
 
     try {
-      console.log("Playing recording:", recordedUri);
-      player.play();
+      if (player.paused) {
+        console.log("Playing recording:", recordedUri);
+        player.play();
+      } else {
+        console.log("Pausing recording:", recordedUri);
+        player.pause();
+      }
     } catch (error) {
-      console.error("Failed to play recording", error);
+      console.error("Failed to play/pause recording", error);
       Alert.alert("Playback Error", "Could not play the recording.");
     }
   }
