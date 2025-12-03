@@ -44,7 +44,6 @@
           }
         }
       ],
-
       [
         "expo-audio",
         {
@@ -63,6 +62,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "177a92ce-5348-45b4-bf10-25129e5dddc7"
+      }
     }
   }
 }
