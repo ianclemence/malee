@@ -125,6 +125,8 @@ export default function LearnScreen() {
 
   const [score, setScore] = useState<PronunciationResult | null>(null);
   const [isScoring, setIsScoring] = useState(false);
+  const [speechTranscript, setSpeechTranscript] = useState<string>("");
+  const [isSpeechRecognizing, setIsSpeechRecognizing] = useState(false);
 
   // Audio Recording State - using expo-audio
   const audioRecorder = useAudioRecorder(SPEECH_RECORDING_OPTIONS);
@@ -186,6 +188,41 @@ export default function LearnScreen() {
     transform: [{ rotateY: `${180 - flip.value * 180}deg` }],
     opacity: interpolate(flip.value, [0.5, 0.51], [0, 1]), // Show halfway
   }));
+
+  // Load Queue & Data
+  useEffect(() => {
+    // Setup Voice recognition handlers
+    Voice.onSpeechStart = () => {
+      setIsSpeechRecognizing(true);
+      console.log("Speech recognition started");
+    };
+
+    Voice.onSpeechEnd = () => {
+      setIsSpeechRecognizing(false);
+      console.log("Speech recognition ended");
+    };
+
+    Voice.onSpeechResults = (result) => {
+      console.log("Speech recognition results:", result);
+      if (result.value && result.value.length > 0) {
+        setSpeechTranscript(result.value[0]);
+      }
+      setIsSpeechRecognizing(false);
+    };
+
+    Voice.onSpeechError = (error) => {
+      console.error("Speech recognition error:", error);
+      setIsSpeechRecognizing(false);
+      Alert.alert(
+        "Speech Recognition Error",
+        "Could not recognize speech. Please try again."
+      );
+    };
+
+    return () => {
+      Voice.destroy().then(Voice.removeAllListeners);
+    };
+  }, []);
 
   // Load Queue & Data
   useEffect(() => {
@@ -412,33 +449,87 @@ export default function LearnScreen() {
       if (recordingUri) {
         setRecordedUri(recordingUri);
 
-        // Start Scoring
+        // Start speech recognition
         setIsScoring(true);
         setScore(null);
+        setSpeechTranscript("");
 
         try {
-          // Use speech-to-text to get the transcript
-          // For now, we'll simulate the transcript since we don't have speech-to-text
-          // In a real implementation, you would use a speech-to-text API
-          const simulatedTranscript = activeCard.front; // This would come from speech-to-text
+          // Request speech recognition permissions
+          const hasSpeechPermission = await Voice.isAvailable();
+          if (!hasSpeechPermission) {
+            Alert.alert(
+              "Speech Recognition",
+              "Speech recognition is not available on this device."
+            );
+            setIsScoring(false);
+            return;
+          }
 
-          // Evaluate pronunciation locally
-          const scoreResult = await evaluatePronunciation(
-            activeCard.front,
-            simulatedTranscript
-          );
+          // Start speech recognition
+          console.log("Starting speech recognition...");
+          await Voice.start("en-US");
 
-          if (scoreResult) {
-            console.log("Scoring Result:", scoreResult);
-            setScore(scoreResult);
+          // Wait for speech recognition to complete (with timeout)
+          const timeoutPromise = new Promise<string>((resolve) => {
+            setTimeout(() => {
+              Voice.stop();
+              resolve("");
+            }, 5000); // 5 second timeout
+          });
+
+          const transcriptPromise = new Promise<string>((resolve) => {
+            const checkTranscript = setInterval(() => {
+              if (speechTranscript) {
+                clearInterval(checkTranscript);
+                resolve(speechTranscript);
+              }
+            }, 100);
+          });
+
+          const transcript = await Promise.race([
+            transcriptPromise,
+            timeoutPromise,
+          ]);
+
+          if (transcript) {
+            console.log("Speech recognized:", transcript);
+
+            // Evaluate pronunciation with actual transcript
+            const scoreResult = await evaluatePronunciation(
+              activeCard.front,
+              transcript
+            );
+
+            if (scoreResult) {
+              console.log("Scoring Result:", scoreResult);
+              setScore(scoreResult);
+            } else {
+              Alert.alert(
+                "Scoring Failed",
+                "Could not evaluate pronunciation."
+              );
+            }
           } else {
-            Alert.alert("Scoring Failed", "Could not evaluate pronunciation.");
+            Alert.alert(
+              "No Speech Detected",
+              "Could not recognize what you said. Please try again."
+            );
           }
         } catch (error) {
-          console.error("Pronunciation evaluation error:", error);
-          Alert.alert("Scoring Failed", "Error evaluating pronunciation.");
+          console.error("Speech recognition error:", error);
+          Alert.alert(
+            "Speech Recognition Error",
+            "Error recognizing speech. Please try again."
+          );
+        } finally {
+          try {
+            await Voice.stop();
+          } catch (e) {
+            // Voice might already be stopped
+          }
+          setIsScoring(false);
         }
-        setIsScoring(false);
       }
     } catch (e) {
       console.error("Error stopping recording:", e);
@@ -689,7 +780,7 @@ export default function LearnScreen() {
               pointerEvents={flipped ? "none" : "auto"}
             >
               {/* Scoring Display - At very top */}
-              {isScoring && (
+              {(isScoring || isSpeechRecognizing) && (
                 <View
                   style={{
                     position: "absolute",
@@ -704,7 +795,9 @@ export default function LearnScreen() {
                   <ThemedText
                     style={{ marginTop: 8, fontSize: 14, opacity: 0.7 }}
                   >
-                    Analyzing pronunciation...
+                    {isSpeechRecognizing
+                      ? "Listening..."
+                      : "Analyzing pronunciation..."}
                   </ThemedText>
                 </View>
               )}
