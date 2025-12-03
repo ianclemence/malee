@@ -157,13 +157,13 @@ export const generateReferenceAudio = async (text: string): Promise<void> => {
     // Cancel any ongoing speech
     Speech.stop();
     
-    const utterance = new Speech.SynthesisUtterance(text);
-    utterance.lang = 'en-US';
-    utterance.rate = 0.9; // Slightly slower for learning
-    
-    utterance.onend = () => resolve();
-    utterance.onerror = (e) => reject(e);
-
-    Speech.speak(utterance);
+    // Use Expo Speech API directly
+    Speech.speak(text, {
+      language: 'en-US',
+      pitch: 1.0,
+      rate: 0.9, // Slightly slower for learning
+      onDone: () => resolve(),
+      onError: (error: Error) => reject(error)
+    });
   });
 };

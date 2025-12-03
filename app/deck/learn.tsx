@@ -25,6 +25,7 @@ import {
   saveWordStats,
   setCurrentDeck,
 } from "@/lib/storage";
+import { evaluatePronunciation } from "@/services/pronunciation";
 import { PronunciationResult } from "@/types";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import {
