@@ -898,7 +898,7 @@ export default function LearnScreen() {
                         { fontSize: 18 * textSizeMultiplier },
                       ]}
                     >
-                      "{activeCard.example}"
+                      &ldquo;{activeCard.example}&rdquo;
                     </ThemedText>
                   </View>
                 )}
