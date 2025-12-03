@@ -19,7 +19,6 @@ import {
   resetProgress,
   saveSettings,
 } from "@/lib/storage";
-import { FluentMeService } from "@/services/fluent-me";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
@@ -156,12 +155,6 @@ export default function SettingsScreen() {
     }
   };
 
-  const runDiagnostics = async () => {
-    Alert.alert("Running Diagnostics", "Please wait...");
-    const result = await FluentMeService.runDiagnostics();
-    Alert.alert("Diagnostics Result", result);
-  };
-
   return (
     <View style={styles.page}>
       <ScrollView contentContainerStyle={styles.container}>
@@ -176,7 +169,16 @@ export default function SettingsScreen() {
                   style={styles.avatar}
                 />
               ) : (
-                <View style={[styles.avatar, { backgroundColor: "#E0E0E0", alignItems: "center", justifyContent: "center" }]}>
+                <View
+                  style={[
+                    styles.avatar,
+                    {
+                      backgroundColor: "#E0E0E0",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    },
+                  ]}
+                >
                   <MaterialIcons name="person" size={64} color="#757575" />
                 </View>
               )}
@@ -195,9 +197,16 @@ export default function SettingsScreen() {
             <ThemedText type="title" style={styles.name}>
               {settings.name}
             </ThemedText>
-            <MaterialIcons name="edit" size={16} color={TEXT} style={{ opacity: 0.5 }} />
+            <MaterialIcons
+              name="edit"
+              size={16}
+              color={TEXT}
+              style={{ opacity: 0.5 }}
+            />
           </Pressable>
-          <ThemedText style={styles.level}>English Level: {getUserLevel(stats.words)}</ThemedText>
+          <ThemedText style={styles.level}>
+            English Level: {getUserLevel(stats.words)}
+          </ThemedText>
         </View>
 
         <View style={styles.statsRow}>
@@ -231,17 +240,17 @@ export default function SettingsScreen() {
                     styles.heatmapSquare,
                     isActive
                       ? {
-                        backgroundColor: ACCENT,
-                        borderWidth: Strokes.thin,
-                        borderColor: Palette.black,
-                      }
+                          backgroundColor: ACCENT,
+                          borderWidth: Strokes.thin,
+                          borderColor: Palette.black,
+                        }
                       : {
-                        backgroundColor: Palette.white,
-                        borderWidth: Strokes.thin,
-                        borderColor: Palette.black,
-                        opacity: 0.5,
-                        ...Shadows.brutalist,
-                      },
+                          backgroundColor: Palette.white,
+                          borderWidth: Strokes.thin,
+                          borderColor: Palette.black,
+                          opacity: 0.5,
+                          ...Shadows.brutalist,
+                        },
                   ]}
                 />
               );
@@ -292,14 +301,20 @@ export default function SettingsScreen() {
           </ThemedText>
           <View style={{ gap: 12 }}>
             <View style={styles.settingRow}>
-              <ThemedText style={styles.settingLabel}>Daily Reminders</ThemedText>
+              <ThemedText style={styles.settingLabel}>
+                Daily Reminders
+              </ThemedText>
               <Switch
                 value={settings.dailyReminders}
                 onValueChange={() => toggleSetting("dailyReminders")}
                 trackColor={{ false: Palette.black, true: ACCENT }}
                 thumbColor={Palette.white}
                 ios_backgroundColor={Palette.black}
-                style={{ borderRadius: 16, borderWidth: Strokes.thin, borderColor: Palette.black }}
+                style={{
+                  borderRadius: 16,
+                  borderWidth: Strokes.thin,
+                  borderColor: Palette.black,
+                }}
               />
             </View>
             <View style={styles.settingRow}>
@@ -310,26 +325,46 @@ export default function SettingsScreen() {
                 trackColor={{ false: Palette.black, true: ACCENT }}
                 thumbColor={Palette.white}
                 ios_backgroundColor={Palette.black}
-                style={{ borderRadius: 16, borderWidth: Strokes.thin, borderColor: Palette.black }}
+                style={{
+                  borderRadius: 16,
+                  borderWidth: Strokes.thin,
+                  borderColor: Palette.black,
+                }}
               />
             </View>
             <View style={styles.settingRow}>
               <ThemedText style={styles.settingLabel}>Daily Goal</ThemedText>
-              <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+              <View
+                style={{ flexDirection: "row", alignItems: "center", gap: 10 }}
+              >
                 <Pressable
                   onPress={() =>
-                    updateSetting("dailyGoal", Math.max(10, settings.dailyGoal - 10))
+                    updateSetting(
+                      "dailyGoal",
+                      Math.max(10, settings.dailyGoal - 10)
+                    )
                   }
                   style={styles.iconButton}
                 >
                   <MaterialIcons name="remove" size={20} color={TEXT} />
                 </Pressable>
-                <Text style={{ fontSize: 16, fontWeight: "600", color: TEXT, width: 30, textAlign: "center" }}>
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontWeight: "600",
+                    color: TEXT,
+                    width: 30,
+                    textAlign: "center",
+                  }}
+                >
                   {settings.dailyGoal}
                 </Text>
                 <Pressable
                   onPress={() =>
-                    updateSetting("dailyGoal", Math.min(100, settings.dailyGoal + 10))
+                    updateSetting(
+                      "dailyGoal",
+                      Math.min(100, settings.dailyGoal + 10)
+                    )
                   }
                   style={styles.iconButton}
                 >
@@ -361,17 +396,6 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        {/* Diagnostics */}
-        {/* <View style={styles.section}>
-          <ThemedText type="subtitle" style={styles.sectionTitle}>
-            Diagnostics
-          </ThemedText>
-          <Pressable onPress={runDiagnostics} style={styles.dangerButton}>
-            <MaterialIcons name="bug-report" size={20} color={Palette.white} />
-            <Text style={styles.dangerButtonText}>Run API Diagnostics</Text>
-          </Pressable>
-        </View> */}
-
         {/* Danger Zone */}
         <View style={styles.section}>
           <ThemedText type="subtitle" style={styles.sectionTitle}>
@@ -397,7 +421,11 @@ export default function SettingsScreen() {
             }}
             style={[styles.dangerButton, { backgroundColor: Palette.error }]}
           >
-            <MaterialIcons name="delete-forever" size={20} color={Palette.white} />
+            <MaterialIcons
+              name="delete-forever"
+              size={20}
+              color={Palette.white}
+            />
             <Text style={styles.dangerButtonText}>Reset Progress</Text>
           </Pressable>
         </View>
@@ -438,7 +466,9 @@ export default function SettingsScreen() {
                 }}
                 style={[styles.modalButton, { backgroundColor: ACCENT }]}
               >
-                <Text style={{ color: Palette.white, fontWeight: "600" }}>Save</Text>
+                <Text style={{ color: Palette.white, fontWeight: "600" }}>
+                  Save
+                </Text>
               </Pressable>
             </View>
           </View>
@@ -725,7 +755,7 @@ const styles = StyleSheet.create({
   },
   proText: {
     color: Palette.primary,
-    fontFamily: 'Inter_700Bold',
+    fontFamily: "Inter_700Bold",
     fontSize: 14,
   },
 });

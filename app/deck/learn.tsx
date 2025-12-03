@@ -25,7 +25,7 @@ import {
   saveWordStats,
   setCurrentDeck,
 } from "@/lib/storage";
-import { FluentMeService, ScoreResult } from "@/services/fluent-me";
+import { PronunciationResult } from "@/types";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import {
   AudioModule,
@@ -33,8 +33,8 @@ import {
   IOSOutputFormat,
   useAudioPlayer,
   useAudioRecorder,
-  useAudioRecorderState
-} from 'expo-audio';
+  useAudioRecorderState,
+} from "expo-audio";
 import * as Haptics from "expo-haptics";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import * as Speech from "expo-speech";
@@ -47,7 +47,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  View
+  View,
 } from "react-native";
 import Animated, {
   interpolate,
@@ -62,13 +62,13 @@ const PAGE_BG = Palette.cream;
 
 // Custom recording preset optimized for speech recognition
 const SPEECH_RECORDING_OPTIONS = {
-  extension: '.wav',
+  extension: ".wav",
   sampleRate: 16000, // Google Speech-to-Text recommends 16kHz for speech
   numberOfChannels: 1, // Mono
   bitRate: 128000,
   android: {
-    outputFormat: 'mpeg4' as const,
-    audioEncoder: 'aac' as const,
+    outputFormat: "mpeg4" as const,
+    audioEncoder: "aac" as const,
   },
   ios: {
     outputFormat: IOSOutputFormat.LINEARPCM, // True WAV format
@@ -78,7 +78,7 @@ const SPEECH_RECORDING_OPTIONS = {
     linearPCMIsFloat: false,
   },
   web: {
-    mimeType: 'audio/wav',
+    mimeType: "audio/wav",
     bitsPerSecond: 128000,
   },
 };
@@ -122,7 +122,7 @@ export default function LearnScreen() {
   const [todayCount, setTodayCount] = useState(0);
   const [started, setStarted] = useState(false);
 
-  const [score, setScore] = useState<ScoreResult | null>(null);
+  const [score, setScore] = useState<PronunciationResult | null>(null);
   const [isScoring, setIsScoring] = useState(false);
 
   // Audio Recording State - using expo-audio
@@ -136,11 +136,11 @@ export default function LearnScreen() {
 
   useEffect(() => {
     if (player) {
-      const listener = player.addListener('playbackStatusUpdate', (status) => {
+      const listener = player.addListener("playbackStatusUpdate", (status) => {
         // Check if playing and not at the end
         const playing = !player.paused && player.playing;
         setIsPlaying(playing);
-        
+
         // If playback finished (reached the end), ensure we're not showing as playing
         if (!player.playing && !player.paused) {
           setIsPlaying(false);
@@ -195,7 +195,7 @@ export default function LearnScreen() {
           allowsRecording: true,
           playsInSilentMode: true,
           shouldPlayInBackground: false,
-          interruptionModeAndroid: 'duckOthers',
+          interruptionModeAndroid: "duckOthers",
           shouldRouteThroughEarpiece: false,
         });
       } catch (e) {
@@ -214,7 +214,8 @@ export default function LearnScreen() {
         const customDecks = await getCustomDecks();
         d = customDecks.find((cd) => cd.slug === slug);
       }
-      setDeck(d); if (!d) {
+      setDeck(d);
+      if (!d) {
         setLoading(false);
         return;
       }
@@ -346,16 +347,21 @@ export default function LearnScreen() {
 
   // Audio Functions
   async function speak(text: string) {
-    console.log("Attempting to speak:", text, "Sound effects enabled:", settings.soundEffects);
+    console.log(
+      "Attempting to speak:",
+      text,
+      "Sound effects enabled:",
+      settings.soundEffects
+    );
     if (settings.soundEffects) {
       try {
         // Stop any previous speech
         Speech.stop();
         setIsSpeaking(false);
-        
+
         // Small delay to ensure previous speech is stopped
-        await new Promise(resolve => setTimeout(resolve, 50));
-        
+        await new Promise((resolve) => setTimeout(resolve, 50));
+
         Speech.speak(text, {
           language: "en",
           rate: 0.75,
@@ -377,8 +383,11 @@ export default function LearnScreen() {
   async function startRecording() {
     try {
       const perm = await AudioModule.requestRecordingPermissionsAsync();
-      if (perm.status !== 'granted') {
-        Alert.alert("Permission Required", "Please allow microphone access to record your pronunciation.");
+      if (perm.status !== "granted") {
+        Alert.alert(
+          "Permission Required",
+          "Please allow microphone access to record your pronunciation."
+        );
         return;
       }
 
@@ -406,26 +415,27 @@ export default function LearnScreen() {
         setIsScoring(true);
         setScore(null);
 
-        const postId = await FluentMeService.createPost(
-          `Practice: ${activeCard.front.substring(0, 20)}`,
-          activeCard.front
-        );
+        try {
+          // Use speech-to-text to get the transcript
+          // For now, we'll simulate the transcript since we don't have speech-to-text
+          // In a real implementation, you would use a speech-to-text API
+          const simulatedTranscript = activeCard.front; // This would come from speech-to-text
 
-        if (postId) {
-          console.log("Created Post ID:", postId);
-
-          // Send local file directly to API
-          console.log("Sending audio to FluentMe API...");
-          const scoreResult = await FluentMeService.scoreRecording(postId, recordingUri);
+          // Evaluate pronunciation locally
+          const scoreResult = await evaluatePronunciation(
+            activeCard.front,
+            simulatedTranscript
+          );
 
           if (scoreResult) {
             console.log("Scoring Result:", scoreResult);
             setScore(scoreResult);
           } else {
-            Alert.alert("Scoring Failed", "Could not get a score from the API.");
+            Alert.alert("Scoring Failed", "Could not evaluate pronunciation.");
           }
-        } else {
-          Alert.alert("Error", "Failed to initialize scoring session.");
+        } catch (error) {
+          console.error("Pronunciation evaluation error:", error);
+          Alert.alert("Scoring Failed", "Error evaluating pronunciation.");
         }
         setIsScoring(false);
       }
@@ -577,7 +587,12 @@ export default function LearnScreen() {
       >
         <Confetti />
         <Text style={{ fontSize: 64 }}>🎊</Text>
-        <Text style={[styles.doneText, { fontFamily: "PlayfairDisplay_600SemiBold" }]}>
+        <Text
+          style={[
+            styles.doneText,
+            { fontFamily: "PlayfairDisplay_600SemiBold" },
+          ]}
+        >
           All caught up!
         </Text>
         <Text style={styles.doneSubText}>
@@ -674,32 +689,76 @@ export default function LearnScreen() {
             >
               {/* Scoring Display - At very top */}
               {isScoring && (
-                <View style={{ position: 'absolute', top: 80, left: 0, right: 0, alignItems: "center", zIndex: 10 }}>
+                <View
+                  style={{
+                    position: "absolute",
+                    top: 80,
+                    left: 0,
+                    right: 0,
+                    alignItems: "center",
+                    zIndex: 10,
+                  }}
+                >
                   <ActivityIndicator size="large" color="#000000" />
-                  <ThemedText style={{ marginTop: 8, fontSize: 14, opacity: 0.7 }}>
+                  <ThemedText
+                    style={{ marginTop: 8, fontSize: 14, opacity: 0.7 }}
+                  >
                     Analyzing pronunciation...
                   </ThemedText>
                 </View>
               )}
 
               {score && !isScoring && (
-                <View style={{ position: 'absolute', top: 80, left: 0, right: 0, alignItems: "center", zIndex: 10 }}>
-                  <ThemedText type="phrase" style={[styles.scoreText, {
-                    color: score.overall_points >= 80 ? Palette.success : score.overall_points >= 60 ? '#FF9500' : Palette.error
-                  }]}>
-                    {Math.round(score.overall_points)}%
+                <View
+                  style={{
+                    position: "absolute",
+                    top: 80,
+                    left: 0,
+                    right: 0,
+                    alignItems: "center",
+                    zIndex: 10,
+                  }}
+                >
+                  <ThemedText
+                    type="phrase"
+                    style={[
+                      styles.scoreText,
+                      {
+                        color:
+                          score.score >= 80
+                            ? Palette.success
+                            : score.score >= 60
+                            ? "#FF9500"
+                            : Palette.error,
+                      },
+                    ]}
+                  >
+                    {Math.round(score.score)}%
                   </ThemedText>
-                  {score.word_result_data && (
-                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8, marginTop: 8, paddingHorizontal: 16 }}>
-                      {score.word_result_data.map((w, i) => (
-                        <View key={i} style={{ alignItems: 'center' }}>
-                          <ThemedText style={{
-                            color: w.points >= 80 ? Palette.success : w.points >= 50 ? Palette.primary : Palette.error,
-                            fontWeight: 'bold'
-                          }}>
-                            {w.word}
+                  {score.breakdown && (
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        flexWrap: "wrap",
+                        justifyContent: "center",
+                        gap: 8,
+                        marginTop: 8,
+                        paddingHorizontal: 16,
+                      }}
+                    >
+                      {score.breakdown.map((part, i) => (
+                        <View key={i} style={{ alignItems: "center" }}>
+                          <ThemedText
+                            style={{
+                              color:
+                                part.status === "good"
+                                  ? Palette.success
+                                  : Palette.error,
+                              fontWeight: "bold",
+                            }}
+                          >
+                            {part.part}
                           </ThemedText>
-                          <ThemedText style={{ fontSize: 10, opacity: 0.6 }}>{Math.round(w.points)}%</ThemedText>
                         </View>
                       ))}
                     </View>
@@ -719,7 +778,13 @@ export default function LearnScreen() {
 
               {/* Controls Row */}
               <View style={[styles.controlsRow, !started && { opacity: 0.5 }]}>
-                <View style={{ position: 'relative', alignItems: 'center', justifyContent: 'center' }}>
+                <View
+                  style={{
+                    position: "relative",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
                   {isSpeaking && (
                     <>
                       <PulseCircle delay={0} size={64} />
@@ -733,12 +798,26 @@ export default function LearnScreen() {
                     onPress={() => speak(activeCard.front)}
                   />
                 </View>
-                <View style={{ position: 'relative', alignItems: 'center', justifyContent: 'center' }}>
+                <View
+                  style={{
+                    position: "relative",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
                   {isPlaying && (
                     <>
                       <PulseCircle delay={0} size={64} color={Palette.error} />
-                      <PulseCircle delay={600} size={64} color={Palette.error} />
-                      <PulseCircle delay={1200} size={64} color={Palette.error} />
+                      <PulseCircle
+                        delay={600}
+                        size={64}
+                        color={Palette.error}
+                      />
+                      <PulseCircle
+                        delay={1200}
+                        size={64}
+                        color={Palette.error}
+                      />
                     </>
                   )}
                   <IconButton
@@ -746,19 +825,19 @@ export default function LearnScreen() {
                       recorderState.isRecording
                         ? "stop"
                         : recordedUri
-                          ? isPlaying
-                            ? "pause"
-                            : "play-arrow"
-                          : "mic"
+                        ? isPlaying
+                          ? "pause"
+                          : "play-arrow"
+                        : "mic"
                     }
                     size={64}
                     variant={recorderState.isRecording ? "danger" : "default"}
                     bgColor={
                       recorderState.isRecording
                         ? Palette.error
-                        : (isPlaying || recordedUri)
-                          ? Palette.success
-                          : undefined
+                        : isPlaying || recordedUri
+                        ? Palette.success
+                        : undefined
                     }
                     iconColor={
                       recorderState.isRecording || isPlaying || recordedUri
@@ -828,7 +907,11 @@ export default function LearnScreen() {
         </Animated.View>
 
         {/* Static Hint Text - NOW CLICKABLE */}
-        <Pressable style={styles.staticHintContainer} onPress={handleFlip} disabled={!started}>
+        <Pressable
+          style={styles.staticHintContainer}
+          onPress={handleFlip}
+          disabled={!started}
+        >
           <ThemedText style={styles.tapHint}>Tap to flip</ThemedText>
         </Pressable>
       </View>
@@ -855,7 +938,7 @@ export default function LearnScreen() {
           iconColor={Palette.error}
         />
       </View>
-    </ScrollView >
+    </ScrollView>
   );
 }
 
@@ -958,7 +1041,7 @@ const styles = StyleSheet.create({
   scoreText: {
     fontSize: 72,
     textAlign: "center",
-    fontFamily: 'PlayfairDisplay_600SemiBold',
+    fontFamily: "PlayfairDisplay_600SemiBold",
   },
   staticHintContainer: {
     position: "absolute",
