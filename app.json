@@ -54,6 +54,13 @@
         }
       ],
       [
+        "@react-native-voice/voice",
+        {
+          "microphonePermission": "Allow Malee to access the microphone for speech recognition.",
+          "speechRecognitionPermission": "Allow Malee to recognize your speech for pronunciation evaluation."
+        }
+      ],
+      [
         "expo-notifications",
         {
           "icon": "./assets/images/icon.png",

@@ -28,6 +28,7 @@ import {
 import { evaluatePronunciation } from "@/services/pronunciation";
 import { PronunciationResult } from "@/types";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import Voice from "@react-native-voice/voice";
 import {
   AudioModule,
   AudioQuality,
