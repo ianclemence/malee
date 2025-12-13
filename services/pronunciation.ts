@@ -43,108 +43,170 @@ const VOCAB_DATA: Record<string, { ipa: string; syllables: string[] }> = {
  * Calculates the similarity between two strings using Levenshtein Distance
  * with additional heuristics for speech accuracy.
  * Returns a score between 0 and 100.
- * 
+ *
  * NOTE: This function uses a sliding window (or "best substring") approach.
  * If the input (transcript) is much longer than the target, we try to find
  * the best matching segment within the input. This handles cases where
  * the user says the word multiple times (e.g. "Hello... Hello").
  */
+const VOWELS = new Set(['a', 'e', 'i', 'o', 'u']);
+
+// Map voiced to unvoiced and vice-versa for low penalty swaps
+const VOICED_UNVOICED_PAIRS: Record<string, string> = {
+  'b': 'p', 'p': 'b',
+  'd': 't', 't': 'd',
+  'g': 'k', 'k': 'g',
+  'v': 'f', 'f': 'v',
+  'z': 's', 's': 'z',
+  'j': 'ch', 'ch': 'j', // approximants
+};
+
+/**
+ * Normalizes text to a simplified phonetic representation.
+ * Handles common English orthography oddities.
+ */
+const normalizePhonetics = (text: string): string => {
+  let res = text.toUpperCase();
+
+  // Common mappings
+  res = res.replace(/PH/g, 'F');
+  res = res.replace(/CK/g, 'K');
+
+  // Start of word anomalies
+  if (res.startsWith('KN')) res = 'N' + res.slice(2);
+  if (res.startsWith('WR')) res = 'R' + res.slice(2);
+  if (res.startsWith('WH')) res = 'W' + res.slice(2);
+
+  // Endings
+  if (res.endsWith('ING')) res = res.slice(0, -3) + 'IN';
+
+  res = res.replace(/QU/g, 'KW');
+  res = res.replace(/X/g, 'KS');
+  res = res.replace(/C(?=[EIY])/g, 'S'); // Soft C
+  res = res.replace(/C/g, 'K');          // Hard C catch-all
+
+  return res.toLowerCase(); // Return to lower for comparison
+};
+
+/**
+ * Calculates substitution cost between two characters.
+ * 0.0 = match
+ * 0.3 = voiced/unvoiced swap (b/p)
+ * 0.4 = vowel mismatch (a/e)
+ * 1.0 = full error
+ */
+const getSubstitutionCost = (charA: string, charB: string): number => {
+  if (charA === charB) return 0;
+
+  // Voiced/Unvoiced check
+  if (VOICED_UNVOICED_PAIRS[charA] === charB) return 0.3;
+
+  // Vowel check
+  const isVowelA = VOWELS.has(charA);
+  const isVowelB = VOWELS.has(charB);
+
+  if (isVowelA && isVowelB) return 0.4; // Vowel to vowel error
+  if (!isVowelA && !isVowelB) return 1.0; // Consonant to mismatched consonant
+
+  return 1.0; // Vowel/Consonant swap (major error)
+};
+
+/**
+ * Calculates similarity using Weighted Levenshtein Distance
+ */
 const calculateSimilarity = (target: string, input: string): number => {
-  const cleanTarget = target.toLowerCase().replace(/[^a-z0-9]/g, '');
-  const cleanInput = input.toLowerCase().replace(/[^a-z0-9\s]/g, ''); // Keep spaces for splitting
+  // Normalize both strings phonetically
+  const normTarget = normalizePhonetics(target.replace(/[^a-zA-Z]/g, ''));
+  const normInputRaw = input.toLowerCase().replace(/[^a-zA-Z\s]/g, ''); // Keep spaces for word splitting
 
-  if (cleanTarget.length === 0) return 100;
-  if (cleanInput.length === 0) return 0;
+  if (normTarget.length === 0) return 100;
+  if (normInputRaw.replace(/\s/g, '').length === 0) return 0;
 
-  // SHORTCUT: Exact Substring Match
-  // If the target (e.g. "Com") exists exactly within the input (e.g. "Computer"), 
-  // it's a 100% match. This solves issues where good syllables were marked bad.
-  if (cleanInput.includes(cleanTarget) || cleanInput.replace(/\s/g, '').includes(cleanTarget)) {
-      return 100;
-  }
+  // Shortcut for exact phonetic substring
+  const inputNoSpaces = normInputRaw.replace(/\s/g, '');
+  const normInput = normalizePhonetics(inputNoSpaces);
 
-  // 1. Core Levenshtein Calculation
-  const getLevenshteinScore = (a: string, b: string): number => {
+  if (normInput.includes(normTarget)) return 100;
+
+  // Weighted Levenshtein Function
+  const getWeightedScore = (a: string, b: string): number => {
     if (a.length === 0) return b.length === 0 ? 100 : 0;
     if (b.length === 0) return 0;
 
-    const matrix = [];
-    for (let i = 0; i <= b.length; i++) { matrix[i] = [i]; }
-    for (let j = 0; j <= a.length; j++) { matrix[0][j] = j; }
+    const row = new Array(a.length + 1).fill(0);
+    // Initialize first row (deletion costs - standard weight 1.0 per char)
+    for (let j = 0; j <= a.length; j++) row[j] = j;
+
+    let prevRow = [...row];
 
     for (let i = 1; i <= b.length; i++) {
+        row[0] = i; // Insertion cost
+        const charB = b[i - 1];
+
         for (let j = 1; j <= a.length; j++) {
-            if (b.charAt(i - 1) === a.charAt(j - 1)) {
-                matrix[i][j] = matrix[i - 1][j - 1];
-            } else {
-                matrix[i][j] = Math.min(
-                    matrix[i - 1][j - 1] + 1,
-                    matrix[i][j - 1] + 1,
-                    matrix[i - 1][j] + 1
-                );
-            }
+            const charA = a[j - 1];
+
+            const costReplace = prevRow[j - 1] + getSubstitutionCost(charA, charB);
+            const costInsert = prevRow[j] + 1; // Standard insertion cost
+            const costDelete = row[j - 1] + 1; // Standard deletion cost
+
+            row[j] = Math.min(costReplace, costInsert, costDelete);
         }
+        prevRow = [...row];
     }
 
-    const distance = matrix[b.length][a.length];
+    const distance = prevRow[a.length];
     const maxLength = Math.max(a.length, b.length);
-    let similarity = (maxLength - distance) / maxLength;
 
-    // Heuristics
-    const lengthRatio = Math.min(a.length, b.length) / Math.max(a.length, b.length);
-    if (lengthRatio < 0.6) similarity *= 0.5;
-    if (a[0] !== b[0]) similarity *= 0.9;
+    // Calculate similarity
+    let similarity = Math.max(0, (maxLength - distance) / maxLength);
 
-    return Math.round(Math.max(0, similarity * 100));
+    return Math.round(similarity * 100);
   };
-    
-  // 2. Tokenize inputs
-  // If the input is just one long string without spaces (e.g. from cleaning), treat as single token
-  // But usually speech input has spaces.
-  const inputWords = cleanInput.split(/\s+/).filter(w => w.length > 0);
-  
-  // If input is short or single word, just compare directly (cleaned of spaces)
+
+  // Tokenize & Sliding Window (using phonetic chunks)
+  // We split the raw input by spaces to get words, then normalize each phrase
+  const inputWords = normInputRaw.split(/\s+/).filter(w => w.length > 0);
+
+  // If single word/short input, compare directly
   if (inputWords.length <= 1) {
-    return getLevenshteinScore(cleanTarget, cleanInput.replace(/\s/g, ''));
+    return getWeightedScore(normTarget, normalizePhonetics(normInputRaw));
   }
 
-  // 3. Sliding Window Strategy (Word-level)
-  const targetNoSpaces = cleanTarget;
   let maxScore = 0;
-  
+
   // Word-level sliding window
   for (let i = 0; i < inputWords.length; i++) {
-      let currentPhrase = "";
+      let currentPhraseRaw = "";
+      // Construct phrase from words
       for (let j = i; j < inputWords.length; j++) {
-          currentPhrase += (currentPhrase ? "" : "") + inputWords[j];
-          if (currentPhrase.length > targetNoSpaces.length * 2.5) break; 
-          const score = getLevenshteinScore(targetNoSpaces, currentPhrase);
+          currentPhraseRaw += (currentPhraseRaw ? "" : "") + inputWords[j];
+
+          const currentPhraseNorm = normalizePhonetics(currentPhraseRaw);
+
+          if (currentPhraseNorm.length > normTarget.length * 2.5) break;
+
+          const score = getWeightedScore(normTarget, currentPhraseNorm);
           if (score > maxScore) maxScore = score;
       }
   }
 
-  // 4. Character-level Sliding Window fallback
-  // Use character scan for fuzzy matching of substrings (e.g. "Kum" in "Computer")
+  // Character-level fallback (on the full normalized string)
   if (maxScore < 80) {
-      const cleanInputNoSpaces = cleanInput.replace(/\s/g, '');
-      // Only run if input is reasonably longer than target but not massive
-      if (cleanInputNoSpaces.length >= targetNoSpaces.length) {
-          const tLen = targetNoSpaces.length;
-          // We can optimize by only checking substrings of roughly target length (+- tolerance)
-           // But simply checking all substrings of length target (+- 20%) is decent
+      if (normInput.length >= normTarget.length) {
+          const tLen = normTarget.length;
           const minLen = Math.floor(tLen * 0.8);
           const maxLen = Math.ceil(tLen * 1.5);
-          
+
           for (let len = minLen; len <= maxLen; len++) {
-              if (len > cleanInputNoSpaces.length) break;
+              if (len > normInput.length) break;
               if (len === 0) continue;
 
-              for (let i = 0; i <= cleanInputNoSpaces.length - len; i++) {
-                 // Use substring instead of deprecated substr
-                 const sub = cleanInputNoSpaces.substring(i, i + len);
-                 const score = getLevenshteinScore(targetNoSpaces, sub);
+              for (let i = 0; i <= normInput.length - len; i++) {
+                 const sub = normInput.substring(i, i + len);
+                 const score = getWeightedScore(normTarget, sub);
                  if (score > maxScore) maxScore = score;
-                 if (maxScore >= 95) break; // Optimization
+                 if (maxScore >= 95) break;
               }
               if (maxScore >= 95) break;
           }
