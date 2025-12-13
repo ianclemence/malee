@@ -7,8 +7,8 @@
  * Data is static and processing happens client-side.
  */
 
-import { PronunciationResult } from '../types';
 import * as Speech from 'expo-speech';
+import { PronunciationResult } from '../types';
 
 // Static data to simulate a rich API database
 const VOCAB_DATA: Record<string, { ipa: string; syllables: string[] }> = {
@@ -39,52 +39,96 @@ const VOCAB_DATA: Record<string, { ipa: string; syllables: string[] }> = {
  * with additional heuristics for speech accuracy.
  * Returns a score between 0 and 100.
  */
+/**
+ * Calculates the similarity between two strings using Levenshtein Distance
+ * with additional heuristics for speech accuracy.
+ * Returns a score between 0 and 100.
+ * 
+ * NOTE: This function uses a sliding window (or "best substring") approach.
+ * If the input (transcript) is much longer than the target, we try to find
+ * the best matching segment within the input. This handles cases where
+ * the user says the word multiple times (e.g. "Hello... Hello").
+ */
 const calculateSimilarity = (target: string, input: string): number => {
-  const a = target.toLowerCase().replace(/[^a-z0-9]/g, '');
-  const b = input.toLowerCase().replace(/[^a-z0-9]/g, '');
-  
-  if (a.length === 0) return b.length === 0 ? 100 : 0;
-  if (b.length === 0) return 0;
+  const cleanTarget = target.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const cleanInput = input.toLowerCase().replace(/[^a-z0-9\s]/g, ''); // Keep spaces for splitting
 
-  const matrix = [];
-  for (let i = 0; i <= b.length; i++) { matrix[i] = [i]; }
-  for (let j = 0; j <= a.length; j++) { matrix[0][j] = j; }
+  if (cleanTarget.length === 0) return 100;
+  if (cleanInput.length === 0) return 0;
 
-  for (let i = 1; i <= b.length; i++) {
-    for (let j = 1; j <= a.length; j++) {
-      if (b.charAt(i - 1) === a.charAt(j - 1)) {
-        matrix[i][j] = matrix[i - 1][j - 1];
-      } else {
-        matrix[i][j] = Math.min(
-          matrix[i - 1][j - 1] + 1,
-          matrix[i][j - 1] + 1,
-          matrix[i - 1][j] + 1
-        );
-      }
+  // 1. Core Levenshtein Calculation
+  const getLevenshteinScore = (a: string, b: string): number => {
+    if (a.length === 0) return b.length === 0 ? 100 : 0;
+    if (b.length === 0) return 0;
+
+    const matrix = [];
+    for (let i = 0; i <= b.length; i++) { matrix[i] = [i]; }
+    for (let j = 0; j <= a.length; j++) { matrix[0][j] = j; }
+
+    for (let i = 1; i <= b.length; i++) {
+        for (let j = 1; j <= a.length; j++) {
+            if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                matrix[i][j] = matrix[i - 1][j - 1];
+            } else {
+                matrix[i][j] = Math.min(
+                    matrix[i - 1][j - 1] + 1,
+                    matrix[i][j - 1] + 1,
+                    matrix[i - 1][j] + 1
+                );
+            }
+        }
     }
-  }
 
-  const distance = matrix[b.length][a.length];
-  const maxLength = Math.max(a.length, b.length);
+    const distance = matrix[b.length][a.length];
+    const maxLength = Math.max(a.length, b.length);
+    let similarity = (maxLength - distance) / maxLength;
+
+    // Heuristics
+    const lengthRatio = Math.min(a.length, b.length) / Math.max(a.length, b.length);
+    if (lengthRatio < 0.6) similarity *= 0.5;
+    if (a[0] !== b[0]) similarity *= 0.9;
+
+    return Math.round(Math.max(0, similarity * 100));
+  };
+    
+  // 2. Tokenize inputs
+  // If the input is just one long string without spaces (e.g. from cleaning), treat as single token
+  // But usually speech input has spaces.
+  const inputWords = cleanInput.split(/\s+/).filter(w => w.length > 0);
   
-  // Base similarity
-  let similarity = (maxLength - distance) / maxLength;
+  // If input is short or single word, just compare directly (cleaned of spaces)
+  if (inputWords.length <= 1) {
+    return getLevenshteinScore(cleanTarget, cleanInput.replace(/\s/g, ''));
+  }
+
+  // 3. Sliding Window Strategy
+  // If target has roughly N chars, we shouldn't compare it against a 2N chars string.
+  // We try to match the target against every continuous sub-sequence of words in the transcript
+  // that roughly matches the target's visual length.
+
+  const targetNoSpaces = cleanTarget;
+  let maxScore = 0;
   
-  // --- HEURISTICS ---
-
-  // 1. Length Penalty: If the spoken word is significantly shorter or longer
-  // (e.g. "book" vs "carry-on"), apply a heavy penalty.
-  const lengthRatio = Math.min(a.length, b.length) / Math.max(a.length, b.length);
-  if (lengthRatio < 0.6) {
-      similarity *= 0.5;
+  // Construct all possible "phrases" from the input words
+  // A phrase is words[i]...words[j] joined
+  // Optimization: Only check phrases that are somewhat similar in length to target
+  
+  for (let i = 0; i < inputWords.length; i++) {
+      let currentPhrase = "";
+      for (let j = i; j < inputWords.length; j++) {
+          currentPhrase += (currentPhrase ? "" : "") + inputWords[j]; // Concat without spaces for comparison
+          
+          // Optimization: If phrase is already way too long (e.g. 2x target), stop extending
+          if (currentPhrase.length > targetNoSpaces.length * 2.5) break; 
+          
+          const score = getLevenshteinScore(targetNoSpaces, currentPhrase);
+          if (score > maxScore) {
+              maxScore = score;
+          }
+      }
   }
 
-  // 2. Start/End Penalty: The first sound is usually the most important anchor.
-  if (a[0] !== b[0]) {
-      similarity *= 0.9;
-  }
-
-  return Math.round(Math.max(0, similarity * 100));
+  return maxScore;
 };
 
 export const evaluatePronunciation = async (
