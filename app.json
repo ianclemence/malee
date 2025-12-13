@@ -54,7 +54,7 @@
         }
       ],
       [
-        "@react-native-voice/voice",
+        "expo-speech-recognition",
         {
           "microphonePermission": "Allow Malee to access the microphone for speech recognition.",
           "speechRecognitionPermission": "Allow Malee to recognize your speech for pronunciation evaluation."

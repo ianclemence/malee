@@ -28,7 +28,6 @@ import {
 import { evaluatePronunciation } from "@/services/pronunciation";
 import { PronunciationResult } from "@/types";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import Voice from "@react-native-voice/voice";
 import {
   AudioModule,
   AudioQuality,
@@ -40,6 +39,11 @@ import {
 import * as Haptics from "expo-haptics";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import * as Speech from "expo-speech";
+import {
+  AudioEncodingAndroid,
+  ExpoSpeechRecognitionModule,
+  useSpeechRecognitionEvent,
+} from "expo-speech-recognition";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -124,10 +128,9 @@ export default function LearnScreen() {
   const [todayCount, setTodayCount] = useState(0);
   const [started, setStarted] = useState(false);
 
+  // Speech recognition state
   const [score, setScore] = useState<PronunciationResult | null>(null);
   const [isScoring, setIsScoring] = useState(false);
-  const [speechTranscript, setSpeechTranscript] = useState<string>("");
-  const [isSpeechRecognizing, setIsSpeechRecognizing] = useState(false);
 
   // Audio Recording State - using expo-audio
   const audioRecorder = useAudioRecorder(SPEECH_RECORDING_OPTIONS);
@@ -190,40 +193,52 @@ export default function LearnScreen() {
     opacity: interpolate(flip.value, [0.5, 0.51], [0, 1]), // Show halfway
   }));
 
-  // Load Queue & Data
-  useEffect(() => {
-    // Setup Voice recognition handlers
-    Voice.onSpeechStart = () => {
-      setIsSpeechRecognizing(true);
-      console.log("Speech recognition started");
-    };
+  // Speech recognition event handlers
+  useSpeechRecognitionEvent("result", async (ev) => {
+    const transcript = ev.results[0]?.transcript || "";
+    console.log(
+      "Speech recognition result:",
+      transcript,
+      "isFinal:",
+      ev.isFinal
+    );
 
-    Voice.onSpeechEnd = () => {
-      setIsSpeechRecognizing(false);
-      console.log("Speech recognition ended");
-    };
-
-    Voice.onSpeechResults = (result) => {
-      console.log("Speech recognition results:", result);
-      if (result.value && result.value.length > 0) {
-        setSpeechTranscript(result.value[0]);
+    if (transcript && ev.isFinal) {
+      try {
+        console.log(
+          "Evaluating pronunciation for:",
+          activeCard?.front,
+          "vs",
+          transcript
+        );
+        const scoreResult = await evaluatePronunciation(
+          activeCard?.front || "",
+          transcript
+        );
+        console.log("Pronunciation score:", scoreResult);
+        setScore(scoreResult);
+      } catch (error) {
+        console.error("Error evaluating pronunciation:", error);
+        Alert.alert("Scoring Error", "Could not evaluate pronunciation.");
       }
-      setIsSpeechRecognizing(false);
-    };
+      setIsScoring(false);
+    }
+  });
 
-    Voice.onSpeechError = (error) => {
-      console.error("Speech recognition error:", error);
-      setIsSpeechRecognizing(false);
-      Alert.alert(
-        "Speech Recognition Error",
-        "Could not recognize speech. Please try again."
-      );
-    };
+  useSpeechRecognitionEvent("error", (ev) => {
+    console.error("Speech recognition error:", ev.error, ev.message);
+    Alert.alert(
+      "Recognition Error",
+      ev.message || "Could not recognize speech. Please try again."
+    );
+    setIsScoring(false);
+  });
 
-    return () => {
-      Voice.destroy().then(Voice.removeAllListeners);
-    };
-  }, []);
+  useSpeechRecognitionEvent("end", () => {
+    console.log("Speech recognition ended");
+    // Only set isScoring false if we didn't get a result
+    // The result handler will set it false when done
+  });
 
   // Load Queue & Data
   useEffect(() => {
@@ -449,88 +464,22 @@ export default function LearnScreen() {
 
       if (recordingUri) {
         setRecordedUri(recordingUri);
-
-        // Start speech recognition
         setIsScoring(true);
         setScore(null);
-        setSpeechTranscript("");
 
-        try {
-          // Request speech recognition permissions
-          const hasSpeechPermission = await Voice.isAvailable();
-          if (!hasSpeechPermission) {
-            Alert.alert(
-              "Speech Recognition",
-              "Speech recognition is not available on this device."
-            );
-            setIsScoring(false);
-            return;
-          }
-
-          // Start speech recognition
-          console.log("Starting speech recognition...");
-          await Voice.start("en-US");
-
-          // Wait for speech recognition to complete (with timeout)
-          const timeoutPromise = new Promise<string>((resolve) => {
-            setTimeout(() => {
-              Voice.stop();
-              resolve("");
-            }, 5000); // 5 second timeout
-          });
-
-          const transcriptPromise = new Promise<string>((resolve) => {
-            const checkTranscript = setInterval(() => {
-              if (speechTranscript) {
-                clearInterval(checkTranscript);
-                resolve(speechTranscript);
-              }
-            }, 100);
-          });
-
-          const transcript = await Promise.race([
-            transcriptPromise,
-            timeoutPromise,
-          ]);
-
-          if (transcript) {
-            console.log("Speech recognized:", transcript);
-
-            // Evaluate pronunciation with actual transcript
-            const scoreResult = await evaluatePronunciation(
-              activeCard.front,
-              transcript
-            );
-
-            if (scoreResult) {
-              console.log("Scoring Result:", scoreResult);
-              setScore(scoreResult);
-            } else {
-              Alert.alert(
-                "Scoring Failed",
-                "Could not evaluate pronunciation."
-              );
-            }
-          } else {
-            Alert.alert(
-              "No Speech Detected",
-              "Could not recognize what you said. Please try again."
-            );
-          }
-        } catch (error) {
-          console.error("Speech recognition error:", error);
-          Alert.alert(
-            "Speech Recognition Error",
-            "Error recognizing speech. Please try again."
-          );
-        } finally {
-          try {
-            await Voice.stop();
-          } catch (e) {
-            // Voice might already be stopped
-          }
-          setIsScoring(false);
-        }
+        // Start speech recognition on the recorded audio file
+        console.log("Starting speech recognition on file:", recordingUri);
+        ExpoSpeechRecognitionModule.start({
+          lang: "en-US",
+          interimResults: false,
+          requiresOnDeviceRecognition: false, // Use network recognition for better accuracy
+          audioSource: {
+            uri: recordingUri,
+            audioChannels: 1,
+            audioEncoding: AudioEncodingAndroid.ENCODING_PCM_16BIT,
+            sampleRate: 16000,
+          },
+        });
       }
     } catch (e) {
       console.error("Error stopping recording:", e);
@@ -569,7 +518,6 @@ export default function LearnScreen() {
     setFlipped(false);
     setRecordedUri(null);
     setIsPlaying(false);
-    setScore(null);
     scaleNext.value = withTiming(0.96);
 
     if (currentIndex < queue.length - 1) {
@@ -781,7 +729,7 @@ export default function LearnScreen() {
               pointerEvents={flipped ? "none" : "auto"}
             >
               {/* Scoring Display - At very top */}
-              {(isScoring || isSpeechRecognizing) && (
+              {isScoring && (
                 <View
                   style={{
                     position: "absolute",
@@ -796,9 +744,7 @@ export default function LearnScreen() {
                   <ThemedText
                     style={{ marginTop: 8, fontSize: 14, opacity: 0.7 }}
                   >
-                    {isSpeechRecognizing
-                      ? "Listening..."
-                      : "Analyzing pronunciation..."}
+                    Analyzing pronunciation...
                   </ThemedText>
                 </View>
               )}
@@ -858,6 +804,11 @@ export default function LearnScreen() {
                       ))}
                     </View>
                   )}
+                  <ThemedText
+                    style={{ marginTop: 8, fontSize: 12, opacity: 0.6 }}
+                  >
+                    {score.feedback}
+                  </ThemedText>
                 </View>
               )}
 
@@ -953,7 +904,6 @@ export default function LearnScreen() {
                 <Pressable
                   onPress={() => {
                     setRecordedUri(null);
-                    setScore(null);
                     setIsPlaying(false);
                   }}
                   disabled={!started}
@@ -1133,11 +1083,7 @@ const styles = StyleSheet.create({
     color: TEXT,
     marginBottom: 32,
   },
-  scoreText: {
-    fontSize: 72,
-    textAlign: "center",
-    fontFamily: "PlayfairDisplay_600SemiBold",
-  },
+
   staticHintContainer: {
     position: "absolute",
     bottom: 32,
