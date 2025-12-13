@@ -517,6 +517,7 @@ export default function LearnScreen() {
     flip.value = 0;
     setFlipped(false);
     setRecordedUri(null);
+    setScore(null);
     setIsPlaying(false);
     scaleNext.value = withTiming(0.96);
 
