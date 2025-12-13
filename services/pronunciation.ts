@@ -131,6 +131,23 @@ const calculateSimilarity = (target: string, input: string): number => {
   return maxScore;
 };
 
+
+/**
+ * Simple heuristic to split a word into syllable-like chunks.
+ * This is not perfect but better than showing the whole word.
+ */
+const syllabify = (word: string): string[] => {
+  const clean = word.replace(/[^a-zA-Z]/g, '');
+  if (clean.length <= 4) return [word];
+  
+  // Split based on vowel groups roughly
+  const syllableRegex = /[^aeiouy]*[aeiouy]+(?:[^aeiouy]*$|[^aeiouy](?=[^aeiouy]))?/gi;
+  const parts = clean.match(syllableRegex) || [word];
+  
+  // Capitalize first letter of each part for display
+  return parts.map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase());
+};
+
 export const evaluatePronunciation = async (
   targetWord: string,
   transcript: string
@@ -139,9 +156,12 @@ export const evaluatePronunciation = async (
   await new Promise(resolve => setTimeout(resolve, 600));
 
   const score = calculateSimilarity(targetWord, transcript);
-  const data = VOCAB_DATA[targetWord.toLowerCase()] || {
-    ipa: `/${targetWord.toLowerCase()}/`,
-    syllables: [targetWord]
+  
+  // Try to find exact match in VOCAB_DATA (handling case and spaces)
+  const normalizedTarget = targetWord.toLowerCase().trim();
+  const data = VOCAB_DATA[normalizedTarget] || {
+    ipa: `/${normalizedTarget}/`,
+    syllables: syllabify(targetWord) // Use dynamic splitting
   };
 
   // Determine which parts are "good" based on the score.

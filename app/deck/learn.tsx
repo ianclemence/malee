@@ -794,28 +794,28 @@ export default function LearnScreen() {
                           key={i}
                           style={{
                             alignItems: "center",
-                            paddingHorizontal: 12,
-                            paddingVertical: 6,
+                            paddingHorizontal: 16,
+                            paddingVertical: 8,
                             borderRadius: 999,
-                            borderWidth: 1.5,
+                            borderWidth: 2,
                             borderColor:
                               part.status === "good"
                                 ? Palette.success
                                 : Palette.error,
                             backgroundColor:
                               part.status === "good"
-                                ? "#E6F4EA" // Light green
-                                : "#FCE8E6", // Light red
+                                ? `${Palette.success}20` // 20% opacity hex
+                                : `${Palette.error}20`, // 20% opacity hex
                           }}
                         >
                           <ThemedText
                             style={{
                               color:
                                 part.status === "good"
-                                  ? Palette.success
+                                  ? Palette.success // Darker green for text if needed, but Palette.success for now to match border
                                   : Palette.error,
-                              fontWeight: "600",
-                              fontSize: 16,
+                              fontWeight: "700",
+                              fontSize: 18,
                             }}
                           >
                             {part.part}
