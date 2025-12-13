@@ -56,9 +56,6 @@ export default function DeckProgressScreen() {
 
         <View style={styles.illustrationHolder}>
           <ThemedText style={{ fontSize: 100 }}>{deck?.icon ?? "📚"}</ThemedText>
-          <View style={styles.bubble}>
-            <ThemedText style={styles.bubbleText}>Keep it up!</ThemedText>
-          </View>
         </View>
 
         <ThemedText type="title" style={styles.titleText}>{deck?.title ?? title ?? "Deck"}</ThemedText>
