@@ -1,7 +1,7 @@
-import { ThemedText } from '@/components/themed-text';
-import { FloatingActionBar } from '@/components/ui/floating-action-bar';
-import { HeaderBar } from '@/components/ui/header-bar';
-import { FontSizes, Palette, Radii, Shadows, Strokes } from '@/constants/theme';
+import { ThemedText } from "@/components/themed-text";
+import { FloatingActionBar } from "@/components/ui/floating-action-bar";
+import { HeaderBar } from "@/components/ui/header-bar";
+import { FontSizes, Palette, Radii, Shadows, Strokes } from "@/constants/theme";
 import { getDeckBySlug } from "@/data/decks";
 import { DetailedStats, getDetailedDeckStats } from "@/lib/storage";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
@@ -55,10 +55,14 @@ export default function DeckProgressScreen() {
         <HeaderBar rightIconName="close" onRightPress={() => router.back()} />
 
         <View style={styles.illustrationHolder}>
-          <ThemedText style={{ fontSize: 100 }}>{deck?.icon ?? "📚"}</ThemedText>
+          <ThemedText style={{ fontSize: 100, lineHeight: 140 }}>
+            {deck?.icon ?? "📚"}
+          </ThemedText>
         </View>
 
-        <ThemedText type="title" style={styles.titleText}>{deck?.title ?? title ?? "Deck"}</ThemedText>
+        <ThemedText type="title" style={styles.titleText}>
+          {deck?.title ?? title ?? "Deck"}
+        </ThemedText>
 
         {/* Simple Stats Row */}
         <View style={styles.statsRow}>
@@ -79,16 +83,24 @@ export default function DeckProgressScreen() {
         </View>
 
         <View style={styles.totalRow}>
-          <ThemedText style={styles.totalText}>{stats.new} New Cards Remaining</ThemedText>
+          <ThemedText style={styles.totalText}>
+            {stats.new} New Cards Remaining
+          </ThemedText>
         </View>
-
       </ScrollView>
 
       <FloatingActionBar
         label="Continue Learning"
         progress={stats.progress}
         onPress={() =>
-          router.push({ pathname: '/deck/learn', params: { slug: slug ?? '', title: title ?? 'Deck', count: count ?? '0' } })
+          router.push({
+            pathname: "/deck/learn",
+            params: {
+              slug: slug ?? "",
+              title: title ?? "Deck",
+              count: count ?? "0",
+            },
+          })
         }
       />
     </View>
@@ -130,7 +142,7 @@ const styles = StyleSheet.create({
   },
   bubbleText: {
     color: TEXT,
-    fontFamily: 'Inter_700Bold',
+    fontFamily: "Inter_700Bold",
   },
   titleText: {
     fontSize: FontSizes.h1,
@@ -138,7 +150,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     textAlign: "center",
     letterSpacing: -1,
-    fontFamily: 'PlayfairDisplay_700Bold',
+    fontFamily: "PlayfairDisplay_700Bold",
   },
   statsRow: {
     flexDirection: "row",
@@ -161,14 +173,14 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: FontSizes.phrase,
     color: TEXT,
-    fontFamily: 'PlayfairDisplay_500Medium',
+    fontFamily: "PlayfairDisplay_500Medium",
   },
   statLabel: {
     color: TEXT,
     opacity: 0.6,
     fontSize: FontSizes.small,
     marginTop: 4,
-    fontFamily: 'Inter_500Medium',
+    fontFamily: "Inter_500Medium",
   },
   separator: {
     width: Strokes.thin,
@@ -183,8 +195,6 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.body,
     color: TEXT,
     opacity: 0.6,
-    fontFamily: 'Inter_500Medium',
+    fontFamily: "Inter_500Medium",
   },
-
 });
-
