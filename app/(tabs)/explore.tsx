@@ -1,10 +1,17 @@
-import { ThemedText } from '@/components/themed-text';
-import { ChipGroup } from '@/components/ui/chip-group';
-import { DeckCard } from '@/components/ui/deck-card';
-import { SearchBar } from '@/components/ui/search-bar';
-import { Palette, Strokes } from '@/constants/theme';
+import { ThemedText } from "@/components/themed-text";
+import { ChipGroup } from "@/components/ui/chip-group";
+import { DeckCard } from "@/components/ui/deck-card";
+import { SearchBar } from "@/components/ui/search-bar";
+import { Palette, Strokes } from "@/constants/theme";
 import { DEFAULT_DECKS } from "@/data/decks";
-import { CustomDeck, getCustomDecks, getFavorites, getMyDecks, getSettings, setFavorite } from "@/lib/storage";
+import {
+  CustomDeck,
+  getCustomDecks,
+  getFavorites,
+  getMyDecks,
+  getSettings,
+  setFavorite,
+} from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Image } from "expo-image";
 import { useFocusEffect, useRouter } from "expo-router";
@@ -14,7 +21,6 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 const ACCENT = Palette.primary;
 const TEXT = Palette.black;
 const BG = Palette.cream;
-const PURPLE_BG = Palette.lavender;
 const CARD_BG = Palette.pastelBeige;
 
 export default function DecksScreen() {
@@ -48,8 +54,16 @@ export default function DecksScreen() {
   );
 
   const allDecks = useMemo(() => {
-    const defaults = DEFAULT_DECKS.map(d => ({ ...d, count: d.words.length, isCustom: false }));
-    const customs = customDecks.map(d => ({ ...d, count: d.words.length, isCustom: true }));
+    const defaults = DEFAULT_DECKS.map((d) => ({
+      ...d,
+      count: d.words.length,
+      isCustom: false,
+    }));
+    const customs = customDecks.map((d) => ({
+      ...d,
+      count: d.words.length,
+      isCustom: true,
+    }));
     return [...defaults, ...customs];
   }, [customDecks]);
 
@@ -59,9 +73,7 @@ export default function DecksScreen() {
       if (view === "my") return !!myDecks[d.slug] || d.isCustom; // Custom decks are always "mine"
       return true;
     })
-    .filter((d) =>
-      d.title.toLowerCase().includes(query.trim().toLowerCase())
-    );
+    .filter((d) => d.title.toLowerCase().includes(query.trim().toLowerCase()));
 
   return (
     <ScrollView
@@ -70,7 +82,9 @@ export default function DecksScreen() {
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.header}>
-        <ThemedText type="title" style={styles.logo}>Malee</ThemedText>
+        <ThemedText type="title" style={styles.logo}>
+          Malee
+        </ThemedText>
         <Pressable onPress={() => router.push("/settings")}>
           <Pressable onPress={() => router.push("/settings")}>
             {avatarUri ? (
@@ -85,16 +99,18 @@ export default function DecksScreen() {
                 }}
               />
             ) : (
-              <View style={{
-                width: 40,
-                height: 40,
-                borderRadius: 20,
-                backgroundColor: "#E0E0E0",
-                alignItems: "center",
-                justifyContent: "center",
-                borderWidth: Strokes.thin,
-                borderColor: Palette.black,
-              }}>
+              <View
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 20,
+                  backgroundColor: "#E0E0E0",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderWidth: Strokes.thin,
+                  borderColor: Palette.black,
+                }}
+              >
                 <MaterialIcons name="person" size={24} color="#757575" />
               </View>
             )}
@@ -106,9 +122,9 @@ export default function DecksScreen() {
 
       <ChipGroup
         options={[
-          { label: 'All', value: 'all' },
-          { label: 'My Decks', value: 'my' },
-          { label: 'Favorites', value: 'favorites' },
+          { label: "All", value: "all" },
+          { label: "My Decks", value: "my" },
+          { label: "Favorites", value: "favorites" },
         ]}
         value={view}
         onChange={(val) => setView(val as any)}
@@ -123,11 +139,15 @@ export default function DecksScreen() {
             count={d.count}
             favorited={!!favorites[d.slug]}
             variant="grid"
-            backgroundColor={i % 2 === 0 ? PURPLE_BG : Palette.pastelGreen}
+            backgroundColor={d.bg}
             onPress={() =>
               router.push({
                 pathname: "/deck/[slug]",
-                params: { slug: d.slug, title: d.title, count: String(d.count) },
+                params: {
+                  slug: d.slug,
+                  title: d.title,
+                  count: String(d.count),
+                },
               })
             }
             onToggleFavorite={async (e) => {
@@ -164,8 +184,6 @@ const styles = StyleSheet.create({
   logo: {
     color: TEXT,
   },
-
-
 
   grid: {
     flexDirection: "row",

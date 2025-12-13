@@ -1,10 +1,19 @@
 import { ProgressRing } from "@/components/progress-ring";
-import { ThemedText } from '@/components/themed-text';
-import { Button } from '@/components/ui/button';
-import { DeckCard } from '@/components/ui/deck-card';
-import { FontSizes, Palette, Radii, Shadows, Strokes } from '@/constants/theme';
+import { ThemedText } from "@/components/themed-text";
+import { Button } from "@/components/ui/button";
+import { DeckCard } from "@/components/ui/deck-card";
+import { FontSizes, Palette, Radii, Shadows, Strokes } from "@/constants/theme";
 import { DEFAULT_DECKS } from "@/data/decks";
-import { CurrentDeck, getAllDueCards, getCurrentDeck, getCustomDecks, getFavorites, getSettings, getTodayInteractions, setFavorite } from "@/lib/storage";
+import {
+  CurrentDeck,
+  getAllDueCards,
+  getCurrentDeck,
+  getCustomDecks,
+  getFavorites,
+  getSettings,
+  getTodayInteractions,
+  setFavorite,
+} from "@/lib/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Image } from "expo-image";
 import { useFocusEffect, useRouter } from "expo-router";
@@ -14,7 +23,6 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 const ACCENT = Palette.primary;
 const BG = Palette.cream;
 const TEXT = Palette.black;
-const PURPLE_BG = Palette.lavender;
 
 export default function HomeScreen() {
   const [todayCount, setTodayCount] = useState(0);
@@ -33,8 +41,11 @@ export default function HomeScreen() {
 
     const customDecks = await getCustomDecks();
     const allDecks = [...DEFAULT_DECKS, ...customDecks];
-    const slugs = allDecks.map(d => d.slug);
-    const sizes = allDecks.reduce((acc: any, d) => ({ ...acc, [d.slug]: d.words.length }), {});
+    const slugs = allDecks.map((d) => d.slug);
+    const sizes = allDecks.reduce(
+      (acc: any, d) => ({ ...acc, [d.slug]: d.words.length }),
+      {}
+    );
     const due = await getAllDueCards(slugs, sizes);
 
     setFavorites(fav);
@@ -66,8 +77,18 @@ export default function HomeScreen() {
   const dailyProgress = Math.min(1, todayCount / dailyGoal);
 
   const hour = new Date().getHours();
-  const timeGreeting = hour < 12 ? "Good Morning!" : hour < 18 ? "Good Afternoon!" : "Good Evening!";
-  const greeting = todayCount === 0 ? timeGreeting : (todayCount >= dailyGoal ? "Goal Reached!" : "Keep it up!");
+  const timeGreeting =
+    hour < 12
+      ? "Good Morning!"
+      : hour < 18
+      ? "Good Afternoon!"
+      : "Good Evening!";
+  const greeting =
+    todayCount === 0
+      ? timeGreeting
+      : todayCount >= dailyGoal
+      ? "Goal Reached!"
+      : "Keep it up!";
 
   return (
     <ScrollView
@@ -76,7 +97,9 @@ export default function HomeScreen() {
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.header}>
-        <ThemedText type="title" style={styles.logo}>Malee</ThemedText>
+        <ThemedText type="title" style={styles.logo}>
+          Malee
+        </ThemedText>
         <Pressable onPress={() => router.push("/settings")}>
           <Pressable onPress={() => router.push("/settings")}>
             {avatarUri ? (
@@ -91,16 +114,18 @@ export default function HomeScreen() {
                 }}
               />
             ) : (
-              <View style={{
-                width: 40,
-                height: 40,
-                borderRadius: 20,
-                backgroundColor: "#E0E0E0",
-                alignItems: "center",
-                justifyContent: "center",
-                borderWidth: Strokes.thin,
-                borderColor: Palette.black,
-              }}>
+              <View
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 20,
+                  backgroundColor: "#E0E0E0",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderWidth: Strokes.thin,
+                  borderColor: Palette.black,
+                }}
+              >
                 <MaterialIcons name="person" size={24} color="#757575" />
               </View>
             )}
@@ -112,16 +137,27 @@ export default function HomeScreen() {
       <View style={styles.hero}>
         <View style={styles.heroContent}>
           <View>
-            <ThemedText type="title" style={styles.heroGreeting}>{greeting}</ThemedText>
+            <ThemedText type="title" style={styles.heroGreeting}>
+              {greeting}
+            </ThemedText>
             <ThemedText style={styles.heroSubtext}>
-              {todayCount >= dailyGoal ? "You're on fire!" : "Let's hit your daily goal."}
+              {todayCount >= dailyGoal
+                ? "You're on fire!"
+                : "Let's hit your daily goal."}
             </ThemedText>
             <Button
               onPress={() => {
                 if (currentDeck) {
-                  router.push({ pathname: '/deck/learn', params: { slug: currentDeck.slug, title: currentDeck.title, count: String(currentDeck.count) } });
+                  router.push({
+                    pathname: "/deck/learn",
+                    params: {
+                      slug: currentDeck.slug,
+                      title: currentDeck.title,
+                      count: String(currentDeck.count),
+                    },
+                  });
                 } else {
-                  router.push('/(tabs)/explore');
+                  router.push("/(tabs)/explore");
                 }
               }}
               title={todayCount === 0 ? "Start Learning" : "Continue"}
@@ -129,7 +165,13 @@ export default function HomeScreen() {
           </View>
 
           <View style={styles.ringWrapper}>
-            <ProgressRing radius={50} stroke={8} progress={dailyProgress} color={ACCENT} trackColor={Palette.black} />
+            <ProgressRing
+              radius={50}
+              stroke={8}
+              progress={dailyProgress}
+              color={ACCENT}
+              trackColor={Palette.black}
+            />
             <View style={styles.ringInner}>
               <Text style={styles.ringCount}>{todayCount}</Text>
               <Text style={styles.ringLabel}>/ {dailyGoal} Daily XP</Text>
@@ -138,59 +180,104 @@ export default function HomeScreen() {
         </View>
 
         {/* Decorative Icon */}
-        <MaterialIcons name="bolt" size={120} color="rgba(0,0,0,0.03)" style={styles.heroBgIcon} />
+        <MaterialIcons
+          name="bolt"
+          size={120}
+          color="rgba(0,0,0,0.03)"
+          style={styles.heroBgIcon}
+        />
       </View>
 
       {/* Daily Review or Jump Back In */}
       {totalDue > 0 ? (
         <View style={styles.section}>
-          <ThemedText type="subtitle" style={styles.sectionTitle}>Daily Review</ThemedText>
+          <ThemedText type="subtitle" style={styles.sectionTitle}>
+            Daily Review
+          </ThemedText>
           <Pressable
             style={styles.resumeCard}
             onPress={() => {
               if (currentDeck) {
-                router.push({ pathname: '/deck/learn', params: { slug: currentDeck.slug, title: currentDeck.title, count: String(currentDeck.count) } });
+                router.push({
+                  pathname: "/deck/learn",
+                  params: {
+                    slug: currentDeck.slug,
+                    title: currentDeck.title,
+                    count: String(currentDeck.count),
+                  },
+                });
               } else {
-                router.push('/(tabs)/explore');
+                router.push("/(tabs)/explore");
               }
             }}
           >
             <View style={styles.resumeContent}>
               <ThemedText style={styles.resumeTitle}>Review Session</ThemedText>
-              <ThemedText style={styles.resumeSub}>{totalDue} cards due today</ThemedText>
+              <ThemedText style={styles.resumeSub}>
+                {totalDue} cards due today
+              </ThemedText>
             </View>
             <View style={styles.resumeAction}>
-              <View style={[styles.resumePlayIcon, { position: 'relative' }]}>
+              <View style={[styles.resumePlayIcon, { position: "relative" }]}>
                 <MaterialIcons name="layers" size={24} color={TEXT} />
               </View>
             </View>
           </Pressable>
         </View>
-      ) : currentDeck && (
-        <View style={styles.section}>
-          <ThemedText type="subtitle" style={styles.sectionTitle}>Jump Back In</ThemedText>
-          <Pressable
-            style={styles.resumeCard}
-            onPress={() => router.push({ pathname: '/deck/learn', params: { slug: currentDeck.slug, title: currentDeck.title, count: String(currentDeck.count) } })}
-          >
-            <View style={styles.resumeContent}>
-              <ThemedText style={styles.resumeTitle}>{currentDeck.title}</ThemedText>
-              <ThemedText style={styles.resumeSub}>{currentDeck.count} cards</ThemedText>
-            </View>
-            <View style={styles.resumeAction}>
-              <ProgressRing radius={24} stroke={4} progress={currentDeck.progress} color={ACCENT} trackColor="#E0E0E0" />
-              <View style={styles.resumePlayIcon}>
-                <MaterialIcons name="play-arrow" size={24} color={TEXT} />
+      ) : (
+        currentDeck && (
+          <View style={styles.section}>
+            <ThemedText type="subtitle" style={styles.sectionTitle}>
+              Jump Back In
+            </ThemedText>
+            <Pressable
+              style={styles.resumeCard}
+              onPress={() =>
+                router.push({
+                  pathname: "/deck/learn",
+                  params: {
+                    slug: currentDeck.slug,
+                    title: currentDeck.title,
+                    count: String(currentDeck.count),
+                  },
+                })
+              }
+            >
+              <View style={styles.resumeContent}>
+                <ThemedText style={styles.resumeTitle}>
+                  {currentDeck.title}
+                </ThemedText>
+                <ThemedText style={styles.resumeSub}>
+                  {currentDeck.count} cards
+                </ThemedText>
               </View>
-            </View>
-          </Pressable>
-        </View>
+              <View style={styles.resumeAction}>
+                <ProgressRing
+                  radius={24}
+                  stroke={4}
+                  progress={currentDeck.progress}
+                  color={ACCENT}
+                  trackColor="#E0E0E0"
+                />
+                <View style={styles.resumePlayIcon}>
+                  <MaterialIcons name="play-arrow" size={24} color={TEXT} />
+                </View>
+              </View>
+            </Pressable>
+          </View>
+        )
       )}
 
       {/* Picked by Malee - Horizontal Scroll */}
       <View style={styles.section}>
-        <ThemedText type="subtitle" style={styles.sectionTitle}>Picked by Malee</ThemedText>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalScroll}>
+        <ThemedText type="subtitle" style={styles.sectionTitle}>
+          Picked by Malee
+        </ThemedText>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.horizontalScroll}
+        >
           {picked.map((d, i) => (
             <DeckCard
               key={d.slug}
@@ -200,11 +287,15 @@ export default function HomeScreen() {
               count={d.count}
               favorited={!!favorites[d.slug]}
               variant="horizontal"
-              backgroundColor={i % 2 === 0 ? PURPLE_BG : '#EFEFEF'}
+              backgroundColor={d.bg}
               onPress={() =>
                 router.push({
-                  pathname: '/deck/[slug]',
-                  params: { slug: d.slug, title: d.title, count: String(d.count) },
+                  pathname: "/deck/[slug]",
+                  params: {
+                    slug: d.slug,
+                    title: d.title,
+                    count: String(d.count),
+                  },
                 })
               }
               onToggleFavorite={(e) => {
@@ -241,13 +332,13 @@ const styles = StyleSheet.create({
     borderRadius: Radii.card,
     padding: 32,
     marginBottom: 32,
-    position: 'relative',
-    overflow: 'hidden',
+    position: "relative",
+    overflow: "hidden",
   },
   heroContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     zIndex: 1,
   },
   heroGreeting: {
@@ -262,17 +353,17 @@ const styles = StyleSheet.create({
   },
 
   ringWrapper: {
-    position: 'relative',
-    alignItems: 'center',
-    justifyContent: 'center',
+    position: "relative",
+    alignItems: "center",
+    justifyContent: "center",
   },
   ringInner: {
-    position: 'absolute',
-    alignItems: 'center',
+    position: "absolute",
+    alignItems: "center",
   },
   ringCount: {
     fontSize: 20,
-    fontWeight: '800',
+    fontWeight: "800",
     color: "#FFFFFF",
   },
   ringLabel: {
@@ -281,11 +372,11 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   heroBgIcon: {
-    position: 'absolute',
+    position: "absolute",
     right: -20,
     bottom: -20,
     zIndex: 0,
-    transform: [{ rotate: '-15deg' }],
+    transform: [{ rotate: "-15deg" }],
   },
   section: {
     marginBottom: 32,
@@ -293,15 +384,15 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: TEXT,
     marginBottom: 16,
-    fontFamily: 'PlayfairDisplay_600SemiBold',
+    fontFamily: "PlayfairDisplay_600SemiBold",
   },
   resumeCard: {
     backgroundColor: Palette.white,
     borderRadius: Radii.card,
     padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     borderWidth: Strokes.regular,
     borderColor: Palette.black,
     ...Shadows.brutalist,
@@ -312,7 +403,7 @@ const styles = StyleSheet.create({
   resumeTitle: {
     fontSize: 18,
     color: TEXT,
-    fontFamily: 'Inter_700Bold',
+    fontFamily: "Inter_700Bold",
     marginBottom: 4,
   },
   resumeSub: {
@@ -321,16 +412,15 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   resumeAction: {
-    position: 'relative',
-    alignItems: 'center',
-    justifyContent: 'center',
+    position: "relative",
+    alignItems: "center",
+    justifyContent: "center",
   },
   resumePlayIcon: {
-    position: 'absolute',
+    position: "absolute",
   },
   horizontalScroll: {
     paddingRight: 16,
     gap: 16,
   },
-
 });
