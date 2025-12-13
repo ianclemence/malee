@@ -842,6 +842,7 @@ export default function LearnScreen() {
                     icon="volume-up"
                     size={64}
                     onPress={() => speak(activeCard.front)}
+                    disabled={!started}
                   />
                 </View>
                 <View
@@ -895,6 +896,7 @@ export default function LearnScreen() {
                       else if (recordedUri) playRecording();
                       else startRecording();
                     }}
+                    disabled={!started}
                   />
                 </View>
               </View>
