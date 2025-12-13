@@ -11,9 +11,10 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSSpeechRecognitionUsageDescription": "Allow Malee to access speech recognition to evaluate your pronunciation practice."
+        "NSSpeechRecognitionUsageDescription": "Allow Malee to recognize your speech for pronunciation evaluation.",
+        "NSMicrophoneUsageDescription": "Allow Malee to access the microphone for speech recognition."
       },
-      "icon":{
+      "icon": {
         "dark": "./assets/icons/ios-dark.png",
         "light": "./assets/icons/ios-light.png",
         "tinted": "./assets/icons/ios-tinted.png"
@@ -84,6 +85,7 @@
       "eas": {
         "projectId": "177a92ce-5348-45b4-bf10-25129e5dddc7"
       }
-    }
+    },
+    "owner": "ianclemence"
   }
 }
