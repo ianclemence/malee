@@ -65,6 +65,14 @@ Malee is a vocabulary learning app that helps Thai speakers learn practical Engl
 - Enhanced pronunciation (IPA, slow playback, syllable emphasis)
 - Rich analytics for mastery and streaks
 
+## Build
+
+To build a standalone Android APK (bypassing local git issues on Windows):
+
+```powershell
+$env:EAS_NO_VCS="1"; eas build --platform android --profile preview
+```
+
 ## License
 
 Proprietary. All rights reserved.

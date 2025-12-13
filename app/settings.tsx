@@ -375,27 +375,6 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        <View style={styles.section}>
-          <ThemedText type="subtitle" style={styles.sectionTitle}>
-            Subscription
-          </ThemedText>
-          <View style={styles.card}>
-            <Pressable style={styles.row}>
-              <View style={styles.rowIcon}>
-                <MaterialIcons
-                  name="workspace-premium"
-                  size={20}
-                  color={TEXT}
-                />
-              </View>
-              <ThemedText style={styles.rowLabel}>Current Plan</ThemedText>
-              <View style={styles.proPill}>
-                <Text style={styles.proText}>Pro</Text>
-              </View>
-            </Pressable>
-          </View>
-        </View>
-
         {/* Danger Zone */}
         <View style={styles.section}>
           <ThemedText type="subtitle" style={styles.sectionTitle}>
