@@ -765,6 +765,8 @@ export default function LearnScreen() {
                     style={[
                       styles.scoreText,
                       {
+                        fontSize: 64, // Increased size
+                        lineHeight: 72,
                         color:
                           score.score >= 80
                             ? Palette.success
@@ -783,19 +785,37 @@ export default function LearnScreen() {
                         flexWrap: "wrap",
                         justifyContent: "center",
                         gap: 8,
-                        marginTop: 8,
+                        marginTop: 16,
                         paddingHorizontal: 16,
                       }}
                     >
                       {score.breakdown.map((part, i) => (
-                        <View key={i} style={{ alignItems: "center" }}>
+                        <View
+                          key={i}
+                          style={{
+                            alignItems: "center",
+                            paddingHorizontal: 12,
+                            paddingVertical: 6,
+                            borderRadius: 999,
+                            borderWidth: 1.5,
+                            borderColor:
+                              part.status === "good"
+                                ? Palette.success
+                                : Palette.error,
+                            backgroundColor:
+                              part.status === "good"
+                                ? "#E6F4EA" // Light green
+                                : "#FCE8E6", // Light red
+                          }}
+                        >
                           <ThemedText
                             style={{
                               color:
                                 part.status === "good"
                                   ? Palette.success
                                   : Palette.error,
-                              fontWeight: "bold",
+                              fontWeight: "600",
+                              fontSize: 16,
                             }}
                           >
                             {part.part}
