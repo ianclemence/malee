@@ -56,6 +56,13 @@ const calculateSimilarity = (target: string, input: string): number => {
   if (cleanTarget.length === 0) return 100;
   if (cleanInput.length === 0) return 0;
 
+  // SHORTCUT: Exact Substring Match
+  // If the target (e.g. "Com") exists exactly within the input (e.g. "Computer"), 
+  // it's a 100% match. This solves issues where good syllables were marked bad.
+  if (cleanInput.includes(cleanTarget) || cleanInput.replace(/\s/g, '').includes(cleanTarget)) {
+      return 100;
+  }
+
   // 1. Core Levenshtein Calculation
   const getLevenshteinScore = (a: string, b: string): number => {
     if (a.length === 0) return b.length === 0 ? 100 : 0;
@@ -101,29 +108,45 @@ const calculateSimilarity = (target: string, input: string): number => {
     return getLevenshteinScore(cleanTarget, cleanInput.replace(/\s/g, ''));
   }
 
-  // 3. Sliding Window Strategy
-  // If target has roughly N chars, we shouldn't compare it against a 2N chars string.
-  // We try to match the target against every continuous sub-sequence of words in the transcript
-  // that roughly matches the target's visual length.
-
+  // 3. Sliding Window Strategy (Word-level)
   const targetNoSpaces = cleanTarget;
   let maxScore = 0;
   
-  // Construct all possible "phrases" from the input words
-  // A phrase is words[i]...words[j] joined
-  // Optimization: Only check phrases that are somewhat similar in length to target
-  
+  // Word-level sliding window
   for (let i = 0; i < inputWords.length; i++) {
       let currentPhrase = "";
       for (let j = i; j < inputWords.length; j++) {
-          currentPhrase += (currentPhrase ? "" : "") + inputWords[j]; // Concat without spaces for comparison
-          
-          // Optimization: If phrase is already way too long (e.g. 2x target), stop extending
+          currentPhrase += (currentPhrase ? "" : "") + inputWords[j];
           if (currentPhrase.length > targetNoSpaces.length * 2.5) break; 
-          
           const score = getLevenshteinScore(targetNoSpaces, currentPhrase);
-          if (score > maxScore) {
-              maxScore = score;
+          if (score > maxScore) maxScore = score;
+      }
+  }
+
+  // 4. Character-level Sliding Window fallback
+  // Use character scan for fuzzy matching of substrings (e.g. "Kum" in "Computer")
+  if (maxScore < 80) {
+      const cleanInputNoSpaces = cleanInput.replace(/\s/g, '');
+      // Only run if input is reasonably longer than target but not massive
+      if (cleanInputNoSpaces.length >= targetNoSpaces.length) {
+          const tLen = targetNoSpaces.length;
+          // We can optimize by only checking substrings of roughly target length (+- tolerance)
+           // But simply checking all substrings of length target (+- 20%) is decent
+          const minLen = Math.floor(tLen * 0.8);
+          const maxLen = Math.ceil(tLen * 1.5);
+          
+          for (let len = minLen; len <= maxLen; len++) {
+              if (len > cleanInputNoSpaces.length) break;
+              if (len === 0) continue;
+
+              for (let i = 0; i <= cleanInputNoSpaces.length - len; i++) {
+                 // Use substring instead of deprecated substr
+                 const sub = cleanInputNoSpaces.substring(i, i + len);
+                 const score = getLevenshteinScore(targetNoSpaces, sub);
+                 if (score > maxScore) maxScore = score;
+                 if (maxScore >= 95) break; // Optimization
+              }
+              if (maxScore >= 95) break;
           }
       }
   }
@@ -169,24 +192,18 @@ export const evaluatePronunciation = async (
   // If score is 100, all good. If score is 0, all bad.
   // If score is 50, roughly half represent good attempts.
   
-  const totalParts = data.syllables.length;
-  
-  // Stricter threshold: If score is very low (< 40), everything is bad.
-  // Otherwise, calculate how many parts "passed" based on the score percentage.
-  let passedPartsCount = 0;
-  
-  if (score >= 90) {
-      passedPartsCount = totalParts;
-  } else if (score < 40) {
-      passedPartsCount = 0;
-  } else {
-      passedPartsCount = Math.floor((score / 100) * totalParts);
-  }
-
-  const breakdown = data.syllables.map((part, index) => ({
-    part: part,
-    status: (index < passedPartsCount ? 'good' : 'bad') as 'good' | 'bad'
-  }));
+  // IMPROVED LOGIC: Score each syllable individually against the transcript
+  // This handles specific part errors (e.g. "Meeting" vs "Parting" -> "Mee"(Bad) "ting"(Good))
+  const breakdown = data.syllables.map((part) => {
+    // Check this specific syllable against the full transcript
+    // The calculateSimilarity function uses a sliding window, so it will find if 'part' exists in 'transcript'
+    const partScore = calculateSimilarity(part, transcript);
+    return {
+      part: part,
+      // Threshold for individual syllables: 60% match
+      status: (partScore >= 60 ? 'good' : 'bad') as 'good' | 'bad'
+    };
+  });
 
   let feedback = "";
   let isCorrect = false;
