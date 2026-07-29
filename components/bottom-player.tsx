@@ -4,6 +4,12 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useRouter } from "expo-router";
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import Animated, {
+  FadeIn,
+  FadeOut,
+  SlideInDown,
+  useReducedMotion,
+} from "react-native-reanimated";
 
 const ACCENT = Palette.primary; // Yellow
 const TEXT_COLOR = "#FFFFFF";
@@ -12,6 +18,7 @@ const BG_COLOR = "#212121"; // Dark Grey
 export default function BottomPlayer({ inline = false }: { inline?: boolean }) {
   const { state, hide } = useBottomSheet();
   const router = useRouter();
+  const reduceMotion = useReducedMotion();
 
   if (!state.visible || !state.deck) return null;
 
@@ -45,7 +52,11 @@ export default function BottomPlayer({ inline = false }: { inline?: boolean }) {
   const prog = typeof state.progress === 'number' ? state.progress : 0;
 
   return (
-    <View style={styles.container}>
+    <Animated.View
+      entering={reduceMotion ? FadeIn.duration(300) : SlideInDown.springify()}
+      exiting={reduceMotion ? FadeOut.duration(200) : FadeOut.duration(200)}
+      style={styles.container}
+    >
       {/* Progress Bar Background */}
       <View style={styles.progressBarBackground}>
         <View style={[styles.progressBarFill, { width: `${prog * 100}%` }]} />
@@ -69,7 +80,7 @@ export default function BottomPlayer({ inline = false }: { inline?: boolean }) {
           <MaterialIcons name="close" size={24} color={TEXT_COLOR} style={{ opacity: 0.7 }} />
         </Pressable>
       </View>
-    </View>
+    </Animated.View>
   );
 }
 
