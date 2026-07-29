@@ -77,19 +77,12 @@ export function DeckCard({
     width: iconBoxSize,
     height: iconBoxSize,
     borderRadius: iconBoxSize / 2,
-    backgroundColor: '#F8F4EC',
+    backgroundColor: Palette.white,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
-    borderTopColor: '#FFFFFF',
-    borderLeftColor: '#FFFFFF',
-    borderBottomColor: '#C4BAA8',
-    borderRightColor: '#C4BAA8',
-    shadowColor: '#0D0D0D',
-    shadowOffset: { width: 2, height: 3 },
-    shadowOpacity: 0.25,
-    shadowRadius: 0,
-    elevation: 4,
+    borderWidth: Strokes.thin,
+    borderColor: Palette.black,
+    ...(Shadows.brutalist as ViewStyle),
   };
 
   const animatedStyle = useAnimatedStyle(() => ({
