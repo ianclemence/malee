@@ -300,7 +300,7 @@ export default function SettingsScreen() {
             })}
           </ScrollView>
           ) : (
-            <ProGate feature="stats">
+            <ProGate feature="badges">
               <View style={{ height: 60 }} />
             </ProGate>
           )}

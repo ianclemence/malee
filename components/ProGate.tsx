@@ -5,7 +5,7 @@ import { useRouter } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 type ProGateProps = {
-  feature: "pronunciation" | "decks" | "stats";
+  feature: "pronunciation" | "decks" | "stats" | "badges";
   children: React.ReactNode;
 };
 
@@ -24,6 +24,11 @@ const FEATURE_CONFIG = {
     icon: "bar-chart",
     title: "Pro Feature",
     desc: "Upgrade to Pro for advanced analytics",
+  },
+  badges: {
+    icon: "workspace-premium",
+    title: "Pro Feature",
+    desc: "Upgrade to Pro to earn badges",
   },
 };
 
