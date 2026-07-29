@@ -73,30 +73,16 @@ export function DeckCard({
   const iconBoxSize = size === 'large' ? 72 : size === 'small' ? 56 : 56;
   const titleSize = size === 'large' ? 22 : size === 'small' ? 14 : 18;
 
-  const iconBoxOuter: ViewStyle = {
+  const iconBox: ViewStyle = {
     width: iconBoxSize,
     height: iconBoxSize,
     borderRadius: iconBoxSize / 2,
-    backgroundColor: '#D4CABC',
+    backgroundColor: Palette.white,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: Strokes.thin,
-    borderColor: '#0D0D0D',
-    shadowColor: '#0D0D0D',
-    shadowOffset: { width: 3, height: 3 },
-    shadowOpacity: 0.4,
-    shadowRadius: 0,
-  };
-
-  const iconBoxInner: ViewStyle = {
-    width: iconBoxSize - 12,
-    height: iconBoxSize - 12,
-    borderRadius: (iconBoxSize - 12) / 2,
-    backgroundColor: '#F5EFE3',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#B8AE9C',
+    borderColor: Palette.black,
+    ...(Shadows.brutalist as ViewStyle),
   };
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -141,10 +127,8 @@ export function DeckCard({
         onPressOut={handlePressOut}
         style={{ flex: 1, justifyContent: 'space-between' }}
       >
-        <View style={iconBoxOuter}>
-          <View style={iconBoxInner}>
-            <Text style={{ fontSize: iconSize }}>{icon}</Text>
-          </View>
+        <View style={iconBox}>
+          <Text style={{ fontSize: iconSize }}>{icon}</Text>
         </View>
 
         {variant === 'grid' ? (
