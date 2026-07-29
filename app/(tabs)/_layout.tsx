@@ -27,8 +27,8 @@ export default function TabLayout() {
               ]}
             />
           ),
-          tabBarStyle: { backgroundColor: '#000000', borderTopWidth: 0, elevation: 0, justifyContent: 'space-between', height: 72 },
-          tabBarBackground: () => <View style={{ backgroundColor: '#000000' }} />,
+          tabBarStyle: { backgroundColor: Palette.black, borderTopWidth: 0, elevation: 0, justifyContent: 'space-between', height: 72 },
+          tabBarBackground: () => <View style={{ backgroundColor: Palette.black }} />,
         }}
         tabBar={(props) => (
           <View style={{ backgroundColor: 'transparent' }}>
@@ -61,13 +61,13 @@ export default function TabLayout() {
                     borderRadius: 28,
                     backgroundColor: Palette.primary,
                     borderWidth: Strokes.regular,
-                    borderColor: '#000000',
+                    borderColor: Palette.black,
                     alignItems: 'center',
                     justifyContent: 'center',
                     marginTop: -12,
                   }}
                 >
-                  <MaterialIcons name="add" size={28} color="#000000" />
+                  <MaterialIcons name="add" size={28} color={Palette.black} />
                 </View>
               </Pressable>
             ),

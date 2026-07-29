@@ -48,11 +48,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: FontSizes.h1,
-    lineHeight: 40,
+    lineHeight: 36,
+    letterSpacing: -0.5,
     fontFamily: 'Outfit_700Bold',
   },
   subtitle: {
     fontSize: FontSizes.h2,
+    lineHeight: 32,
+    letterSpacing: -0.3,
     fontFamily: 'Outfit_700Bold',
   },
   link: {
@@ -63,6 +66,7 @@ const styles = StyleSheet.create({
   },
   phrase: {
     fontSize: FontSizes.phrase,
+    lineHeight: 32,
     fontFamily: 'Outfit_500Medium',
   },
 });

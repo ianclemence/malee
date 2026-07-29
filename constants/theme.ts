@@ -5,10 +5,10 @@
 
 export const Colors = {
   light: {
-    text: '#000000',
+    text: '#0D0D0D',
     background: '#F2EAD5',
     tint: '#EAFE02',
-    icon: '#000000',
+    icon: '#0D0D0D',
     tabIconDefault: '#FFFFFF',
     tabIconSelected: '#EAFE02',
   },
@@ -24,7 +24,7 @@ export const Colors = {
 
 export const Palette = {
   primary: '#EAFE02',
-  black: '#000000',
+  black: '#0D0D0D',
   white: '#FFFFFF',
   cream: '#F2EAD5',
   lavender: '#D9D3F7',
@@ -37,8 +37,8 @@ export const Palette = {
 };
 
 export const FontSizes = {
-  h1: 32,
-  h2: 26,
+  h1: 36,
+  h2: 28,
   phrase: 24,
   button: 18,
   body: 16,

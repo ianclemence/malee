@@ -287,8 +287,8 @@ const styles = StyleSheet.create({
     borderColor: "#FF4444",
   },
   saveBtnActive: {
-    backgroundColor: "#000000",
-    borderColor: "#000000",
+    backgroundColor: Palette.black,
+    borderColor: Palette.black,
   },
   deleteBtn: {
     borderColor: Palette.error,

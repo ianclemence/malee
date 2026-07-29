@@ -752,7 +752,7 @@ export default function LearnScreen() {
                     zIndex: 10,
                   }}
                 >
-                  <ActivityIndicator size="large" color="#000000" />
+                  <ActivityIndicator size="large" color={Palette.black} />
                   <ThemedText
                     style={{ marginTop: 8, fontSize: 14, opacity: 0.7 }}
                   >
@@ -1053,7 +1053,7 @@ const styles = StyleSheet.create({
     color: TEXT,
   },
   pauseBtn: {
-    backgroundColor: "#000000",
+    backgroundColor: Palette.black,
     borderRadius: Radii.button,
     paddingHorizontal: 24,
     paddingVertical: 14,

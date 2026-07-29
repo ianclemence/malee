@@ -52,7 +52,7 @@ export function WordCard({ en, th, learned, onPlay, isPlaying, index = 0 }: Word
             width: 40,
             height: 40,
             borderRadius: 20,
-            backgroundColor: learned ? '#000000' : Palette.white,
+            backgroundColor: learned ? Palette.black : Palette.white,
             alignItems: 'center',
             justifyContent: 'center',
             borderWidth: Strokes.thin,

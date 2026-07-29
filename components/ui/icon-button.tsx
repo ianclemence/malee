@@ -19,7 +19,7 @@ type IconButtonProps = {
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export function IconButton({ icon, onPress, size = 40, disabled, variant = 'default', iconColor, bgColor, style }: IconButtonProps) {
-  const baseBg = bgColor ?? (variant === 'primary' ? '#000000' : variant === 'danger' ? Palette.error : Palette.white);
+  const baseBg = bgColor ?? (variant === 'primary' ? Palette.black : variant === 'danger' ? Palette.error : Palette.white);
   const color = iconColor ?? (variant === 'primary' ? Palette.primary : Palette.black);
   
   const scale = useSharedValue(1);

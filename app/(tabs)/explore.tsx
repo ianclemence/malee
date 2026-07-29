@@ -158,15 +158,22 @@ export default function DecksScreen() {
       {visibleDecks.length === 0 && (
         <View style={styles.emptyState}>
           <Animated.View entering={FadeIn.duration(400).springify()}>
-            <MaterialIcons
-              name="search-off"
-              size={48}
-              color={Palette.black}
-              style={{ opacity: 0.3, alignSelf: 'center' }}
-            />
+            <View style={styles.emptyIconContainer}>
+              <MaterialIcons
+                name="style"
+                size={56}
+                color={Palette.black}
+                style={{ opacity: 0.15 }}
+              />
+            </View>
           </Animated.View>
-          <Animated.View entering={FadeIn.delay(200).duration(400)}>
-            <Text style={styles.emptyText}>No decks found</Text>
+          <Animated.View entering={FadeIn.delay(150).duration(400)}>
+            <Text style={styles.emptyTitle}>No decks found</Text>
+          </Animated.View>
+          <Animated.View entering={FadeIn.delay(300).duration(400)}>
+            <Text style={styles.emptySubtext}>
+              {query ? `No results for "${query}"` : "Create your first deck to get started"}
+            </Text>
           </Animated.View>
         </View>
       )}
@@ -201,11 +208,30 @@ const styles = StyleSheet.create({
   emptyState: {
     padding: 40,
     alignItems: "center",
+    gap: 12,
   },
-  emptyText: {
+  emptyIconContainer: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: Palette.white,
+    borderWidth: Strokes.thin,
+    borderColor: Palette.black,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 8,
+  },
+  emptyTitle: {
     fontSize: 18,
     color: TEXT,
+    fontWeight: "700",
+    fontFamily: 'Outfit_700Bold',
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: TEXT,
     opacity: 0.5,
-    fontWeight: "600",
+    fontFamily: 'Outfit_500Medium',
+    textAlign: 'center',
   },
 });
