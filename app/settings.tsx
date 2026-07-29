@@ -418,7 +418,7 @@ export default function SettingsScreen() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <ThemedText type="subtitle" style={{ marginBottom: 16 }}>
+            <ThemedText type="subtitle" style={{ marginBottom: 16, color: Palette.black }}>
               Edit Name
             </ThemedText>
             <TextInput
