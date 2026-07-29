@@ -6,7 +6,7 @@ Generated from `find-animation-opportunities` audit on commit `08b4566`.
 
 | # | Title | Severity | Category | Status |
 |---|-------|----------|----------|--------|
-| 001 | Bottom player slide-in transition | HIGH | Preventing a jarring change | DONE |
+| 001 | Bottom player slide-in transition | HIGH | Preventing a jarring change | TODO |
 | 002 | Completion screen staggered entrance | HIGH | Delight | TODO |
 | 003 | Pronunciation score count-up | HIGH | Delight | TODO |
 | 004 | Chip group press feedback | MEDIUM | Feedback | TODO |
