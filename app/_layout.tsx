@@ -12,6 +12,8 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Platform } from 'react-native';
+import Purchases, { LOG_LEVEL } from 'react-native-purchases';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -32,6 +34,19 @@ export default function RootLayout() {
 
   useEffect(() => {
     registerForPushNotificationsAsync();
+
+    // Initialize RevenueCat
+    Purchases.setLogLevel(LOG_LEVEL.WARN);
+
+    if (Platform.OS === 'android') {
+      Purchases.configure({
+        apiKey: process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY ?? '',
+      });
+    } else if (Platform.OS === 'ios') {
+      Purchases.configure({
+        apiKey: process.env.EXPO_PUBLIC_REVENUECAT_IOS_API_KEY ?? '',
+      });
+    }
   }, []);
 
   if (!fontsLoaded) {
@@ -46,6 +61,7 @@ export default function RootLayout() {
             <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }}>
               <Stack.Screen name="(tabs)" />
               <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+              <Stack.Screen name="paywall" options={{ presentation: 'modal' }} />
             </Stack>
             <StatusBar style="auto" />
           </BottomSheetProvider>

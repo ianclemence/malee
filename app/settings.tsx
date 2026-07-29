@@ -1,7 +1,9 @@
 import { ThemedText } from "@/components/themed-text";
 import { HeaderBar } from "@/components/ui/header-bar";
+import { ProGate } from "@/components/ProGate";
 import { FontSizes, Palette, Radii, Shadows, Strokes } from "@/constants/theme";
 import { DEFAULT_DECKS } from "@/data/decks";
+import { usePurchases } from "@/lib/purchases";
 import {
   cancelAllNotifications,
   scheduleDailyReminder,
@@ -68,6 +70,7 @@ const BADGES = [
 
 export default function SettingsScreen() {
   const router = useRouter();
+  const { isPro } = usePurchases();
   const [stats, setStats] = useState({ words: 0, time: "4h", streak: 0 });
   const [settings, setSettings] = useState<AppSettings>({
     dailyReminders: true,
@@ -226,6 +229,7 @@ export default function SettingsScreen() {
           <ThemedText type="subtitle" style={styles.sectionTitle}>
             Activity
           </ThemedText>
+          {isPro ? (
           <View style={styles.heatmapContainer}>
             {heatmapDays.map((date) => {
               const count = heatmap[date] || 0;
@@ -253,6 +257,11 @@ export default function SettingsScreen() {
               );
             })}
           </View>
+          ) : (
+            <ProGate feature="stats">
+              <View style={{ height: 60 }} />
+            </ProGate>
+          )}
         </View>
 
         {/* Badges */}

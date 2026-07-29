@@ -1,4 +1,5 @@
 import { Confetti } from "@/components/confetti";
+import { ProGate } from "@/components/ProGate";
 import { ThemedText } from "@/components/themed-text";
 import { IconButton } from "@/components/ui/icon-button";
 import { ProgressBar } from "@/components/ui/progress-bar";
@@ -6,6 +7,7 @@ import { PulseCircle } from "@/components/ui/pulse-circle";
 import { FontSizes, Palette, Radii, Shadows, Strokes } from "@/constants/theme";
 import { getDeckBySlug } from "@/data/decks";
 import { useBottomSheet } from "@/hooks/bottom-sheet-store";
+import { usePurchases } from "@/lib/purchases";
 import {
   calculateNextReview,
   INITIAL_STATS,
@@ -99,6 +101,7 @@ export default function LearnScreen() {
   }>();
   const router = useRouter();
   const bottomSheet = useBottomSheet();
+  const { isPro } = usePurchases();
 
   const [deck, setDeck] = useState<any>(getDeckBySlug(String(slug)));
   const [cards, setCards] = useState<CardData[]>([]);
@@ -878,6 +881,7 @@ export default function LearnScreen() {
                     disabled={!started}
                   />
                 </View>
+                {isPro ? (
                 <View
                   style={{
                     position: "relative",
@@ -932,6 +936,11 @@ export default function LearnScreen() {
                     disabled={!started}
                   />
                 </View>
+                ) : (
+                  <ProGate feature="pronunciation">
+                    <View />
+                  </ProGate>
+                )}
               </View>
 
               {/* Try Again Text - Only show when there's a recording */}
@@ -1051,6 +1060,9 @@ const styles = StyleSheet.create({
   },
   goalCount: {
     color: TEXT,
+  },
+  scoreText: {
+    fontFamily: "Outfit_700Bold",
   },
   pauseBtn: {
     backgroundColor: Palette.black,

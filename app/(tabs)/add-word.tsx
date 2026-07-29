@@ -1,7 +1,9 @@
 import { ThemedText } from '@/components/themed-text';
+import { ProGate } from '@/components/ProGate';
 import { useToast } from '@/components/ui/toast-context';
 import { FontSizes, Palette, Radii, Shadows, Strokes } from '@/constants/theme';
 import { addWordToCustomDeck, CustomDeck, getCustomDecks, saveCustomDeck } from "@/lib/storage";
+import { usePurchases } from "@/lib/purchases";
 import { useFocusEffect, useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
@@ -21,6 +23,7 @@ const BG = Palette.cream;
 export default function AddWordScreen() {
   const router = useRouter();
   const { showToast } = useToast();
+  const { isPro } = usePurchases();
   const [word, setWord] = useState("");
   const [translation, setTranslation] = useState("");
 
@@ -60,15 +63,21 @@ export default function AddWordScreen() {
 
     let targetSlug = selectedDeckSlug;
 
-    // Create new deck if needed
-    if (isCreatingDeck) {
-      const name = newDeckName.trim();
-      if (!name) {
-        Alert.alert("Missing Info", "Please enter a name for your new deck.");
-        return;
-      }
+  // Create new deck if needed
+  if (isCreatingDeck) {
+    const name = newDeckName.trim();
+    if (!name) {
+      Alert.alert("Missing Info", "Please enter a name for your new deck.");
+      return;
+    }
 
-      // Check if deck with same name exists
+    // Check deck limit for free users
+    if (!isPro && decks.length >= 3) {
+      router.push("/paywall");
+      return;
+    }
+
+    // Check if deck with same name exists
       const existingDeck = decks.find(d => d.title.toLowerCase() === name.toLowerCase());
 
       if (existingDeck) {
