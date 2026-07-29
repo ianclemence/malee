@@ -16,11 +16,47 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Image } from "expo-image";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View, ViewStyle } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 
 const TEXT = Palette.black;
 const BG = Palette.cream;
+
+// Bento grid pattern - repeats every 6 cards
+// Layout:
+// [  Large  ] [ Small ]
+// [ Small ] [  Large  ]
+// [ Medium ] [ Medium ]
+const BENTO_PATTERN: ('large' | 'small' | 'medium')[] = [
+  'large', 'small',
+  'small', 'large',
+  'medium', 'medium',
+];
+
+function getBentoSize(index: number): 'large' | 'small' | 'medium' {
+  return BENTO_PATTERN[index % BENTO_PATTERN.length];
+}
+
+function getBentoStyle(index: number): ViewStyle {
+  const size = getBentoSize(index);
+  const posInPattern = index % BENTO_PATTERN.length;
+
+  if (size === 'large') {
+    return { width: '100%' };
+  }
+
+  // For small and medium in the second column, no right margin
+  // For first column items, add right margin
+  if (posInPattern === 0 || posInPattern === 3) {
+    // First column (but large takes full width, so this applies to small/medium in first col)
+    return { width: '48%', marginRight: 4 };
+  } else if (posInPattern === 1 || posInPattern === 2) {
+    // Second column or small after large
+    return { width: '48%' };
+  }
+
+  return { width: '48%' };
+}
 
 export default function DecksScreen() {
   const router = useRouter();
@@ -65,7 +101,7 @@ export default function DecksScreen() {
   const visibleDecks = allDecks
     .filter((d) => {
       if (view === "favorites") return !!favorites[d.slug];
-      if (view === "my") return !!myDecks[d.slug] || d.isCustom; // Custom decks are always "mine"
+      if (view === "my") return !!myDecks[d.slug] || d.isCustom;
       return true;
     })
     .filter((d) => d.title.toLowerCase().includes(query.trim().toLowerCase()));
@@ -126,33 +162,41 @@ export default function DecksScreen() {
       />
 
       <View style={styles.grid}>
-        {visibleDecks.map((d, i) => (
-          <DeckCard
-            key={d.slug}
-            title={d.title}
-            icon={d.icon as any}
-            count={d.count}
-            favorited={!!favorites[d.slug]}
-            variant="grid"
-            backgroundColor={d.bg}
-            onPress={() =>
-              router.push({
-                pathname: "/deck/[slug]",
-                params: {
-                  slug: d.slug,
-                  title: d.title,
-                  count: String(d.count),
-                },
-              })
-            }
-            onToggleFavorite={async (e) => {
-              e?.stopPropagation?.();
-              const next = !favorites[d.slug];
-              setFavorites((p) => ({ ...p, [d.slug]: next }));
-              await setFavorite(d.slug, next);
-            }}
-          />
-        ))}
+        {visibleDecks.map((d, i) => {
+          const bentoSize = getBentoSize(i);
+          const bentoStyle = getBentoStyle(i);
+
+          return (
+            <DeckCard
+              key={d.slug}
+              title={d.title}
+              icon={d.icon as any}
+              count={d.count}
+              favorited={!!favorites[d.slug]}
+              variant="grid"
+              size={bentoSize}
+              backgroundColor={d.bg}
+              style={bentoStyle}
+              index={i}
+              onPress={() =>
+                router.push({
+                  pathname: "/deck/[slug]",
+                  params: {
+                    slug: d.slug,
+                    title: d.title,
+                    count: String(d.count),
+                  },
+                })
+              }
+              onToggleFavorite={async (e) => {
+                e?.stopPropagation?.();
+                const next = !favorites[d.slug];
+                setFavorites((p) => ({ ...p, [d.slug]: next }));
+                await setFavorite(d.slug, next);
+              }}
+            />
+          );
+        })}
       </View>
 
       {visibleDecks.length === 0 && (
@@ -201,7 +245,6 @@ const styles = StyleSheet.create({
   grid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-between",
     gap: 12,
   },
 

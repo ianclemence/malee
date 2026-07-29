@@ -20,9 +20,10 @@ type DeckCardProps = {
   onPress: () => void;
   onToggleFavorite?: (e?: any) => void;
   variant?: 'grid' | 'horizontal';
+  size?: 'small' | 'medium' | 'large';
   backgroundColor?: string;
   style?: ViewStyle;
-  index?: number; // For staggered animations
+  index?: number;
 };
 
 export function DeckCard({
@@ -33,6 +34,7 @@ export function DeckCard({
   onPress,
   onToggleFavorite,
   variant = 'grid',
+  size = 'medium',
   backgroundColor,
   style,
   index = 0,
@@ -51,23 +53,30 @@ export function DeckCard({
     backgroundColor: backgroundColor ?? Palette.white,
   };
 
-  const gridSize: ViewStyle = {
-    width: '48%',
-    minWidth: 160,
-    flex: 1,
-    aspectRatio: 0.85,
-    marginBottom: 4,
+  const getSizeStyle = (): ViewStyle => {
+    if (variant === 'horizontal') {
+      return { width: 160, height: 180 };
+    }
+
+    switch (size) {
+      case 'large':
+        return { width: '100%', minHeight: 180 };
+      case 'small':
+        return { width: '48%', aspectRatio: 1 };
+      case 'medium':
+      default:
+        return { width: '48%', aspectRatio: 0.85 };
+    }
   };
 
-  const horizontalSize: ViewStyle = {
-    width: 160,
-    height: 180,
-  };
+  const iconSize = size === 'large' ? 56 : size === 'small' ? 40 : 48;
+  const iconBoxSize = size === 'large' ? 72 : size === 'small' ? 56 : 48;
+  const titleSize = size === 'large' ? 22 : size === 'small' ? 14 : 18;
 
   const iconBox: ViewStyle = {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: iconBoxSize,
+    height: iconBoxSize,
+    borderRadius: iconBoxSize / 2,
     backgroundColor: Palette.white,
     alignItems: 'center',
     justifyContent: 'center',
@@ -94,7 +103,6 @@ export function DeckCard({
 
   const handleFavoritePress = (e?: any) => {
     if (onToggleFavorite) {
-      // Animate favorite icon
       favoriteScale.value = withSequence(
         withSpring(1.3, SpringPresets.bouncy),
         withSpring(1, SpringPresets.bouncy)
@@ -108,7 +116,7 @@ export function DeckCard({
       entering={FadeIn.delay(index * 50).springify()}
       style={[
         baseStyle,
-        variant === 'grid' ? gridSize : horizontalSize,
+        getSizeStyle(),
         style,
         animatedStyle,
       ]}
@@ -120,22 +128,22 @@ export function DeckCard({
         style={{ flex: 1, justifyContent: 'space-between' }}
       >
         <View style={iconBox}>
-          <Text style={{ fontSize: 28 }}>{icon}</Text>
+          <Text style={{ fontSize: iconSize }}>{icon}</Text>
         </View>
 
         {variant === 'grid' ? (
-          <View style={{ gap: 8 }}>
-            <Text style={{ fontSize: 18, color: TEXT, lineHeight: 22, fontFamily: 'Outfit_700Bold' }} numberOfLines={2}>
+          <View style={{ gap: 6 }}>
+            <Text style={{ fontSize: titleSize, color: TEXT, lineHeight: titleSize + 4, fontFamily: 'Outfit_700Bold' }} numberOfLines={2}>
               {title}
             </Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Text style={{ fontSize: 14, fontWeight: '600', color: TEXT, opacity: 0.6 }}>{count} words</Text>
+              <Text style={{ fontSize: 12, fontWeight: '600', color: TEXT, opacity: 0.6 }}>{count} words</Text>
               {onToggleFavorite && (
                 <Pressable hitSlop={10} onPress={handleFavoritePress}>
                   <Animated.View style={favoriteAnimatedStyle}>
                     <MaterialIcons
                       name={favorited ? 'favorite' : 'favorite-border'}
-                      size={20}
+                      size={18}
                       color={favorited ? '#FF4444' : TEXT}
                     />
                   </Animated.View>
