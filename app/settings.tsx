@@ -440,9 +440,9 @@ export default function SettingsScreen() {
                   await updateSetting("name", newName);
                   setIsEditingName(false);
                 }}
-                style={[styles.modalButton, { backgroundColor: ACCENT }]}
+                style={[styles.modalButton, { backgroundColor: ACCENT, borderColor: Palette.black, borderWidth: Strokes.regular, ...Shadows.brutalist }]}
               >
-                <Text style={{ color: Palette.white, fontWeight: "600" }}>
+                <Text style={{ color: Palette.black, fontWeight: "700", fontFamily: "Outfit_700Bold" }}>
                   Save
                 </Text>
               </Pressable>
