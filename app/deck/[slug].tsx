@@ -20,7 +20,7 @@ import {
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import * as Speech from "expo-speech";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 const ACCENT = Palette.primary;
@@ -109,19 +109,11 @@ export default function DeckScreen() {
     ]);
   };
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
   useFocusEffect(
     useCallback(() => {
       loadData();
     }, [slug, wordCount])
   );
-
-  // Ring Progress Calculation
-  const ringProg = Math.max(0, Math.min(1, progress));
-  const showRing = ringProg > 0;
 
   return (
     <View style={styles.page}>

@@ -5,7 +5,7 @@ import { FontSizes, Palette, Radii, Shadows, Strokes } from "@/constants/theme";
 import { getDeckBySlug } from "@/data/decks";
 import { DetailedStats, getDetailedDeckStats } from "@/lib/storage";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 
 const ACCENT = Palette.primary;
@@ -36,18 +36,11 @@ export default function DeckProgressScreen() {
     setStats(s);
   };
 
-  useEffect(() => {
-    loadStats();
-  }, [slug, total]);
-
   useFocusEffect(
     useCallback(() => {
       loadStats();
     }, [slug, total])
   );
-
-  // Ring Progress Calculation
-  const showRing = stats.progress > 0;
 
   return (
     <View style={styles.page}>

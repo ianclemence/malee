@@ -15,13 +15,11 @@ import {
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Image } from "expo-image";
 import { useFocusEffect, useRouter } from "expo-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
-const ACCENT = Palette.primary;
 const TEXT = Palette.black;
 const BG = Palette.cream;
-const CARD_BG = Palette.pastelBeige;
 
 export default function DecksScreen() {
   const router = useRouter();
@@ -42,10 +40,6 @@ export default function DecksScreen() {
     const s = await getSettings();
     setAvatarUri(s.avatarUri);
   };
-
-  useEffect(() => {
-    loadData();
-  }, []);
 
   useFocusEffect(
     useCallback(() => {

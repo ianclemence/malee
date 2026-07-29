@@ -19,7 +19,6 @@ import {
   getDeckProgress,
   getDeckProgressStats,
   getSettings,
-  getTodayInteractions,
   incTodayInteractions,
   incTotalTime,
   saveWordStats,
@@ -92,7 +91,7 @@ const SPEECH_RECORDING_OPTIONS = {
 type CardData = { front: string; back: string; example?: string };
 
 export default function LearnScreen() {
-  const { title, count, slug } = useLocalSearchParams<{
+  const { title, slug } = useLocalSearchParams<{
     title?: string;
     count?: string;
     slug?: string;
@@ -125,7 +124,6 @@ export default function LearnScreen() {
   const flip = useSharedValue(0);
   const scaleNext = useSharedValue(0.96);
   const [progress, setProgress] = useState(0);
-  const [todayCount, setTodayCount] = useState(0);
   const [started, setStarted] = useState(false);
 
   // Speech recognition state
@@ -320,8 +318,6 @@ export default function LearnScreen() {
         count: currentCards.length,
         progress: stats.progress,
       });
-      const today = await getTodayInteractions();
-      setTodayCount(today);
     })();
   }, [slug]);
 
@@ -553,10 +549,9 @@ export default function LearnScreen() {
       setLearnedWordsCount((prev) => prev + 1);
     }
 
-    const today = await incTodayInteractions(1);
+    await incTodayInteractions(1);
     const stats = await getDeckProgressStats(String(slug), cards.length);
     setProgress(stats.progress);
-    setTodayCount(today);
     await setCurrentDeck({
       slug: String(slug),
       title: deck?.title || String(title || "Deck"),
@@ -594,8 +589,7 @@ export default function LearnScreen() {
     }
 
     // Decrement today count to fix duplication
-    const today = await incTodayInteractions(-1);
-    setTodayCount(today);
+    await incTodayInteractions(-1);
 
     const stats = await getDeckProgressStats(String(slug), cards.length);
     setProgress(stats.progress);

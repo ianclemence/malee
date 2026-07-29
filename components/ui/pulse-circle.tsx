@@ -27,11 +27,13 @@ export const PulseCircle = ({ delay = 0, color = Palette.primary, size = 40 }: P
     return () => loop.stop();
   }, [delay]);
 
+  // eslint-disable-next-line react-hooks/refs
   const scale = anim.interpolate({
     inputRange: [0, 1],
     outputRange: [1, 2.5],
   });
 
+  // eslint-disable-next-line react-hooks/refs
   const opacity = anim.interpolate({
     inputRange: [0, 0.5, 1],
     outputRange: [0.6, 0.3, 0],

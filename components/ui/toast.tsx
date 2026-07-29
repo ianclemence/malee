@@ -3,9 +3,6 @@ import React, { useEffect } from 'react';
 import { StyleSheet, Text } from 'react-native';
 import Animated, { FadeInUp, FadeOutUp } from 'react-native-reanimated';
 
-const ACCENT = "#F1FF00";
-const TEXT = "#000000";
-
 export type ToastType = 'success' | 'error' | 'info';
 
 interface ToastProps {

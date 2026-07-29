@@ -1,6 +1,6 @@
 import BottomPlayer from '@/components/bottom-player';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { BottomTabBar } from '@react-navigation/bottom-tabs';
+import { BottomTabBar } from "expo-router/js-tabs";
 import { Tabs, useRouter } from 'expo-router';
 import React from 'react';
 import { Pressable, View } from 'react-native';

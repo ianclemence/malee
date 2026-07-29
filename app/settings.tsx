@@ -2,7 +2,6 @@ import { ThemedText } from "@/components/themed-text";
 import { HeaderBar } from "@/components/ui/header-bar";
 import { FontSizes, Palette, Radii, Shadows, Strokes } from "@/constants/theme";
 import { DEFAULT_DECKS } from "@/data/decks";
-import { useBottomSheet } from "@/hooks/bottom-sheet-store";
 import {
   cancelAllNotifications,
   scheduleDailyReminder,
@@ -22,8 +21,8 @@ import {
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
-import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useState } from "react";
 import {
   Alert,
   Modal,
@@ -69,7 +68,6 @@ const BADGES = [
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const bottomSheet = useBottomSheet();
   const [stats, setStats] = useState({ words: 0, time: "4h", streak: 0 });
   const [settings, setSettings] = useState<AppSettings>({
     dailyReminders: true,
@@ -83,17 +81,10 @@ export default function SettingsScreen() {
   const [isEditingName, setIsEditingName] = useState(false);
   const [newName, setNewName] = useState("");
 
-  useEffect(() => {
-    setNewName(settings.name);
-  }, [settings.name]);
-
-  useEffect(() => {
-    loadData();
-  }, []);
-
   const loadData = async () => {
     const s = await getSettings();
     setSettings(s);
+    setNewName(s.name);
 
     const streak = await getStreak();
     const customDecks = await getCustomDecks();
@@ -113,6 +104,12 @@ export default function SettingsScreen() {
     setStats({ words: learned, time: timeStr, streak });
     setHeatmap(hm);
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [])
+  );
 
   const toggleSetting = async (key: keyof AppSettings) => {
     const nextValue = !settings[key];

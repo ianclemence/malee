@@ -1,78 +1,135 @@
-# Malee — Practical English Vocabulary for Thai Learners
+# 🌴 Malee
 
-Malee is a vocabulary learning app that helps Thai speakers learn practical English words and phrases using spaced repetition, flashcards, and self‑assessment. It focuses on Thai learners’ real needs, with pronunciation support and context‑based decks.
+> _Practical English vocabulary for Thai learners._
 
-## Core Purpose
+**Malee** is a React Native vocabulary learning app built for Thai speakers who want to learn practical English words and phrases. It uses spaced repetition, flashcards, and self-assessment to help learners build real-world vocabulary — with pronunciation support and context-based decks tailored to everyday situations.
 
-- Teach useful English vocabulary Thai people actually need and use
-- Reduce pronunciation pain points and common Thai→English mistakes
-- Build confidence through daily goals and clear progress tracking
+---
 
-## How It Works
+## What We Do
 
-- Spaced Repetition: schedules review at optimal times for retention
-- Flashcards: Thai → English practice with contextual examples
-- Self‑Assessment: “Don’t know”, “Know, but difficult”, “Know, and easy” to adapt scheduling
-- Pronunciation Focus: audio and phonetic aids for every card
+Malee focuses on the English vocabulary Thai people actually need — travel, interviews, daily conversations, business, and social contexts. It reduces pronunciation pain points, builds confidence through daily goals, and tracks progress with clear visuals.
 
-## Key Features
+---
 
-- Organized Decks by real‑life situations (travel, interviews, daily conversations, business, social)
-- Daily Learning Goals with motivational streaks and progress bar
-- Personal Dictionary for saved words and favorites
-- Progress & Achievements with simple statistics
-- Audio playback and pronunciation hints on card fronts
+## Features
 
-## Target Users
+- **🗂️ Organized Decks** — Curated vocabulary decks by real-life situations (travel, interviews, daily conversations, business, social).
+- **🔄 Spaced Repetition** — Schedules reviews at optimal times for long-term retention.
+- **🃏 Flashcards** — Thai → English practice with tap-to-flip cards and contextual examples.
+- **🎤 Pronunciation Focus** — Audio playback and speech recognition for self-assessment on every card.
+- **📊 Daily Goals & Streaks** — Motivational progress tracking with daily XP targets.
+- **❤️ Favorites & Personal Dictionary** — Save words and decks for quick access.
+- **🏆 Progress & Achievements** — Simple statistics, badges, and mastery tracking.
 
-- Thai students and professionals improving practical English for travel, jobs, daily life, business, and social contexts
-
-## App Overview (paths)
-
-- Explore decks: `app/(tabs)/explore.tsx` — browse All / My Decks / Favorites, search, like decks
-- Learn flow: `app/deck/learn.tsx` — stacked Tinder‑style cards, tap to flip, button‑only progression
-- Shared UI: components in `components/` (e.g., bottom player)
-- Routing: [Expo Router] with file‑based routes under `app/`
-
-## Design Principles
-
-- Simple, friendly, high‑contrast UI with consistent colors and typography
-- Clear affordances for flipping, rating, and audio
-- Mobile‑first interactions (no swipe to advance; buttons determine progression)
+---
 
 ## Getting Started
 
-1. Install dependencies
-   ```bash
-   npm install
-   ```
-2. Run the app
-   ```bash
-   npx expo start
-   ```
-3. Open on device or emulator (Android emulator, iOS simulator, or Expo Go)
+### Prerequisites
 
-## Development Notes
+- [Bun](https://bun.sh/) (Preferred) or [Node.js](https://nodejs.org/) (v20+ or v22+ recommended)
+- [Expo CLI](https://docs.expo.dev/)
+- [Expo Go Mobile App](https://docs.expo.dev/get-started/set-up-your-environment/) _(for local development)_
+- [Android Studio](https://developer.android.com/studio) _(for Android emulator)_
+- [Xcode](https://developer.apple.com/xcode/) _(for iOS simulator, macOS only)_
 
-- Tech: React Native, Expo, Expo Router, Reanimated
-- State: local component state with UI‑driven animations (Reanimated)
-- Audio: Material Icons for UI; plug in TTS or audio assets per deck
+### Local Development
 
-## Roadmap
+1. **Clone the repository:**
 
-- Persist favorites, goals, and progress across sessions
-- Deck authoring tools and community‑driven contributions
-- Enhanced pronunciation (IPA, slow playback, syllable emphasis)
-- Rich analytics for mastery and streaks
+    ```bash
+    git clone https://github.com/ianclemence/malee.git
+    cd malee
+    ```
 
-## Build
+2. **Install dependencies:**
 
-To build a standalone Android APK (bypassing local git issues on Windows):
+    ```bash
+    bun install
+    # or
+    npm install
+    ```
 
-```powershell
-$env:EAS_NO_VCS="1"; eas build --platform android --profile preview
-```
+3. **Start the Expo development server:**
 
-## License
+    ```bash
+    bunx expo start
+    # or
+    npx expo start
+    ```
 
-Proprietary. All rights reserved.
+4. **Run directly on a connected Android device:**
+
+    ```bash
+    bunx expo run:android --variant release
+    ```
+
+---
+
+## Build & Deployment
+
+### Local builds (EAS)
+
+Build for production using **Expo Application Services (EAS)**:
+
+1. **Configure EAS Builds:**
+
+    ```bash
+    bunx eas build:configure
+
+    # Android
+    bunx eas build --platform android
+
+    # iOS
+    bunx eas build --platform ios
+    ```
+
+2. **Build for Preview:**
+
+    ```bash
+    # Android
+    eas build --platform android --profile preview
+
+    # iOS
+    eas build --platform ios --profile preview
+    ```
+
+3. **Build for Production:**
+
+    ```bash
+    # Android
+    eas build --platform android --profile production
+
+    # iOS
+    eas build --platform ios --profile production
+    ```
+
+4. **OTA Updates:**
+
+    ```bash
+    # Push OTA update to staging channel
+    eas update --channel staging --message "Testing new feature"
+
+    # Or target a specific branch
+    eas update --branch preview --message "Fix vocabulary card rendering"
+
+    # Channel can be: development, preview, or production
+    # depending on the build type of the app
+    eas update --channel production --message "Bug fix release"
+    ```
+
+---
+
+## Tech Stack
+
+- **Framework:** React Native + Expo (SDK 56)
+- **Routing:** Expo Router (file-based)
+- **Animations:** React Native Reanimated
+- **State:** Local component state + AsyncStorage
+- **Audio:** expo-audio + expo-speech
+- **Speech Recognition:** expo-speech-recognition
+
+---
+
+_Malee makes learning English feel natural for Thai speakers — one card at a time._

@@ -17,7 +17,7 @@ import {
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Image } from "expo-image";
 import { useFocusEffect, useRouter } from "expo-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 const ACCENT = Palette.primary;
@@ -58,10 +58,6 @@ export default function HomeScreen() {
     setAvatarUri(s.avatarUri);
   };
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
   useFocusEffect(
     useCallback(() => {
       loadData();
@@ -70,8 +66,8 @@ export default function HomeScreen() {
 
   const picked = useMemo(() => {
     const decks = DEFAULT_DECKS.map((d) => ({ ...d, count: d.words.length }));
-    const shuffled = decks.sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, 4);
+    // Use a stable shuffle based on index to avoid impure Math.random in render
+    return decks.slice(0, 4);
   }, []);
 
   const dailyProgress = Math.min(1, todayCount / dailyGoal);

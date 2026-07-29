@@ -29,6 +29,16 @@ export default function AddWordScreen() {
 
   const wordInputRef = useRef<TextInput>(null);
 
+  const loadDecks = async () => {
+    const d = await getCustomDecks();
+    setDecks(d);
+    if (d.length > 0 && !selectedDeckSlug) {
+      setSelectedDeckSlug(d[0].slug);
+    } else if (d.length === 0) {
+      setIsCreatingDeck(true);
+    }
+  };
+
   useFocusEffect(
     React.useCallback(() => {
       loadDecks();
@@ -39,16 +49,6 @@ export default function AddWordScreen() {
       return () => clearTimeout(timer);
     }, [])
   );
-
-  const loadDecks = async () => {
-    const d = await getCustomDecks();
-    setDecks(d);
-    if (d.length > 0 && !selectedDeckSlug) {
-      setSelectedDeckSlug(d[0].slug);
-    } else if (d.length === 0) {
-      setIsCreatingDeck(true);
-    }
-  };
 
   const handleSave = async () => {
     if (!word.trim() || !translation.trim()) {
@@ -118,8 +118,6 @@ export default function AddWordScreen() {
       }
     ]);
   };
-
-  const suggestions = ["Dapper", "Fancy", "Posh"];
 
   return (
     <View style={styles.page}>
