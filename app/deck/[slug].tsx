@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 8,
     letterSpacing: -1,
-    fontFamily: 'PlayfairDisplay_700Bold',
+    fontFamily: 'Outfit_700Bold',
     lineHeight: 40,
     width: '100%',
   },
@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
   actionBtnText: {
     fontSize: FontSizes.body,
     color: TEXT,
-    fontFamily: 'Inter_700Bold',
+    fontFamily: 'Outfit_700Bold',
   },
   wordsHeader: {
     flexDirection: "row",
@@ -307,7 +307,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     color: TEXT,
-    fontFamily: 'PlayfairDisplay_600SemiBold',
+    fontFamily: 'Outfit_600SemiBold',
   },
   wordCountBadge: {
     fontSize: 14,

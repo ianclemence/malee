@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
   },
   title: {
     color: TEXT_COLOR,
-    fontFamily: 'Inter_700Bold',
+    fontFamily: 'Outfit_700Bold',
     fontSize: 16,
   },
   subtitle: {

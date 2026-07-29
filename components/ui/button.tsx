@@ -55,7 +55,7 @@ export function Button({ title, onPress, style, textStyle, disabled }: ButtonPro
         style={[
           {
             color: Palette.black,
-            fontFamily: 'Inter_700Bold',
+            fontFamily: 'Outfit_700Bold',
             fontSize: FontSizes.button,
           },
           textStyle,

@@ -381,7 +381,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: TEXT,
     marginBottom: 16,
-    fontFamily: "PlayfairDisplay_600SemiBold",
+    fontFamily: "Outfit_600SemiBold",
   },
   resumeCard: {
     backgroundColor: Palette.white,
@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
   resumeTitle: {
     fontSize: 18,
     color: TEXT,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Outfit_700Bold",
     marginBottom: 4,
   },
   resumeSub: {

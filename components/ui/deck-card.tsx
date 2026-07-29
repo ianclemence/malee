@@ -125,7 +125,7 @@ export function DeckCard({
 
         {variant === 'grid' ? (
           <View style={{ gap: 8 }}>
-            <Text style={{ fontSize: 18, color: TEXT, lineHeight: 22, fontFamily: 'Inter_700Bold' }} numberOfLines={2}>
+            <Text style={{ fontSize: 18, color: TEXT, lineHeight: 22, fontFamily: 'Outfit_700Bold' }} numberOfLines={2}>
               {title}
             </Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -145,7 +145,7 @@ export function DeckCard({
           </View>
         ) : (
           <View style={{ gap: 8 }}>
-            <ThemedText style={{ fontSize: 16, color: TEXT, fontFamily: 'Inter_700Bold' }} numberOfLines={2}>
+            <ThemedText style={{ fontSize: 16, color: TEXT, fontFamily: 'Outfit_700Bold' }} numberOfLines={2}>
               {title}
             </ThemedText>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>

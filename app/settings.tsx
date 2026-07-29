@@ -502,13 +502,13 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.phrase,
     color: TEXT,
     marginBottom: 4,
-    fontFamily: "PlayfairDisplay_500Medium",
+    fontFamily: "Outfit_500Medium",
   },
   level: {
     fontSize: FontSizes.body,
     color: TEXT,
     opacity: 0.6,
-    fontFamily: "Inter_500Medium",
+    fontFamily: "Outfit_500Medium",
   },
   statsRow: {
     flexDirection: "row",
@@ -529,13 +529,13 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.phrase,
     color: TEXT,
     marginBottom: 4,
-    fontFamily: "PlayfairDisplay_500Medium",
+    fontFamily: "Outfit_500Medium",
   },
   statLabel: {
     fontSize: FontSizes.small,
     color: TEXT,
     opacity: 0.6,
-    fontFamily: "Inter_500Medium",
+    fontFamily: "Outfit_500Medium",
   },
   section: {
     marginBottom: 32,
@@ -543,7 +543,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: TEXT,
     marginBottom: 16,
-    fontFamily: "PlayfairDisplay_600SemiBold",
+    fontFamily: "Outfit_600SemiBold",
   },
   card: {
     backgroundColor: Palette.white,
@@ -573,12 +573,12 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: FontSizes.body,
     color: TEXT,
-    fontFamily: "Inter_500Medium",
+    fontFamily: "Outfit_500Medium",
   },
   rowValue: {
     fontSize: FontSizes.body,
     color: ACCENT,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Outfit_600SemiBold",
   },
   heatmapContainer: {
     flexDirection: "row",
@@ -623,7 +623,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: "center",
     color: TEXT,
-    fontFamily: "Inter_500Medium",
+    fontFamily: "Outfit_500Medium",
   },
   settingRow: {
     flexDirection: "row",
@@ -639,7 +639,7 @@ const styles = StyleSheet.create({
   settingLabel: {
     fontSize: FontSizes.body,
     color: TEXT,
-    fontFamily: "Inter_500Medium",
+    fontFamily: "Outfit_500Medium",
   },
   iconButton: {
     width: 32,
@@ -665,7 +665,7 @@ const styles = StyleSheet.create({
     color: Palette.white,
     fontSize: FontSizes.body,
     fontWeight: "600",
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Outfit_600SemiBold",
   },
   logoutBtn: {
     marginTop: 24,
@@ -676,14 +676,14 @@ const styles = StyleSheet.create({
     color: Palette.error,
     fontSize: FontSizes.body,
     fontWeight: "600",
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Outfit_600SemiBold",
   },
   versionText: {
     textAlign: "center",
     color: "#999",
     fontSize: 12,
     marginTop: 32,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Outfit_400Regular",
   },
   modalOverlay: {
     flex: 1,
@@ -706,7 +706,7 @@ const styles = StyleSheet.create({
     padding: 12,
     fontSize: 16,
     marginBottom: 24,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Outfit_400Regular",
   },
   modalActions: {
     flexDirection: "row",
@@ -731,7 +731,7 @@ const styles = StyleSheet.create({
   },
   proText: {
     color: Palette.primary,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Outfit_700Bold",
     fontSize: 14,
   },
 });

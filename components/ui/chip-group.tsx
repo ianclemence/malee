@@ -60,7 +60,7 @@ function Chip({
             fontSize: 16,
             color: active ? Palette.primary : Palette.black,
             opacity: active ? 1 : 0.6,
-            fontFamily: 'Inter_700Bold',
+            fontFamily: 'Outfit_700Bold',
           }}
         >
           {opt.label}

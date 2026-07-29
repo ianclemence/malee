@@ -69,7 +69,7 @@ export function FloatingActionBar({ label, onPress, progress, leftIconName = 'pl
           <MaterialIcons name={leftIconName as any} size={20} color={ACCENT} />
         </View>
       </View>
-      <ThemedText style={{ color: ACCENT, fontFamily: 'Inter_700Bold', fontSize: FontSizes.button, textAlign: 'center', flex: 1 }}>{label}</ThemedText>
+      <ThemedText style={{ color: ACCENT, fontFamily: 'Outfit_700Bold', fontSize: FontSizes.button, textAlign: 'center', flex: 1 }}>{label}</ThemedText>
       <View style={{ width: 40 }} />
     </AnimatedPressable>
   );

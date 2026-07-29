@@ -638,7 +638,7 @@ export default function LearnScreen() {
           <Text
             style={[
               styles.doneText,
-              { fontFamily: "PlayfairDisplay_600SemiBold" },
+              { fontFamily: "Outfit_600SemiBold" },
             ]}
           >
             All caught up!
@@ -1064,7 +1064,7 @@ const styles = StyleSheet.create({
   },
   pauseText: {
     color: ACCENT,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Outfit_700Bold",
     fontSize: FontSizes.body,
   },
   cardArea: {
@@ -1175,7 +1175,7 @@ const styles = StyleSheet.create({
     ...Shadows.brutalist,
   },
   backBtnText: {
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Outfit_700Bold",
     color: TEXT,
     fontSize: FontSizes.button,
   },

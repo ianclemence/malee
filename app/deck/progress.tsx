@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
   },
   bubbleText: {
     color: TEXT,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Outfit_700Bold",
   },
   titleText: {
     fontSize: FontSizes.h1,
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     textAlign: "center",
     letterSpacing: -1,
-    fontFamily: "PlayfairDisplay_700Bold",
+    fontFamily: "Outfit_700Bold",
   },
   statsRow: {
     flexDirection: "row",
@@ -166,14 +166,14 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: FontSizes.phrase,
     color: TEXT,
-    fontFamily: "PlayfairDisplay_500Medium",
+    fontFamily: "Outfit_500Medium",
   },
   statLabel: {
     color: TEXT,
     opacity: 0.6,
     fontSize: FontSizes.small,
     marginTop: 4,
-    fontFamily: "Inter_500Medium",
+    fontFamily: "Outfit_500Medium",
   },
   separator: {
     width: Strokes.thin,
@@ -188,6 +188,6 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.body,
     color: TEXT,
     opacity: 0.6,
-    fontFamily: "Inter_500Medium",
+    fontFamily: "Outfit_500Medium",
   },
 });

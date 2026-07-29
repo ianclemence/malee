@@ -34,8 +34,8 @@ export function WordCard({ en, th, learned, onPlay, isPlaying, index = 0 }: Word
       }}
     >
       <View style={{ flex: 1 }}>
-        <ThemedText style={{ fontSize: FontSizes.phrase, color: TEXT, marginBottom: 4, fontFamily: 'Inter_700Bold' }}>{en}</ThemedText>
-        <ThemedText style={{ fontSize: FontSizes.body, color: TEXT, opacity: 0.6, fontFamily: 'Inter_400Regular' }}>{th}</ThemedText>
+        <ThemedText style={{ fontSize: FontSizes.phrase, color: TEXT, marginBottom: 4, fontFamily: 'Outfit_700Bold' }}>{en}</ThemedText>
+        <ThemedText style={{ fontSize: FontSizes.body, color: TEXT, opacity: 0.6, fontFamily: 'Outfit_400Regular' }}>{th}</ThemedText>
       </View>
       <View style={{ position: 'relative', alignItems: 'center', justifyContent: 'center' }}>
         {isPlaying && (

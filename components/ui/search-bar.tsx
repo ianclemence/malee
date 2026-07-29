@@ -48,7 +48,7 @@ export function SearchBar({ value, onChangeText, placeholder }: SearchBarProps) 
         onChangeText={onChangeText}
         placeholder={placeholder ?? 'Search decks...'}
         placeholderTextColor="rgba(0,0,0,0.4)"
-        style={{ flex: 1, color: TEXT, fontSize: 16, fontFamily: 'Inter_400Regular' }}
+        style={{ flex: 1, color: TEXT, fontSize: 16, fontFamily: 'Outfit_400Regular' }}
       />
     </View>
   );

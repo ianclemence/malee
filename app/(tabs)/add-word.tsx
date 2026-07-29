@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.body,
     color: TEXT,
     opacity: 0.6,
-    fontFamily: 'Inter_700Bold',
+    fontFamily: 'Outfit_700Bold',
   },
   input: {
     fontSize: FontSizes.phrase,
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: Strokes.regular,
     borderColor: Palette.black,
     paddingVertical: 8,
-    fontFamily: 'PlayfairDisplay_500Medium',
+    fontFamily: 'Outfit_500Medium',
   },
   suggestionsContainer: {
     marginTop: 8,
@@ -291,12 +291,12 @@ const styles = StyleSheet.create({
   },
   createDeckText: {
     color: TEXT,
-    fontFamily: 'Inter_700Bold',
+    fontFamily: 'Outfit_700Bold',
     fontSize: FontSizes.body,
   },
   suggestionText: {
     color: TEXT,
-    fontFamily: 'Inter_500Medium',
+    fontFamily: 'Outfit_500Medium',
     fontSize: FontSizes.small,
   },
   chipActive: {
@@ -322,7 +322,7 @@ const styles = StyleSheet.create({
   },
   submitText: {
     color: ACCENT,
-    fontFamily: 'Inter_700Bold',
+    fontFamily: 'Outfit_700Bold',
     fontSize: FontSizes.button,
   },
 

@@ -39,30 +39,30 @@ const styles = StyleSheet.create({
   default: {
     fontSize: FontSizes.body,
     lineHeight: 24,
-    fontFamily: 'Inter_500Medium',
+    fontFamily: 'Outfit_500Medium',
   },
   defaultSemiBold: {
     fontSize: FontSizes.body,
     lineHeight: 24,
-    fontFamily: 'Inter_700Bold',
+    fontFamily: 'Outfit_700Bold',
   },
   title: {
     fontSize: FontSizes.h1,
     lineHeight: 40,
-    fontFamily: 'PlayfairDisplay_700Bold',
+    fontFamily: 'Outfit_700Bold',
   },
   subtitle: {
     fontSize: FontSizes.h2,
-    fontFamily: 'Inter_700Bold',
+    fontFamily: 'Outfit_700Bold',
   },
   link: {
     lineHeight: 30,
     fontSize: FontSizes.body,
     color: Palette.primary,
-    fontFamily: 'Inter_700Bold',
+    fontFamily: 'Outfit_700Bold',
   },
   phrase: {
     fontSize: FontSizes.phrase,
-    fontFamily: 'PlayfairDisplay_500Medium',
+    fontFamily: 'Outfit_500Medium',
   },
 });
