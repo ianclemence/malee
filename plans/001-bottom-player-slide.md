@@ -1,6 +1,6 @@
 # 001 — Bottom player slide-in/out transition
 
-- **Status**: TODO
+- **Status**: DONE
 - **Commit**: 08b4566
 - **Severity**: HIGH
 - **Category**: Preventing a jarring change
