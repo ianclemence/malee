@@ -17,7 +17,16 @@ export default function TabLayout() {
           tabBarActiveTintColor: Palette.primary,
           tabBarInactiveTintColor: '#FFFFFF',
           headerShown: false,
-          tabBarButton: (props) => <Pressable {...props} />,
+          tabBarButton: (props) => (
+            <Pressable
+              {...props}
+              android_ripple={{ enabled: false } as any}
+              style={({ pressed }) => [
+                props.style,
+                { opacity: pressed ? 0.7 : 1 },
+              ]}
+            />
+          ),
           tabBarStyle: { backgroundColor: '#000000', borderTopWidth: 0, elevation: 0, justifyContent: 'space-between', height: 72 },
           tabBarBackground: () => <View style={{ backgroundColor: '#000000' }} />,
         }}
