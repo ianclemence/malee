@@ -8,15 +8,17 @@ export interface SketchyDefaults {
   strokeWidth: number;
   fill?: string;
   fillStyle?: string;
+  hachureGap: number;
   seed: number;
 }
 
 const defaults: SketchyDefaults = {
-  roughness: 1.5,
-  bowing: 1,
+  roughness: 3,
+  bowing: 2,
   stroke: Palette.black,
-  strokeWidth: 2,
-  fillStyle: 'hachure',
+  strokeWidth: 3,
+  fillStyle: 'zigzag',
+  hachureGap: 5,
   seed: 1,
 };
 

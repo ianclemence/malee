@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import Svg from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
 import { RoughGenerator } from 'roughjs/bin/generator';
 import { Options } from 'roughjs/bin/core';
 import { useSketchyDefaults } from './SketchyProvider';
@@ -12,6 +12,7 @@ interface SketchyPathProps {
   strokeWidth?: number;
   fill?: string;
   fillStyle?: string;
+  hachureGap?: number;
   seed?: number;
   width: number;
   height: number;
@@ -25,6 +26,7 @@ export function SketchyPath({
   strokeWidth,
   fill,
   fillStyle,
+  hachureGap,
   seed,
   width,
   height,
@@ -40,11 +42,15 @@ export function SketchyPath({
       strokeWidth: strokeWidth ?? defaults.strokeWidth,
       fill: fill ?? defaults.fill,
       fillStyle: fillStyle ?? defaults.fillStyle,
+      hachureGap: hachureGap ?? defaults.hachureGap,
       seed: seed ?? defaults.seed,
     };
     const drawable = gen.path(d, opts);
     return gen.toPaths(drawable);
-  }, [d, roughness, bowing, stroke, strokeWidth, fill, fillStyle, seed, defaults]);
+  }, [d, roughness, bowing, stroke, strokeWidth, fill, fillStyle, hachureGap, seed, defaults]);
+
+  const fillPaths = paths.filter((p) => p.fill && p.fill !== 'none');
+  const strokePaths = paths.filter((p) => !p.fill || p.fill === 'none');
 
   return (
     <Svg
@@ -52,13 +58,21 @@ export function SketchyPath({
       height={height}
       style={{ position: 'absolute', top: 0, left: 0 }}
     >
-      {paths.map((p, i) => (
-        <path
-          key={i}
+      {fillPaths.map((p, i) => (
+        <Path
+          key={`fill-${i}`}
+          d={p.d}
+          fill={p.fill}
+          stroke="none"
+        />
+      ))}
+      {strokePaths.map((p, i) => (
+        <Path
+          key={`stroke-${i}`}
           d={p.d}
           stroke={p.stroke}
           strokeWidth={p.strokeWidth}
-          fill={p.fill || 'none'}
+          fill="none"
         />
       ))}
     </Svg>

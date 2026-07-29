@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { LayoutChangeEvent, View, ViewStyle } from 'react-native';
-import Svg from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
 import { RoughGenerator } from 'roughjs/bin/generator';
 import { Options } from 'roughjs/bin/core';
 import { useSketchyDefaults } from './SketchyProvider';
@@ -13,6 +13,7 @@ interface SketchyBoxProps {
   strokeWidth?: number;
   fill?: string;
   fillStyle?: string;
+  hachureGap?: number;
   seed?: number;
   width?: number;
   height?: number;
@@ -28,6 +29,7 @@ export function SketchyBox({
   strokeWidth,
   fill,
   fillStyle,
+  hachureGap,
   seed,
   width = 200,
   height = 100,
@@ -45,11 +47,15 @@ export function SketchyBox({
       strokeWidth: strokeWidth ?? defaults.strokeWidth,
       fill: fill ?? defaults.fill,
       fillStyle: fillStyle ?? defaults.fillStyle,
+      hachureGap: hachureGap ?? defaults.hachureGap,
       seed: seed ?? defaults.seed,
     };
     const drawable = gen.rectangle(0, 0, width, height, opts);
     return gen.toPaths(drawable);
-  }, [width, height, roughness, bowing, stroke, strokeWidth, fill, fillStyle, seed, defaults]);
+  }, [width, height, roughness, bowing, stroke, strokeWidth, fill, fillStyle, hachureGap, seed, defaults]);
+
+  const fillPaths = paths.filter((p) => p.fill && p.fill !== 'none');
+  const strokePaths = paths.filter((p) => !p.fill || p.fill === 'none');
 
   return (
     <View style={[{ width, height }, style]} onLayout={onLayout}>
@@ -58,33 +64,22 @@ export function SketchyBox({
         height={height}
         style={{ position: 'absolute', top: 0, left: 0 }}
       >
-        {paths.map((p, i) => (
-          <React.Fragment key={i}>
-            {p.fill ? (
-              <React.Fragment>
-                <Svg
-                  width={width}
-                  height={height}
-                  style={{ position: 'absolute', top: 0, left: 0 }}
-                >
-                  <path d={p.d} fill={p.fill} stroke="none" />
-                </Svg>
-                <path
-                  d={p.d}
-                  stroke={p.stroke}
-                  strokeWidth={p.strokeWidth}
-                  fill="none"
-                />
-              </React.Fragment>
-            ) : (
-              <path
-                d={p.d}
-                stroke={p.stroke}
-                strokeWidth={p.strokeWidth}
-                fill={p.fill || 'none'}
-              />
-            )}
-          </React.Fragment>
+        {fillPaths.map((p, i) => (
+          <Path
+            key={`fill-${i}`}
+            d={p.d}
+            fill={p.fill}
+            stroke="none"
+          />
+        ))}
+        {strokePaths.map((p, i) => (
+          <Path
+            key={`stroke-${i}`}
+            d={p.d}
+            stroke={p.stroke}
+            strokeWidth={p.strokeWidth}
+            fill="none"
+          />
         ))}
       </Svg>
       {children && (

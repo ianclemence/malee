@@ -135,10 +135,12 @@ export default function HomeScreen() {
         width={340}
         height={180}
         stroke={Palette.black}
-        strokeWidth={3}
+        strokeWidth={4}
         fill={Palette.black}
-        fillStyle="solid"
-        roughness={2}
+        fillStyle="zigzag"
+        roughness={3.5}
+        bowing={2}
+        hachureGap={5}
         seed={42}
         style={styles.heroSketchy}
       >
@@ -205,10 +207,12 @@ export default function HomeScreen() {
             width={340}
             height={80}
             stroke={Palette.black}
-            strokeWidth={2}
+            strokeWidth={3}
             fill={Palette.white}
-            fillStyle="solid"
-            roughness={1.5}
+            fillStyle="dots"
+            roughness={2.5}
+            bowing={1.5}
+            hachureGap={4}
             seed={101}
             style={styles.resumeSketchy}
           >
@@ -253,10 +257,12 @@ export default function HomeScreen() {
               width={340}
               height={80}
               stroke={Palette.black}
-              strokeWidth={2}
+              strokeWidth={3}
               fill={Palette.white}
-              fillStyle="solid"
-              roughness={1.5}
+              fillStyle="dots"
+              roughness={2.5}
+              bowing={1.5}
+              hachureGap={4}
               seed={202}
               style={styles.resumeSketchy}
             >

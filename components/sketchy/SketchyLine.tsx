@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import Svg from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
 import { RoughGenerator } from 'roughjs/bin/generator';
 import { Options } from 'roughjs/bin/core';
 import { useSketchyDefaults } from './SketchyProvider';
@@ -42,19 +42,19 @@ export function SketchyLine({
     return gen.toPaths(drawable);
   }, [x1, y1, x2, y2, roughness, bowing, stroke, strokeWidth, seed, defaults]);
 
-  const width = Math.abs(x2 - x1);
-  const height = Math.abs(y2 - y1);
+  const width = Math.max(Math.abs(x2 - x1), 1);
+  const height = Math.max(Math.abs(y2 - y1), 1);
   const minX = Math.min(x1, x2);
   const minY = Math.min(y1, y2);
 
   return (
     <Svg
-      width={width || 1}
-      height={height || 1}
+      width={width}
+      height={height}
       style={{ position: 'absolute', left: minX, top: minY }}
     >
       {paths.map((p, i) => (
-        <path
+        <Path
           key={i}
           d={p.d}
           stroke={p.stroke}
