@@ -1,5 +1,6 @@
 import { ProgressRing } from "@/components/progress-ring";
 import { ThemedText } from "@/components/themed-text";
+import { SketchyBox } from "@/components/sketchy";
 import { Button } from "@/components/ui/button";
 import { DeckCard } from "@/components/ui/deck-card";
 import { FontSizes, Palette, Radii, Shadows, Strokes } from "@/constants/theme";
@@ -130,7 +131,17 @@ export default function HomeScreen() {
       </View>
 
       {/* Hero / Daily Goal Section */}
-      <View style={styles.hero}>
+      <SketchyBox
+        width={340}
+        height={180}
+        stroke={Palette.black}
+        strokeWidth={3}
+        fill={Palette.black}
+        fillStyle="solid"
+        roughness={2}
+        seed={42}
+        style={styles.heroSketchy}
+      >
         <View style={styles.heroContent}>
           <View>
             <ThemedText type="title" style={styles.heroGreeting}>
@@ -179,10 +190,10 @@ export default function HomeScreen() {
         <MaterialIcons
           name="bolt"
           size={120}
-          color="rgba(0,0,0,0.03)"
+          color="rgba(255,255,255,0.05)"
           style={styles.heroBgIcon}
         />
-      </View>
+      </SketchyBox>
 
       {/* Daily Review or Jump Back In */}
       {totalDue > 0 ? (
@@ -190,35 +201,47 @@ export default function HomeScreen() {
           <ThemedText type="subtitle" style={styles.sectionTitle}>
             Daily Review
           </ThemedText>
-          <Pressable
-            style={styles.resumeCard}
-            onPress={() => {
-              if (currentDeck) {
-                router.push({
-                  pathname: "/deck/learn",
-                  params: {
-                    slug: currentDeck.slug,
-                    title: currentDeck.title,
-                    count: String(currentDeck.count),
-                  },
-                });
-              } else {
-                router.push("/(tabs)/explore");
-              }
-            }}
+          <SketchyBox
+            width={340}
+            height={80}
+            stroke={Palette.black}
+            strokeWidth={2}
+            fill={Palette.white}
+            fillStyle="solid"
+            roughness={1.5}
+            seed={101}
+            style={styles.resumeSketchy}
           >
-            <View style={styles.resumeContent}>
-              <ThemedText style={styles.resumeTitle}>Review Session</ThemedText>
-              <ThemedText style={styles.resumeSub}>
-                {totalDue} cards due today
-              </ThemedText>
-            </View>
-            <View style={styles.resumeAction}>
-              <View style={[styles.resumePlayIcon, { position: "relative" }]}>
-                <MaterialIcons name="layers" size={24} color={TEXT} />
+            <Pressable
+              style={styles.resumePressable}
+              onPress={() => {
+                if (currentDeck) {
+                  router.push({
+                    pathname: "/deck/learn",
+                    params: {
+                      slug: currentDeck.slug,
+                      title: currentDeck.title,
+                      count: String(currentDeck.count),
+                    },
+                  });
+                } else {
+                  router.push("/(tabs)/explore");
+                }
+              }}
+            >
+              <View style={styles.resumeContent}>
+                <ThemedText style={styles.resumeTitle}>Review Session</ThemedText>
+                <ThemedText style={styles.resumeSub}>
+                  {totalDue} cards due today
+                </ThemedText>
               </View>
-            </View>
-          </Pressable>
+              <View style={styles.resumeAction}>
+                <View style={[styles.resumePlayIcon, { position: "relative" }]}>
+                  <MaterialIcons name="layers" size={24} color={TEXT} />
+                </View>
+              </View>
+            </Pressable>
+          </SketchyBox>
         </View>
       ) : (
         currentDeck && (
@@ -226,40 +249,52 @@ export default function HomeScreen() {
             <ThemedText type="subtitle" style={styles.sectionTitle}>
               Jump Back In
             </ThemedText>
-            <Pressable
-              style={styles.resumeCard}
-              onPress={() =>
-                router.push({
-                  pathname: "/deck/learn",
-                  params: {
-                    slug: currentDeck.slug,
-                    title: currentDeck.title,
-                    count: String(currentDeck.count),
-                  },
-                })
-              }
+            <SketchyBox
+              width={340}
+              height={80}
+              stroke={Palette.black}
+              strokeWidth={2}
+              fill={Palette.white}
+              fillStyle="solid"
+              roughness={1.5}
+              seed={202}
+              style={styles.resumeSketchy}
             >
-              <View style={styles.resumeContent}>
-                <ThemedText style={styles.resumeTitle}>
-                  {currentDeck.title}
-                </ThemedText>
-                <ThemedText style={styles.resumeSub}>
-                  {currentDeck.count} cards
-                </ThemedText>
-              </View>
-              <View style={styles.resumeAction}>
-                <ProgressRing
-                  radius={24}
-                  stroke={4}
-                  progress={currentDeck.progress}
-                  color={ACCENT}
-                  trackColor="#E0E0E0"
-                />
-                <View style={styles.resumePlayIcon}>
-                  <MaterialIcons name="play-arrow" size={24} color={TEXT} />
+              <Pressable
+                style={styles.resumePressable}
+                onPress={() =>
+                  router.push({
+                    pathname: "/deck/learn",
+                    params: {
+                      slug: currentDeck.slug,
+                      title: currentDeck.title,
+                      count: String(currentDeck.count),
+                    },
+                  })
+                }
+              >
+                <View style={styles.resumeContent}>
+                  <ThemedText style={styles.resumeTitle}>
+                    {currentDeck.title}
+                  </ThemedText>
+                  <ThemedText style={styles.resumeSub}>
+                    {currentDeck.count} cards
+                  </ThemedText>
                 </View>
-              </View>
-            </Pressable>
+                <View style={styles.resumeAction}>
+                  <ProgressRing
+                    radius={24}
+                    stroke={4}
+                    progress={currentDeck.progress}
+                    color={ACCENT}
+                    trackColor="#E0E0E0"
+                  />
+                  <View style={styles.resumePlayIcon}>
+                    <MaterialIcons name="play-arrow" size={24} color={TEXT} />
+                  </View>
+                </View>
+              </Pressable>
+            </SketchyBox>
           </View>
         )
       )}
@@ -324,13 +359,8 @@ const styles = StyleSheet.create({
     color: TEXT,
     fontFamily: 'RubikSprayPaint_400Regular',
   },
-  hero: {
-    backgroundColor: TEXT,
-    borderRadius: Radii.card,
-    padding: 32,
+  heroSketchy: {
     marginBottom: 32,
-    position: "relative",
-    overflow: "hidden",
   },
   heroContent: {
     flexDirection: "row",
@@ -383,16 +413,16 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     fontFamily: "Outfit_600SemiBold",
   },
-  resumeCard: {
-    backgroundColor: Palette.white,
-    borderRadius: Radii.card,
-    padding: 16,
+  resumeSketchy: {
+    // no extra styles needed, SketchyBox handles positioning
+  },
+  resumePressable: {
+    width: "100%",
+    height: "100%",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    borderWidth: Strokes.regular,
-    borderColor: Palette.black,
-    ...Shadows.brutalist,
+    paddingHorizontal: 16,
   },
   resumeContent: {
     flex: 1,
