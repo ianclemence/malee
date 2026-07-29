@@ -10,7 +10,7 @@ const TEXT = Palette.black;
 const BG = Palette.cream;
 
 const FEATURES = [
-  { icon: "mic", title: "Unlimited Pronunciation", desc: "Get AI-powered feedback on every word" },
+  { icon: "mic", title: "Unlimited Pronunciation", desc: "Get feedback on every word" },
   { icon: "layers", title: "Unlimited Decks", desc: "Create as many custom decks as you want" },
   { icon: "bar-chart", title: "Advanced Stats", desc: "Track your progress with detailed analytics" },
   { icon: "bookmark", title: "Priority Support", desc: "Get help when you need it" },
