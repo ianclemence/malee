@@ -1,6 +1,5 @@
 import { ProgressRing } from "@/components/progress-ring";
 import { ThemedText } from "@/components/themed-text";
-import { SketchyBox } from "@/components/sketchy";
 import { Button } from "@/components/ui/button";
 import { DeckCard } from "@/components/ui/deck-card";
 import { FontSizes, Palette, Radii, Shadows, Strokes } from "@/constants/theme";
@@ -67,7 +66,6 @@ export default function HomeScreen() {
 
   const picked = useMemo(() => {
     const decks = DEFAULT_DECKS.map((d) => ({ ...d, count: d.words.length }));
-    // Use a stable shuffle based on index to avoid impure Math.random in render
     return decks.slice(0, 4);
   }, []);
 
@@ -131,19 +129,7 @@ export default function HomeScreen() {
       </View>
 
       {/* Hero / Daily Goal Section */}
-      <SketchyBox
-        width={340}
-        height={180}
-        stroke={Palette.black}
-        strokeWidth={4}
-        fill={Palette.black}
-        fillStyle="zigzag"
-        roughness={3.5}
-        bowing={2}
-        hachureGap={5}
-        seed={42}
-        style={styles.heroSketchy}
-      >
+      <View style={styles.heroCard}>
         <View style={styles.heroContent}>
           <View>
             <ThemedText type="title" style={styles.heroGreeting}>
@@ -195,7 +181,7 @@ export default function HomeScreen() {
           color="rgba(255,255,255,0.05)"
           style={styles.heroBgIcon}
         />
-      </SketchyBox>
+      </View>
 
       {/* Daily Review or Jump Back In */}
       {totalDue > 0 ? (
@@ -203,49 +189,35 @@ export default function HomeScreen() {
           <ThemedText type="subtitle" style={styles.sectionTitle}>
             Daily Review
           </ThemedText>
-          <SketchyBox
-            width={340}
-            height={80}
-            stroke={Palette.black}
-            strokeWidth={3}
-            fill={Palette.white}
-            fillStyle="dots"
-            roughness={2.5}
-            bowing={1.5}
-            hachureGap={4}
-            seed={101}
-            style={styles.resumeSketchy}
+          <Pressable
+            style={styles.resumeCard}
+            onPress={() => {
+              if (currentDeck) {
+                router.push({
+                  pathname: "/deck/learn",
+                  params: {
+                    slug: currentDeck.slug,
+                    title: currentDeck.title,
+                    count: String(currentDeck.count),
+                  },
+                });
+              } else {
+                router.push("/(tabs)/explore");
+              }
+            }}
           >
-            <Pressable
-              style={styles.resumePressable}
-              onPress={() => {
-                if (currentDeck) {
-                  router.push({
-                    pathname: "/deck/learn",
-                    params: {
-                      slug: currentDeck.slug,
-                      title: currentDeck.title,
-                      count: String(currentDeck.count),
-                    },
-                  });
-                } else {
-                  router.push("/(tabs)/explore");
-                }
-              }}
-            >
-              <View style={styles.resumeContent}>
-                <ThemedText style={styles.resumeTitle}>Review Session</ThemedText>
-                <ThemedText style={styles.resumeSub}>
-                  {totalDue} cards due today
-                </ThemedText>
+            <View style={styles.resumeContent}>
+              <ThemedText style={styles.resumeTitle}>Review Session</ThemedText>
+              <ThemedText style={styles.resumeSub}>
+                {totalDue} cards due today
+              </ThemedText>
+            </View>
+            <View style={styles.resumeAction}>
+              <View style={[styles.resumePlayIcon, { position: "relative" }]}>
+                <MaterialIcons name="layers" size={24} color={TEXT} />
               </View>
-              <View style={styles.resumeAction}>
-                <View style={[styles.resumePlayIcon, { position: "relative" }]}>
-                  <MaterialIcons name="layers" size={24} color={TEXT} />
-                </View>
-              </View>
-            </Pressable>
-          </SketchyBox>
+            </View>
+          </Pressable>
         </View>
       ) : (
         currentDeck && (
@@ -253,54 +225,40 @@ export default function HomeScreen() {
             <ThemedText type="subtitle" style={styles.sectionTitle}>
               Jump Back In
             </ThemedText>
-            <SketchyBox
-              width={340}
-              height={80}
-              stroke={Palette.black}
-              strokeWidth={3}
-              fill={Palette.white}
-              fillStyle="dots"
-              roughness={2.5}
-              bowing={1.5}
-              hachureGap={4}
-              seed={202}
-              style={styles.resumeSketchy}
+            <Pressable
+              style={styles.resumeCard}
+              onPress={() =>
+                router.push({
+                  pathname: "/deck/learn",
+                  params: {
+                    slug: currentDeck.slug,
+                    title: currentDeck.title,
+                    count: String(currentDeck.count),
+                  },
+                })
+              }
             >
-              <Pressable
-                style={styles.resumePressable}
-                onPress={() =>
-                  router.push({
-                    pathname: "/deck/learn",
-                    params: {
-                      slug: currentDeck.slug,
-                      title: currentDeck.title,
-                      count: String(currentDeck.count),
-                    },
-                  })
-                }
-              >
-                <View style={styles.resumeContent}>
-                  <ThemedText style={styles.resumeTitle}>
-                    {currentDeck.title}
-                  </ThemedText>
-                  <ThemedText style={styles.resumeSub}>
-                    {currentDeck.count} cards
-                  </ThemedText>
+              <View style={styles.resumeContent}>
+                <ThemedText style={styles.resumeTitle}>
+                  {currentDeck.title}
+                </ThemedText>
+                <ThemedText style={styles.resumeSub}>
+                  {currentDeck.count} cards
+                </ThemedText>
+              </View>
+              <View style={styles.resumeAction}>
+                <ProgressRing
+                  radius={24}
+                  stroke={4}
+                  progress={currentDeck.progress}
+                  color={ACCENT}
+                  trackColor="#E0E0E0"
+                />
+                <View style={styles.resumePlayIcon}>
+                  <MaterialIcons name="play-arrow" size={24} color={TEXT} />
                 </View>
-                <View style={styles.resumeAction}>
-                  <ProgressRing
-                    radius={24}
-                    stroke={4}
-                    progress={currentDeck.progress}
-                    color={ACCENT}
-                    trackColor="#E0E0E0"
-                  />
-                  <View style={styles.resumePlayIcon}>
-                    <MaterialIcons name="play-arrow" size={24} color={TEXT} />
-                  </View>
-                </View>
-              </Pressable>
-            </SketchyBox>
+              </View>
+            </Pressable>
           </View>
         )
       )}
@@ -365,8 +323,14 @@ const styles = StyleSheet.create({
     color: TEXT,
     fontFamily: 'RubikSprayPaint_400Regular',
   },
-  heroSketchy: {
+  heroCard: {
+    backgroundColor: Palette.black,
+    borderRadius: Radii.card,
+    padding: 24,
     marginBottom: 32,
+    overflow: "hidden",
+    borderWidth: Strokes.thick,
+    borderColor: Palette.black,
   },
   heroContent: {
     flexDirection: "row",
@@ -419,8 +383,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     fontFamily: "Outfit_600SemiBold",
   },
-  resumeSketchy: {
-    // no extra styles needed, SketchyBox handles positioning
+  resumeCard: {
+    backgroundColor: Palette.white,
+    borderRadius: Radii.button,
+    borderWidth: Strokes.thick,
+    borderColor: Palette.black,
+    height: 80,
   },
   resumePressable: {
     width: "100%",
@@ -432,6 +400,11 @@ const styles = StyleSheet.create({
   },
   resumeContent: {
     flex: 1,
+    paddingHorizontal: 16,
+    justifyContent: "center",
+    height: "100%",
+    flexDirection: "row",
+    alignItems: "center",
   },
   resumeTitle: {
     fontSize: 18,
@@ -448,6 +421,7 @@ const styles = StyleSheet.create({
     position: "relative",
     alignItems: "center",
     justifyContent: "center",
+    paddingRight: 16,
   },
   resumePlayIcon: {
     position: "absolute",
