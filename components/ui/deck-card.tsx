@@ -69,8 +69,8 @@ export function DeckCard({
     }
   };
 
-  const iconSize = size === 'large' ? 56 : size === 'small' ? 40 : 48;
-  const iconBoxSize = size === 'large' ? 72 : size === 'small' ? 56 : 48;
+  const iconSize = size === 'large' ? 40 : size === 'small' ? 28 : 32;
+  const iconBoxSize = size === 'large' ? 72 : size === 'small' ? 56 : 56;
   const titleSize = size === 'large' ? 22 : size === 'small' ? 14 : 18;
 
   const iconBox: ViewStyle = {
