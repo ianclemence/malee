@@ -5,7 +5,6 @@ import { Tabs, useRouter } from 'expo-router';
 import React from 'react';
 import { Pressable, View } from 'react-native';
 
-import { HapticTab } from '@/components/haptic-tab';
 import { Palette, Strokes } from '@/constants/theme';
 
 export default function TabLayout() {
@@ -18,7 +17,7 @@ export default function TabLayout() {
           tabBarActiveTintColor: Palette.primary,
           tabBarInactiveTintColor: '#FFFFFF',
           headerShown: false,
-          tabBarButton: HapticTab,
+          tabBarButton: (props) => <Pressable {...props} />,
           tabBarStyle: { backgroundColor: '#000000', borderTopWidth: 0, elevation: 0, justifyContent: 'space-between', height: 72 },
           tabBarBackground: () => <View style={{ backgroundColor: '#000000' }} />,
         }}
