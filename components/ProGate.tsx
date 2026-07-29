@@ -26,7 +26,7 @@ const FEATURE_CONFIG = {
     desc: "Upgrade to Pro for advanced analytics",
   },
   badges: {
-    icon: "workspace-premium",
+    icon: "ribbon",
     title: "Pro Feature",
     desc: "Upgrade to Pro to earn badges",
   },
