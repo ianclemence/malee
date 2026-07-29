@@ -269,6 +269,7 @@ export default function SettingsScreen() {
           <ThemedText type="subtitle" style={styles.sectionTitle}>
             Badges
           </ThemedText>
+          {isPro ? (
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -298,6 +299,11 @@ export default function SettingsScreen() {
               );
             })}
           </ScrollView>
+          ) : (
+            <ProGate feature="stats">
+              <View style={{ height: 60 }} />
+            </ProGate>
+          )}
         </View>
 
         {/* Preferences */}

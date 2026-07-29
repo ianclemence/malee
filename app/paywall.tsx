@@ -82,7 +82,6 @@ export default function PaywallScreen() {
                   onPress={() => handlePurchase(annual)}
                 >
                   <View style={styles.priceTag}>
-                    <Text style={styles.priceCurrency}>$</Text>
                     <Text style={styles.priceValue}>{annual.product.priceString}</Text>
                   </View>
                   <ThemedText style={styles.priceLabel}>per year</ThemedText>
@@ -99,7 +98,6 @@ export default function PaywallScreen() {
                   onPress={() => handlePurchase(monthly)}
                 >
                   <View style={styles.priceTag}>
-                    <Text style={styles.priceCurrency}>$</Text>
                     <Text style={styles.priceValue}>{monthly.product.priceString}</Text>
                   </View>
                   <ThemedText style={styles.priceLabel}>per month</ThemedText>
@@ -112,8 +110,7 @@ export default function PaywallScreen() {
                   onPress={() => handlePurchase(packages[0])}
                 >
                   <View style={styles.priceTag}>
-                    <Text style={styles.priceCurrency}>$</Text>
-                    <Text style={styles.priceValue}>{packages[0]?.product.priceString || "4.99"}</Text>
+                    <Text style={styles.priceValue}>{packages[0]?.product.priceString || "$4.99"}</Text>
                   </View>
                   <ThemedText style={styles.priceLabel}>one-time</ThemedText>
                 </Pressable>
@@ -179,6 +176,7 @@ const styles = StyleSheet.create({
     color: TEXT,
     marginBottom: 8,
     fontFamily: "Outfit_700Bold",
+    lineHeight: 48,
   },
   subtitle: {
     fontSize: FontSizes.body,
@@ -243,12 +241,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-start",
     marginBottom: 4,
-  },
-  priceCurrency: {
-    fontSize: FontSizes.body,
-    color: TEXT,
-    marginTop: 4,
-    fontFamily: "Outfit_700Bold",
   },
   priceValue: {
     fontSize: 48,
