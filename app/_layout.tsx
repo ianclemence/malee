@@ -7,6 +7,7 @@ import { Inter_700Bold } from '@expo-google-fonts/inter/700Bold';
 import { PlayfairDisplay_500Medium } from '@expo-google-fonts/playfair-display/500Medium';
 import { PlayfairDisplay_600SemiBold } from '@expo-google-fonts/playfair-display/600SemiBold';
 import { PlayfairDisplay_700Bold } from '@expo-google-fonts/playfair-display/700Bold';
+import { RubikSprayPaint_400Regular } from '@expo-google-fonts/rubik-spray-paint';
 import { DarkTheme, DefaultTheme, ThemeProvider } from "expo-router/react-navigation";
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
@@ -30,6 +31,7 @@ export default function RootLayout() {
     PlayfairDisplay_500Medium,
     PlayfairDisplay_600SemiBold,
     PlayfairDisplay_700Bold,
+    RubikSprayPaint_400Regular,
   });
 
   useEffect(() => {

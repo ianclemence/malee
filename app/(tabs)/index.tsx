@@ -322,6 +322,7 @@ const styles = StyleSheet.create({
   },
   logo: {
     color: TEXT,
+    fontFamily: 'RubikSprayPaint_400Regular',
   },
   hero: {
     backgroundColor: TEXT,
