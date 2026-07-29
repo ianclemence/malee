@@ -55,6 +55,7 @@ import {
   View,
 } from "react-native";
 import Animated, {
+  FadeIn,
   interpolate,
   useAnimatedStyle,
   useSharedValue,
@@ -129,6 +130,14 @@ export default function LearnScreen() {
   // Speech recognition state
   const [score, setScore] = useState<PronunciationResult | null>(null);
   const [isScoring, setIsScoring] = useState(false);
+  const animatedScore = useSharedValue(0);
+
+  useEffect(() => {
+    if (score && !isScoring) {
+      animatedScore.value = 0;
+      animatedScore.value = withTiming(score.score, { duration: 600 });
+    }
+  }, [score, isScoring]);
 
   // Audio Recording State - using expo-audio
   const audioRecorder = useAudioRecorder(SPEECH_RECORDING_OPTIONS);
@@ -622,21 +631,29 @@ export default function LearnScreen() {
         ]}
       >
         <Confetti />
-        <Text style={{ fontSize: 64 }}>🎊</Text>
-        <Text
-          style={[
-            styles.doneText,
-            { fontFamily: "PlayfairDisplay_600SemiBold" },
-          ]}
-        >
-          All caught up!
-        </Text>
-        <Text style={styles.doneSubText}>
-          Come back later for more reviews.
-        </Text>
-        <Pressable style={styles.backBtn} onPress={() => router.back()}>
-          <Text style={styles.backBtnText}>Back to Decks</Text>
-        </Pressable>
+        <Animated.View entering={FadeIn.duration(300)}>
+          <Text style={{ fontSize: 64 }}>🎊</Text>
+        </Animated.View>
+        <Animated.View entering={FadeIn.delay(200).duration(300).springify()}>
+          <Text
+            style={[
+              styles.doneText,
+              { fontFamily: "PlayfairDisplay_600SemiBold" },
+            ]}
+          >
+            All caught up!
+          </Text>
+        </Animated.View>
+        <Animated.View entering={FadeIn.delay(350).duration(300)}>
+          <Text style={styles.doneSubText}>
+            Come back later for more reviews.
+          </Text>
+        </Animated.View>
+        <Animated.View entering={FadeIn.delay(500).duration(300)}>
+          <Pressable style={styles.backBtn} onPress={() => router.back()}>
+            <Text style={styles.backBtnText}>Back to Decks</Text>
+          </Pressable>
+        </Animated.View>
       </View>
     );
   }
@@ -771,7 +788,7 @@ export default function LearnScreen() {
                       },
                     ]}
                   >
-                    {Math.round(score.score)}%
+                    {`${Math.round(interpolate(animatedScore.value, [0, 100], [0, score.score]))}%`}
                   </ThemedText>
                   {score.breakdown && (
                     <View
@@ -785,8 +802,9 @@ export default function LearnScreen() {
                       }}
                     >
                       {score.breakdown.map((part, i) => (
-                        <View
+                        <Animated.View
                           key={i}
+                          entering={FadeIn.delay(300 + i * 60).springify()}
                           style={{
                             alignItems: "center",
                             paddingHorizontal: 16,
@@ -815,7 +833,7 @@ export default function LearnScreen() {
                           >
                             {part.part}
                           </ThemedText>
-                        </View>
+                        </Animated.View>
                       ))}
                     </View>
                   )}

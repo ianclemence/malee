@@ -1,4 +1,5 @@
 import { ThemedText } from '@/components/themed-text';
+import { useToast } from '@/components/ui/toast-context';
 import { FontSizes, Palette, Radii, Shadows, Strokes } from '@/constants/theme';
 import { addWordToCustomDeck, CustomDeck, getCustomDecks, saveCustomDeck } from "@/lib/storage";
 import { useFocusEffect, useRouter } from "expo-router";
@@ -19,6 +20,7 @@ const BG = Palette.cream;
 
 export default function AddWordScreen() {
   const router = useRouter();
+  const { showToast } = useToast();
   const [word, setWord] = useState("");
   const [translation, setTranslation] = useState("");
 
@@ -97,26 +99,10 @@ export default function AddWordScreen() {
       th: translation,
     });
 
-    Alert.alert("Success", "Word added to deck!", [
-      {
-        text: "Add Another",
-        onPress: () => {
-          setWord("");
-          setTranslation("");
-          setNewDeckName("");
-          // Keep the selected deck for convenience
-        }
-      },
-      {
-        text: "Done",
-        onPress: () => {
-          setWord("");
-          setTranslation("");
-          setNewDeckName("");
-          router.back();
-        }
-      }
-    ]);
+    showToast("Word added!", "success");
+    setWord("");
+    setTranslation("");
+    setNewDeckName("");
   };
 
   return (

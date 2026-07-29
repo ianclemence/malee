@@ -17,6 +17,7 @@ import { Image } from "expo-image";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import Animated, { FadeIn } from "react-native-reanimated";
 
 const TEXT = Palette.black;
 const BG = Palette.cream;
@@ -156,7 +157,17 @@ export default function DecksScreen() {
 
       {visibleDecks.length === 0 && (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyText}>No decks found</Text>
+          <Animated.View entering={FadeIn.duration(400).springify()}>
+            <MaterialIcons
+              name="search-off"
+              size={48}
+              color={Palette.black}
+              style={{ opacity: 0.3, alignSelf: 'center' }}
+            />
+          </Animated.View>
+          <Animated.View entering={FadeIn.delay(200).duration(400)}>
+            <Text style={styles.emptyText}>No decks found</Text>
+          </Animated.View>
         </View>
       )}
     </ScrollView>
