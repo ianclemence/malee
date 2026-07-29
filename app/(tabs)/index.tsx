@@ -263,45 +263,46 @@ export default function HomeScreen() {
         )
       )}
 
-      {/* Picked by Malee - Horizontal Scroll */}
+      {/* Picked by Malee - Bento Grid */}
       <View style={styles.section}>
         <ThemedText type="subtitle" style={styles.sectionTitle}>
           Picked by Malee
         </ThemedText>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.horizontalScroll}
-        >
-          {picked.map((d, i) => (
-            <DeckCard
-              key={d.slug}
-              index={i}
-              title={d.title}
-              icon={d.icon as any}
-              count={d.count}
-              favorited={!!favorites[d.slug]}
-              variant="horizontal"
-              backgroundColor={d.bg}
-              onPress={() =>
-                router.push({
-                  pathname: "/deck/[slug]",
-                  params: {
-                    slug: d.slug,
-                    title: d.title,
-                    count: String(d.count),
-                  },
-                })
-              }
-              onToggleFavorite={(e) => {
-                e?.stopPropagation?.();
-                const next = !favorites[d.slug];
-                setFavorites((p) => ({ ...p, [d.slug]: next }));
-                setFavorite(d.slug, next);
-              }}
-            />
-          ))}
-        </ScrollView>
+        <View style={styles.bentoGrid}>
+          {picked.map((d, i) => {
+            const isLarge = i % 3 === 0;
+            return (
+              <DeckCard
+                key={d.slug}
+                index={i}
+                title={d.title}
+                icon={d.icon as any}
+                count={d.count}
+                favorited={!!favorites[d.slug]}
+                variant="grid"
+                size={isLarge ? 'large' : 'medium'}
+                backgroundColor={d.bg}
+                style={isLarge ? { width: '100%' } : { width: '48%' }}
+                onPress={() =>
+                  router.push({
+                    pathname: "/deck/[slug]",
+                    params: {
+                      slug: d.slug,
+                      title: d.title,
+                      count: String(d.count),
+                    },
+                  })
+                }
+                onToggleFavorite={(e) => {
+                  e?.stopPropagation?.();
+                  const next = !favorites[d.slug];
+                  setFavorites((p) => ({ ...p, [d.slug]: next }));
+                  setFavorite(d.slug, next);
+                }}
+              />
+            );
+          })}
+        </View>
       </View>
     </ScrollView>
   );
@@ -420,5 +421,10 @@ const styles = StyleSheet.create({
   horizontalScroll: {
     paddingRight: 16,
     gap: 16,
+  },
+  bentoGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
   },
 });
