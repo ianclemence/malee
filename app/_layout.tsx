@@ -38,13 +38,19 @@ export default function RootLayout() {
     // Initialize RevenueCat
     Purchases.setLogLevel(LOG_LEVEL.WARN);
 
+    // Test Store key is used during development (works for both platforms).
+    // Fall back to the platform-specific production keys once stores are connected.
+    const testStoreKey = process.env.EXPO_PUBLIC_REVENUECAT_TEST_STORE_API_KEY;
+    const androidKey = process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY;
+    const iosKey = process.env.EXPO_PUBLIC_REVENUECAT_IOS_API_KEY;
+
     if (Platform.OS === 'android') {
       Purchases.configure({
-        apiKey: process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY ?? '',
+        apiKey: testStoreKey || androidKey || '',
       });
     } else if (Platform.OS === 'ios') {
       Purchases.configure({
-        apiKey: process.env.EXPO_PUBLIC_REVENUECAT_IOS_API_KEY ?? '',
+        apiKey: testStoreKey || iosKey || '',
       });
     }
   }, []);
